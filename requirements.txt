@@ -1,0 +1,17 @@
+# 新闻推送脚本依赖包
+# 安装方法：在终端运行 pip install -r requirements.txt
+
+# HTTP请求库
+requests>=2.31.0
+
+# 环境变量管理
+python-dotenv>=1.0.0
+
+# Tavily搜索客户端
+tavily-python>=0.3.0
+
+# OpenAI兼容的API客户端（用于DeepSeek）
+openai>=1.0.0
+
+# 日期时间处理
+python-dateutil>=2.8.2

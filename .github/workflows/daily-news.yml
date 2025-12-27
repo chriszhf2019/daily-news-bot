@@ -1,0 +1,60 @@
+name: 每日新闻推送
+
+# 触发条件：每天早上 9 点准时运行
+on:
+  schedule:
+    # cron 表达式：分 时 日 月 周
+    # 0 9 * * * 表示每天 9 点 0 分运行
+    - cron: '0 9 * * *'
+  
+  # 手动触发（可以在 GitHub Actions 页面手动运行）
+  workflow_dispatch:
+  
+  # 当代码推送到 main 分支时运行
+  push:
+    branches: [ main ]
+
+jobs:
+  daily-news:
+    runs-on: ubuntu-latest  # 使用 Ubuntu 最新版作为运行环境
+    
+    steps:
+      # 步骤 1：检出代码
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      # 步骤 2：设置 Python 环境
+      - name: 设置 Python 3.x
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'  # 使用 Python 3.9
+          cache: 'pip'  # 缓存 pip 依赖，加速运行
+      
+      # 步骤 3：安装依赖包
+      - name: 安装 Python 依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      # 步骤 4：运行新闻推送脚本
+      - name: 运行每日新闻推送
+        env:
+          # 从 GitHub Secrets 读取 API 密钥（安全方式）
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          # 微信测试号配置
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
+          WECHAT_OPENID: ${{ secrets.WECHAT_OPENID }}
+          WECHAT_TEMPLATE_ID: ${{ secrets.WECHAT_TEMPLATE_ID }}
+        run: |
+          python app.py
+        continue-on-error: true  # 即使失败也继续（不会阻断其他工作流）
+      
+      # 步骤 5：添加注释说明（可选）
+      - name: 完成提示
+        if: always()
+        run: |
+          echo "✅ GitHub Actions 自动运行完成"
+          echo "📱 请检查微信是否收到新闻简报"
+          echo "💡 如需查看运行日志，请访问 GitHub Actions 页面"
