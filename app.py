@@ -342,43 +342,33 @@ def send_to_wechat_via_wechat(config, summary):
         send_url = f"https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={access_token}"
         
         # 准备模板数据
-        # 微信模板消息格式有限制，我们截取部分内容
+        # 使用更简单的格式，确保内容能显示
         first_line = "📰 今日新闻简报已生成"
         
-        # 提取关键内容（微信模板消息有长度限制）
-        summary_lines = summary.split('\n')
-        keyword1 = ""
-        keyword2 = ""
+        # 提取内容（去除markdown格式）
+        # 清理summary中的特殊字符
+        clean_summary = summary.replace('**', '').replace('*', '').replace('#', '').strip()
         
-        # 收集前几行作为关键词
-        for line in summary_lines:
-            if line.strip() and not line.startswith('---') and not line.startswith('*'):
-                if not keyword1:
-                    keyword1 = line[:20]  # 限制长度
-                elif not keyword2 and line.startswith('###'):
-                    keyword2 = line.replace('###', '').strip()[:20]
-                elif not keyword2:
-                    keyword2 = line[:20]
-        
+        # 微信模板消息格式
         template_data = {
             "touser": config["wechat_openid"],
             "template_id": config["wechat_template_id"],
-            "url": "",  # 可以设置点击跳转的链接
+            "url": "",
             "data": {
                 "first": {
                     "value": first_line,
                     "color": "#173177"
                 },
                 "keyword1": {
-                    "value": keyword1 or "全球hots + AI动态",
+                    "value": "每日新闻摘要",
                     "color": "#173177"
                 },
                 "keyword2": {
-                    "value": keyword2 or datetime.now().strftime('%Y-%m-%d'),
+                    "value": datetime.now().strftime('%Y-%m-%d'),
                     "color": "#173177"
                 },
                 "remark": {
-                    "value": "\n点击查看完整新闻简报\n\n" + summary[:200] + "...",
+                    "value": clean_summary,
                     "color": "#666666"
                 }
             }
