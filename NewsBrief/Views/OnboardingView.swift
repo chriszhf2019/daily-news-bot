@@ -39,7 +39,7 @@ struct OnboardingView: View {
     }
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topTrailing) {
             // 背景
             LinearGradient(
                 gradient: Gradient(colors: [Color(hex: "0F172A"), Color(hex: "1E293B")]),
@@ -47,6 +47,18 @@ struct OnboardingView: View {
                 endPoint: .bottom
             )
             .ignoresSafeArea()
+            // 跳过按钮，符合苹果风格的简洁退出选项
+            Button(action: {
+                completeOnboarding()
+            }) {
+                Text("跳过")
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+            }
+            .padding(.top, 8)
+            .padding(.trailing, 12)
             
             // 内容
             VStack {
@@ -177,19 +189,19 @@ struct BrandOnboardingPage: View {
         VStack(spacing: 32) {
             // Logo
             Image(systemName: "brain.circle.fill")
-                .font(.system(size: 120))
+                .font(.system(size: 96))
                 .foregroundColor(Color(hex: "3B82F6"))
-                .shadow(color: Color(hex: "3B82F6").opacity(0.5), radius: 20, x: 0, y: 0)
+                .shadow(color: Color(hex: "3B82F6").opacity(0.5), radius: 16, x: 0, y: 0)
             
             // 品牌名称和标语
-            VStack(spacing: 16) {
+            VStack(spacing: 8) {
                 Text("点透")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.system(size: 42, weight: .bold, design: .default))
                     .foregroundColor(.white)
                 
                 Text("你的私人情报局")
-                    .font(.system(size: 20, design: .rounded))
-                    .foregroundColor(.white.opacity(0.8))
+                    .font(.title3)
+                    .foregroundColor(.white.opacity(0.9))
             }
             
             // 简介
