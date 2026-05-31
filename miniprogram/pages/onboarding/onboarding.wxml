@@ -115,10 +115,10 @@
 
   <!-- 底部按钮 -->
   <view class="bottom-actions">
-    <view class="btn-prev" wx:if="{{currentStep > 1 && currentStep < 4}}" bindtap="prevStep">上一步</view>
-    <view class="btn-next" wx:if="{{currentStep < 4}}" bindtap="nextStep">
+    <view class="btn-prev" wx:if="{{currentStep > 1 && currentStep < 4}}" catchtap="prevStep">上一步</view>
+    <view class="btn-next" wx:if="{{currentStep < 4}}" catchtap="nextStep">
       {{currentStep === 1 ? '开始定制' : '下一步'}}
     </view>
-    <view class="btn-next finish" wx:if="{{currentStep === 4}}" bindtap="finish">开始使用</view>
+    <view class="btn-next finish" wx:if="{{currentStep === 4}}" catchtap="finish">开始使用</view>
   </view>
 </view>
