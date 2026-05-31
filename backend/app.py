@@ -900,6 +900,33 @@ def daily_stats():
         }})
 
 
+# ---- AI 代理（小程序/前端统一走这里，不暴露 Key）----
+
+@app.route("/api/v1/ai/ask", methods=["POST"])
+@limit(max_requests=20, per_seconds=60)
+def ai_proxy():
+    """通用 AI 代理 — 小程序/Web 调用 DeepSeek 统一走这里"""
+    data = request.get_json()
+    prompt = (data or {}).get("prompt", "")
+    system = (data or {}).get("system", "你是一个专业的AI助手。")
+    if not prompt:
+        raise APIError("prompt 不能为空")
+
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url="https://api.deepseek.com")
+        resp = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": prompt}],
+            max_tokens=min((data or {}).get("max_tokens", 1000), 2000),
+            temperature=(data or {}).get("temperature", 0.5),
+        )
+        return jsonify({"success": True, "data": {"content": resp.choices[0].message.content}})
+    except Exception as e:
+        logger.warning(f"AI代理失败: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
 # ---- Admin ----
 
 @app.route("/api/v1/admin/users", methods=["GET"])

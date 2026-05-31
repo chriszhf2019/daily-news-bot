@@ -128,27 +128,18 @@ function generate(news, pageInstance) {
 
     // 如果缺少 AI 分析，先快速生成
     if (!news.ai_analysis?.interpretation && pageInstance) {
-      const apiKey = wx.getStorageSync('deepseek_api_key')
-      if (!apiKey) { doGenerate(); return }
-      wx.request({
-        url: 'https://api.deepseek.com/chat/completions',
-        method: 'POST',
-        header: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-        data: {
-          model: 'deepseek-chat', temperature: 0.5, max_tokens: 500,
-          messages: [{ role: 'user', content: `分析这条新闻，返回JSON：{"interpretation":"30字解读","prediction":"20字预测"}\n\n${news.title}` }]
-        },
-        success: (resp) => {
+      const { ai } = require('../../utils/api')
+      ai.ask(news.title, '分析新闻返回JSON：{"interpretation":"30字解读","prediction":"20字预测"}。只输出JSON。', { max_tokens: 500, temperature: 0.5 })
+        .then(res => {
           try {
-            let t = resp.data.choices[0].message.content
+            let t = res.data?.content || ''
             if (t.startsWith('```')) t = t.split('```')[1].replace('json', '')
             const r = JSON.parse(t)
             news.ai_analysis = { ...news.ai_analysis, interpretation: r.interpretation, prediction: r.prediction }
           } catch (e) {}
           doGenerate()
-        },
-        fail: doGenerate
-      })
+        })
+        .catch(() => doGenerate())
     } else {
       doGenerate()
     }

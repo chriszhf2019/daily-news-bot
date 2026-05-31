@@ -214,32 +214,17 @@ Page({
 
   // AI战略顾问 — 真实 DeepSeek 回答
   async getAIAdvisorResponse(prompt) {
-    const apiKey = wx.getStorageSync('deepseek_api_key') || ''
-    const dash = this.data.dash
-
-    // 构建真实数据上下文
+    const { ai } = require('../../utils/api')
+    const d = this.data.dash
     const ctx = [
-      `今日市场乐观度: ${dash.optimism.score}% (积极${dash.optimism.positive} 中立${dash.optimism.neutral} 消极${dash.optimism.negative})`,
-      `政策敏感度: ${dash.policy_sensitivity}%, 技术突破点: ${dash.tech_breakthrough}%`,
-      `重要信号: ${(dash.tomorrow_watch || []).map(w => w.event).join('; ') || '暂无'}`,
-      `盲区: ${(dash.blind_spots || []).map(b => b.title).join('; ') || '暂无'}`,
-      `新闻总数: ${dash.total_news}`,
+      `市场乐观度: ${d.optimism.score}% (积极${d.optimism.positive} 中立${d.optimism.neutral} 消极${d.optimism.negative})`,
+      `政策敏感度: ${d.policy_sensitivity}%, 技术突破: ${d.tech_breakthrough}%`,
+      `重要信号: ${(d.tomorrow_watch || []).map(w => w.event).join('; ') || '暂无'}`,
     ].join('\n')
-
-    const resp = await new Promise((resolve, reject) => {
-      wx.request({
-        url: 'https://api.deepseek.com/chat/completions',
-        method: 'POST',
-        header: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-        data: { model: 'deepseek-chat', max_tokens: 600, temperature: 0.5,
-          messages: [
-            { role: 'system', content: '你是基于实时数据的AI战略顾问。根据提供的今日情报数据，回答用户问题。回答简洁有力，分点作答，每点引用具体数据。' },
-            { role: 'user', content: `今日情报数据:\n${ctx}\n\n用户问题: ${prompt}` }
-          ]},
-        success: resolve, fail: reject
-      })
-    })
-    return resp.data.choices[0].message.content
+    try {
+      const res = await ai.ask(`${ctx}\n\n用户问题: ${prompt}`, '你是基于实时数据的AI战略顾问。回答简洁有力，分点作答。', { max_tokens: 600 })
+      return res.data?.content || '分析失败'
+    } catch (e) { return 'AI分析失败，请重试' }
   },
 
   // 追踪事件

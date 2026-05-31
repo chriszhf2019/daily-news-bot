@@ -444,27 +444,15 @@ Page({
     const needAI = news.filter(n => !n.ai_analysis || !n.ai_analysis.interpretation)
     if (!needAI.length) return
 
-    const apiKey = wx.getStorageSync('deepseek_api_key')
-    if (!apiKey) return
     try {
+      const { ai } = require('../../utils/api')
       const titles = needAI.map((n, i) => `${i+1}. ${n.title}`).join('\n')
-      const resp = await new Promise((resolve, reject) => {
-        wx.request({
-          url: 'https://api.deepseek.com/chat/completions',
-          method: 'POST',
-          header: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-          data: {
-            model: 'deepseek-chat', temperature: 0.5, max_tokens: 2500,
-            messages: [{ role: 'user', content: `分析以下新闻，每条生成：interpretation(30字深度解读)和prediction(20字趋势预测)。返回JSON数组。
-
-${titles}
-
-格式：[{"index":1,"interpretation":"...","prediction":"..."}]` }]
-          },
-          success: resolve, fail: reject
-        })
-      })
-      let text = resp.data.choices[0].message.content
+      const res = await ai.ask(
+        `分析以下新闻，每条生成：interpretation(30字深度解读)和prediction(20字趋势预测)。返回JSON数组。\n\n${titles}\n\n格式：[{"index":1,"interpretation":"...","prediction":"..."}]`,
+        '你是专业新闻分析师。只输出JSON。',
+        { max_tokens: 2500, temperature: 0.5 }
+      )
+      let text = res.data?.content || ''
       if (text.startsWith('```')) text = text.split('```')[1].replace('json', '')
       const results = JSON.parse(text)
 

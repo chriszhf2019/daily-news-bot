@@ -95,4 +95,10 @@ const focus = {
   remove: (id) => request(`/user/focus/${id}`, { method: 'DELETE' }),
 }
 
-module.exports = { setToken, getToken, auth, news, analysis, favorites, focus }
+// AI 代理 — 通过后端调用 DeepSeek，不需要用户配 Key
+const ai = {
+  ask: (prompt, system, opts = {}) =>
+    request('/ai/ask', { method: 'POST', body: JSON.stringify({ prompt, system, ...opts }) }),
+}
+
+module.exports = { setToken, getToken, auth, news, analysis, favorites, focus, ai }
