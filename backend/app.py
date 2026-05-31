@@ -752,6 +752,17 @@ def intelligence_dashboard():
             hourly[h] = hourly.get(h, 0) + 1
         heatmap = [{"hour": h, "count": hourly.get(h, 0)} for h in range(24)]
 
+        # 6. 明日关注 — DeepSeek 预测明天关键看点
+        tomorrow_watch = []
+        if DEEPSEEK_API_KEY and summary and summary.signal_news:
+            try:
+                signals_text = json.dumps(summary.signal_news, ensure_ascii=False)[:800]
+                prompt = f"基于今天的重要信号，预测明天（{ (datetime.utcnow() + timedelta(days=1)).strftime('%m月%d日') }）最值得关注的3-5个事件。返回JSON数组：[{{\"event\":\"事件名\",\"reason\":\"为什么关注\",\"category\":\"分类\"}}]。\n\n今日信号：{signals_text}\n\n只输出JSON。"
+                result = _call_deepseek(prompt, max_tokens=500)
+                tomorrow_watch = result if isinstance(result, list) else []
+            except Exception as e:
+                logger.warning(f"明日关注生成失败: {e}")
+
         return jsonify({"success": True, "data": {
             "optimism": sentiment_detail,
             "policy_sensitivity": policy_sensitivity,
@@ -759,6 +770,7 @@ def intelligence_dashboard():
             "source_density": density,
             "heatmap": heatmap,
             "total_news": total,
+            "tomorrow_watch": tomorrow_watch,
         }})
 
 

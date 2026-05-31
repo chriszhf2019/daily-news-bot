@@ -1157,3 +1157,12 @@
 /* 底部统计 */
 .stats-footer { text-align: center; padding: 24rpx; }
 .stats-text { font-size: 22rpx; color: rgba(255,255,255,0.35); }
+
+/* 明日关注 */
+.tomorrow-section { margin: 24rpx; padding: 24rpx; background: rgba(99,102,241,0.08); border-radius: 16rpx; border: 1rpx solid rgba(99,102,241,0.15); }
+.tomorrow-list { display: flex; flex-direction: column; gap: 16rpx; margin-top: 12rpx; }
+.tomorrow-item { display: flex; gap: 12rpx; }
+.t-badge { font-size: 20rpx; background: rgba(99,102,241,0.3); color: #a5b4fc; padding: 2rpx 10rpx; border-radius: 8rpx; flex-shrink: 0; margin-top: 2rpx; }
+.t-content { flex: 1; }
+.t-event { font-size: 26rpx; color: #e2e8f0; display: block; font-weight: 500; }
+.t-reason { font-size: 22rpx; color: rgba(255,255,255,0.45); display: block; margin-top: 4rpx; }

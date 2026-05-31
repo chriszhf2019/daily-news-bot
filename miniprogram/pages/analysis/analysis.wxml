@@ -107,6 +107,20 @@
       </view>
     </view>
 
+    <!-- 明日关注 -->
+    <view class="tomorrow-section" wx:if="{{dash.tomorrow_watch.length > 0}}">
+      <text class="detail-label">🔔 明日关注</text>
+      <view class="tomorrow-list">
+        <view class="tomorrow-item" wx:for="{{dash.tomorrow_watch}}" wx:key="event">
+          <text class="t-badge">{{item.category || '综合'}}</text>
+          <view class="t-content">
+            <text class="t-event">{{item.event}}</text>
+            <text class="t-reason">{{item.reason}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
     <!-- 新闻总数 -->
     <view class="stats-footer">
       <text class="stats-text">总计 {{dash.total_news}} 条新闻 · 实时数据</text>
