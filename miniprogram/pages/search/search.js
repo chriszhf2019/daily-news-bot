@@ -440,18 +440,8 @@ Page({
     }, 1500);
   },
 
-  // 模拟语音识别
+  // 语音识别（需微信插件支持）
   simulateVoiceRecognition() {
-    const keywords = [
-      'GPT-5最新进展',
-      'AI Agent技术',
-      '量子计算突破',
-      '新能源汽车市场',
-      '芯片行业分析',
-      '元宇宙发展',
-      '区块链应用',
-      '生物医药创新'
-    ];
-    return keywords[Math.floor(Math.random() * keywords.length)];
+    return ''; // 生产环境接入微信同声传译插件
   }
 });

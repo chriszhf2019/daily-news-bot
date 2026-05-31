@@ -39,11 +39,6 @@ Page({
         readLaterIds.includes(n.id) || n.isReadLater
       );
       
-      // 如果没有数据，使用模拟数据
-      if (readLaterList.length === 0) {
-        readLaterList = this.getMockReadLaterList();
-      }
-      
       // 添加额外属性
       readLaterList = readLaterList.map((item, index) => ({
         ...item,
@@ -84,41 +79,14 @@ Page({
     }
   },
 
-  getMockReadLaterList() {
-    return [
-      {
-        id: 101,
-        title: 'DeepSeek-V3 开源：中国大模型的新里程碑',
-        category: 'AI',
-        summary: 'DeepSeek发布V3版本，671B参数规模，推理成本降低90%，性能媲美GPT-4。',
-        source: 'DeepSeek官方',
-        published_at: '2026-02-28 09:00',
-        tags: ['AI', '大模型', '开源']
-      },
-      {
-        id: 102,
-        title: '苹果Vision Pro 2代曝光：更轻薄，价格更亲民',
-        category: 'tech',
-        summary: '苹果计划在2026年下半年发布Vision Pro二代，重量减轻30%，售价降至2499美元。',
-        source: 'The Information',
-        published_at: '2026-02-28 10:30',
-        tags: ['苹果', 'VR', 'Vision Pro']
-      },
-      {
-        id: 103,
-        title: '比亚迪2月销量突破40万辆，同比增长120%',
-        category: 'tech',
-        summary: '比亚迪2月新能源汽车销量达40.2万辆，连续12个月保持全球第一。',
-        source: '比亚迪官方',
-        published_at: '2026-02-27 14:00',
-        tags: ['比亚迪', '新能源', '汽车']
-      }
-    ];
-  },
-
-  getRelativeTime(index) {
-    const times = ['刚刚', '10分钟前', '1小时前', '今天', '昨天', '2天前'];
-    return times[index % times.length];
+  getRelativeTime(date) {
+    const now = Date.now();
+    const diff = now - new Date(date).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins || 1}分钟前`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}小时前`;
+    return `${Math.floor(hours / 24)}天前`;
   },
 
   // 搜索
