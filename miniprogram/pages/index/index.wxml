@@ -261,7 +261,7 @@
               <text class="card-icon">{{news.icon}}</text>
             </view>
             <view class="card-title-wrap">
-              <text class="card-title">{{news.title}}</text>
+              <text class="card-title">{{news.title_cn || news.title}}</text>
               <view class="card-meta">
                 <text class="card-source">{{news.source}}</text>
                 <text class="card-time">{{news.published_at}}</text>
@@ -287,7 +287,7 @@
 
         <!-- 摘要 -->
         <view class="standard-summary">
-          <text>{{news.summary}}</text>
+          <text>{{news.summary_cn || news.summary}}</text>
         </view>
 
         <!-- 标签 -->
@@ -355,7 +355,7 @@
         <view class="card-header">
           <text class="card-icon">{{news.categoryIcon}}</text>
           <view class="card-title-wrap">
-            <text class="card-title">{{news.title}}</text>
+            <text class="card-title">{{news.title_cn || news.title}}</text>
             <view class="card-tags">
               <block wx:for="{{news.tags}}" wx:for-item="tag" wx:key="*this">
                 <text class="card-tag" wx:if="{{index < 2}}">{{tag}}</text>
@@ -433,7 +433,7 @@
       <view class="digest-item card-enter" wx:for="{{displayedNews}}" wx:for-item="news" wx:key="id" id="news-{{news.id}}" style="animation-delay: {{index * 0.1}}s;">
         <view class="digest-dot" style="background: {{news.categoryColor}}"></view>
         <view class="digest-content" bindtap="showNewsDetail" data-id="{{news.id}}">
-          <text class="digest-title">⚡ {{news.title}}</text>
+          <text class="digest-title">⚡ {{news.title_cn || news.title}}</text>
           <text class="digest-summary">{{news.dehydrated || news.summary}}</text>
           <!-- 简化时间轴 -->
           <view class="digest-timeline" wx:if="{{news.timeline && news.timeline.length > 0}}">

@@ -30,8 +30,11 @@ export default function NewsCard({ news, onAnalyze }) {
         <span className={`text-2xl p-2 rounded-lg ${config.bg}`}>{config.icon}</span>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-slate-100 line-clamp-2 leading-snug">
-            {news.title}
+            {news.title_cn || news.title}
           </h3>
+          {news.title_cn && (
+            <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{news.title}</p>
+          )}
           <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-500">
             <span>{news.source}</span>
             <span>•</span>
@@ -42,7 +45,7 @@ export default function NewsCard({ news, onAnalyze }) {
       
       {/* 摘要 */}
       <p className="text-sm text-slate-400 line-clamp-2 mb-3">
-        {news.summary}
+        {news.summary_cn || news.summary}
       </p>
       
       {/* 标签 */}
