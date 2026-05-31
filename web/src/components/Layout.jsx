@@ -2,7 +2,7 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 
 const navItems = [
-  { path: '/', label: '今日情报', icon: '📰' },
+  { path: '/', label: '首页', icon: '📰' },
   { path: '/settings', label: '设置', icon: '⚙️' }
 ]
 
@@ -55,7 +55,7 @@ export default function Layout() {
         {sidebarOpen && (
           <div className="p-4 border-t border-slate-700/50">
             <div className="text-xs text-slate-500">
-              <p>智能情报简报系统</p>
+              <p>NewsBrief · 智能情报</p>
               <p className="mt-1">v1.0.0</p>
             </div>
           </div>

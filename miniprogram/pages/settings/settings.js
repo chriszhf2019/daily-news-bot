@@ -1155,7 +1155,7 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: '新闻简报 - 你的私人智库',
+      title: 'NewsBrief - AI智能情报',
       path: '/pages/index/index'
     }
   },
@@ -1292,7 +1292,7 @@ Page({
   showAbout() {
     wx.showModal({
       title: '关于新闻简报',
-      content: '新闻简报 v1.0.0\n\n你的私人智库，为你提供个性化的新闻资讯和AI分析。\n\n功能特点：\n• 个性化新闻推荐\n• AI情报官人设\n• 关键词雷达\n• 情报看板\n• 深度阅读分析\n\n© 2025 新闻简报团队',
+      content: '新闻简报 v1.0.0\n\nAI驱动的智能情报平台，全球权威新闻源 + DeepSeek深度分析。\n\n功能特点：\n• 个性化新闻推荐\n• AI情报官人设\n• 关键词雷达\n• 情报看板\n• 深度阅读分析\n\n© 2025 新闻简报团队',
       showCancel: false,
       confirmText: '确定'
     });

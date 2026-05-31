@@ -257,7 +257,7 @@ export default function SettingsPage() {
             </div>
             <div className="pt-3 border-t border-slate-700">
               <p className="text-xs text-slate-500 text-center">
-                📰 新闻简报 - 让信息更有价值
+                NewsBrief · AI驱动的智能情报
               </p>
             </div>
           </div>

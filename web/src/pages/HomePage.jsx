@@ -120,7 +120,8 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold text-slate-100">今日情报</h1>
+              <h1 className="text-xl font-bold text-slate-100">NewsBrief</h1>
+              <p className="text-xs text-slate-500">AI驱动的智能情报</p>
               <p className="text-sm text-slate-500 mt-0.5">
                 {dayjs().format('YYYY年MM月DD日 dddd')}
               </p>
