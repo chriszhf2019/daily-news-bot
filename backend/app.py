@@ -21,7 +21,7 @@ from flask_jwt_extended import (
 from sqlalchemy import text
 
 from models import (
-    Base, User, News, AnalysisResult, FocusPoint, NewsFavorite, ReadLater, ApiUsage,
+    Base, User, News, AnalysisResult, FocusPoint, NewsFavorite, ReadLater, ApiUsage, DailySummary,
     DatabaseManager, create_session_factory, init_database,
 )
 from config import get_config
@@ -690,6 +690,113 @@ def get_analysis_detail(analysis_id):
             "data": {"id": a.id, "type": a.analysis_type, "result": a.result,
                      "created_at": a.created_at.isoformat()},
         })
+
+
+# ---- 每日情绪 + 重要信号（DeepSeek AI 分析）----
+
+@app.route("/api/v1/news/daily-stats", methods=["GET"])
+def daily_stats():
+    """用 DeepSeek 分析最新新闻的情绪分布和重要信号，缓存 1 小时"""
+    import time as _time
+    with get_db() as db:
+        # 检查 1 小时内缓存
+        recent = db.session.query(DailySummary).order_by(
+            DailySummary.created_at.desc()
+        ).first()
+        if recent and (datetime.utcnow() - recent.created_at).seconds < 3600:
+            return jsonify({
+                "success": True,
+                "data": {
+                    "sentiment_score": recent.sentiment_score,
+                    "positive_count": recent.positive_count,
+                    "negative_count": recent.negative_count,
+                    "neutral_count": recent.neutral_count,
+                    "signal_news": recent.signal_news or [],
+                    "analyzed_count": recent.analyzed_count,
+                    "cached": True,
+                },
+            })
+
+        # 取最新 100 条新闻标题
+        top_news = db.session.query(News).order_by(News.published_at.desc()).limit(100).all()
+        if not top_news:
+            return jsonify({"success": True, "data": {"sentiment_score": 50, "cached": False}})
+
+        titles = [f"{i+1}. [{n.source}] {n.title}" for i, n in enumerate(top_news)]
+
+        if DEEPSEEK_API_KEY:
+            try:
+                prompt = f"""分析以下 100 条最新新闻标题，返回纯 JSON：
+{{
+  "sentiment_score": 整体情绪指数0-100（50中性，>50偏积极，<50偏消极）,
+  "positive_count": 积极新闻数,
+  "negative_count": 消极新闻数,
+  "neutral_count": 中性新闻数,
+  "signal_news": [最重要的3-5条信号新闻，每条包含 {{"title": "原标题", "reason": "为什么重要", "importance": 1-10}}]
+}}
+
+新闻标题：
+{chr(10).join(titles[:100])}
+
+只输出 JSON，不要其他文字。"""
+
+                from openai import OpenAI
+                client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url="https://api.deepseek.com")
+                resp = client.chat.completions.create(
+                    model="deepseek-chat",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=1500, temperature=0.3,
+                )
+                text = resp.choices[0].message.content.strip()
+                if text.startswith("```"): text = text.split("```")[1].replace("json", "", 1)
+                result = json.loads(text)
+
+                summary = DailySummary(
+                    sentiment_score=max(0, min(100, result.get("sentiment_score", 50))),
+                    positive_count=result.get("positive_count", 0),
+                    negative_count=result.get("negative_count", 0),
+                    neutral_count=result.get("neutral_count", 0),
+                    signal_news=result.get("signal_news", []),
+                    analyzed_count=len(top_news),
+                )
+                db.session.add(summary)
+                db.session.commit()
+
+                return jsonify({"success": True, "data": {
+                    "sentiment_score": summary.sentiment_score,
+                    "positive_count": summary.positive_count,
+                    "negative_count": summary.negative_count,
+                    "neutral_count": summary.neutral_count,
+                    "signal_news": summary.signal_news,
+                    "analyzed_count": summary.analyzed_count,
+                    "cached": False,
+                }})
+            except Exception as e:
+                logger.warning(f"DeepSeek 情绪分析失败: {e}")
+
+        # 降级：基于关键词的简单统计
+        pos_kw = ["突破", "增长", "利好", "创新", "成功", "发布", "上市", "合作", "融资", "上涨"]
+        neg_kw = ["下跌", "风险", "警告", "裁员", "危机", "失败", "衰退", "亏损", "暴跌", "诉讼"]
+        pos = neg = neu = 0
+        for n in top_news:
+            title = n.title or ""
+            if any(k in title for k in pos_kw): pos += 1
+            elif any(k in title for k in neg_kw): neg += 1
+            else: neu += 1
+        score = 50 + int((pos - neg) / max(pos + neg + neu, 1) * 50)
+
+        summary = DailySummary(
+            sentiment_score=score, positive_count=pos, negative_count=neg,
+            neutral_count=neu, signal_news=[], analyzed_count=len(top_news),
+        )
+        db.session.add(summary)
+        db.session.commit()
+
+        return jsonify({"success": True, "data": {
+            "sentiment_score": score, "positive_count": pos,
+            "negative_count": neg, "neutral_count": neu,
+            "signal_news": [], "analyzed_count": len(top_news), "cached": False,
+        }})
 
 
 # ---- Admin ----

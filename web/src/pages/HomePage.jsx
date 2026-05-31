@@ -49,11 +49,35 @@ export default function HomePage() {
   
   const filteredNews = getFilteredNews()
   
-  // 统计数据
+  const [dailyStats, setDailyStats] = useState(null)
+  const [signals, setSignals] = useState([])
+
+  useEffect(() => {
+    fetch('https://news.velolabs.top/api/v1/news/daily-stats')
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) {
+          setDailyStats(d.data)
+          setSignals(d.data.signal_news || [])
+        }
+      })
+      .catch(() => {})
+  }, [newsData.length])
+
+  // 统计数据（基于真实 API 数据）
+  const uniqueSources = [...new Set(newsData.map(n => n.source).filter(Boolean))]
+  const uniqueCategories = [...new Set(newsData.map(n => n.category).filter(Boolean))]
+  const todayNews = newsData.filter(n => {
+    if (!n.published_at) return false
+    const d = new Date(n.published_at)
+    const t = new Date()
+    return d.toDateString() === t.toDateString()
+  })
   const stats = {
     total: newsData.length,
-    positive: newsData.filter(n => n.sentiment === 'positive' || n.category === 'AI动态').length,
-    signals: newsData.filter(n => (n.impactScore >= 8) || n.isBreaking).length,
+    sources: uniqueSources.length,
+    categories: uniqueCategories.length,
+    today: todayNews.length,
   }
   
   return (
@@ -86,22 +110,45 @@ export default function HomePage() {
           </div>
           
           {/* 统计卡片 */}
-          <div className="grid grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
               <div className="text-2xl font-bold text-emerald-400 font-mono">{stats.total}</div>
-              <div className="text-xs text-slate-500 mt-1">今日情报</div>
+              <div className="text-xs text-slate-500 mt-1">新闻总数</div>
             </div>
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-              <div className="text-2xl font-bold text-amber-400 font-mono">{stats.signals}</div>
-              <div className="text-xs text-slate-500 mt-1">重要信号</div>
+              <div className="text-2xl font-bold text-amber-400 font-mono">{stats.today}</div>
+              <div className="text-xs text-slate-500 mt-1">今日更新</div>
             </div>
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-              <div className="text-2xl font-bold text-purple-400 font-mono">
-                {stats.total > 0 ? Math.round((stats.positive / stats.total) * 100) : 0}%
+              <div className="text-2xl font-bold text-sky-400 font-mono">{stats.sources}</div>
+              <div className="text-xs text-slate-500 mt-1">新闻来源</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 col-span-2">
+              <div className="flex items-center gap-3">
+                <span className={`text-2xl font-bold font-mono ${(dailyStats?.sentiment_score || 50) >= 60 ? 'text-emerald-400' : (dailyStats?.sentiment_score || 50) <= 40 ? 'text-red-400' : 'text-amber-400'}`}>
+                  {dailyStats?.sentiment_score || '--'}
+                </span>
+                <span className="text-xs text-slate-400">市场情绪指数</span>
+                <span className="text-xs text-slate-600 ml-auto">
+                  😊{dailyStats?.positive_count || 0} 😐{dailyStats?.neutral_count || 0} 😟{dailyStats?.negative_count || 0}
+                </span>
               </div>
-              <div className="text-xs text-slate-500 mt-1">市场情绪</div>
             </div>
           </div>
+          {signals.length > 0 && (
+            <div className="mt-3 bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
+              <div className="text-xs text-amber-400 font-medium mb-2">⚡ 重要信号</div>
+              {signals.map((s, i) => (
+                <div key={i} className="flex items-start gap-2 py-1.5 border-b border-slate-800/50 last:border-0">
+                  <span className="text-xs bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded font-mono">{s.importance || '?'}</span>
+                  <div>
+                    <div className="text-sm text-slate-200">{s.title}</div>
+                    <div className="text-xs text-slate-500">{s.reason}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           
           {/* 分类筛选 */}
           <div className="flex gap-2 mt-4 overflow-x-auto pb-2">

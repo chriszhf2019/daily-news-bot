@@ -154,6 +154,22 @@ class ApiUsage(Base):
     user = relationship("User", back_populates="api_usages")
 
 
+# ---- 每日摘要缓存 ----
+
+class DailySummary(Base):
+    __tablename__ = "daily_summaries"
+
+    id = Column(Integer, primary_key=True)
+    date = Column(DateTime, default=datetime.utcnow, index=True)
+    sentiment_score = Column(Integer, default=50)       # 0-100 情绪指数
+    positive_count = Column(Integer, default=0)
+    negative_count = Column(Integer, default=0)
+    neutral_count = Column(Integer, default=0)
+    signal_news = Column(JSON)                           # [{id, title, reason}]
+    analyzed_count = Column(Integer, default=0)          # 分析的新闻数
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 # ---- 数据库工具 ----
 
 def init_database(database_url: str):
@@ -173,11 +189,13 @@ class DatabaseManager:
         self.session = session
 
     # -- 用户 --
-    def create_user(self, openid, password=None, nickname=None, email=None, preferences=None):
+    def create_user(self, openid, password=None, nickname=None, email=None, preferences=None, phone=None, wx_unionid=None):
         user = User(
             openid=openid,
             nickname=nickname or openid,
             email=email,
+            phone=phone,
+            wx_unionid=wx_unionid,
             preferences=preferences or {},
         )
         if password:
