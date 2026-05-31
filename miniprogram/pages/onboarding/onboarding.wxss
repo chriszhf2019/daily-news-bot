@@ -86,7 +86,7 @@ page { background: #0a0a1a; min-height: 100vh; }
 .si-value { font-size: 28rpx; color: #e2e8f0; font-weight: 600; }
 
 /* 底部按钮 */
-.bottom-actions { position: fixed; bottom: 0; left: 0; right: 0; display: flex; gap: 20rpx;
+.bottom-actions { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; display: flex; gap: 20rpx;
   padding: 32rpx 40rpx; background: linear-gradient(180deg, transparent, rgba(10,10,26,0.98) 40%);
   padding-bottom: calc(32rpx + env(safe-area-inset-bottom)); }
 .btn-prev { flex: 1; height: 100rpx; display: flex; align-items: center; justify-content: center;
