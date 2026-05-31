@@ -171,7 +171,7 @@
         <view class="advisor-header">
           <text class="advisor-icon">🤖</text>
           <text class="advisor-title">AI 战略顾问</text>
-          <text class="advisor-subtitle">基于全球情报的智能分析</text>
+          <text class="advisor-subtitle">基于 {{dash.total_news}} 条真实新闻数据的智能分析</text>
         </view>
         <view class="advisor-content">
           <view class="prompt-suggestions">

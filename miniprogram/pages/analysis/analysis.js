@@ -219,6 +219,17 @@ Page({
   // AI战略顾问 — 真实 DeepSeek 回答
   async getAIAdvisorResponse(prompt) {
     const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35'
+    const dash = this.data.dash
+
+    // 构建真实数据上下文
+    const ctx = [
+      `今日市场乐观度: ${dash.optimism.score}% (积极${dash.optimism.positive} 中立${dash.optimism.neutral} 消极${dash.optimism.negative})`,
+      `政策敏感度: ${dash.policy_sensitivity}%, 技术突破点: ${dash.tech_breakthrough}%`,
+      `重要信号: ${(dash.tomorrow_watch || []).map(w => w.event).join('; ') || '暂无'}`,
+      `盲区: ${(dash.blind_spots || []).map(b => b.title).join('; ') || '暂无'}`,
+      `新闻总数: ${dash.total_news}`,
+    ].join('\n')
+
     const resp = await new Promise((resolve, reject) => {
       wx.request({
         url: 'https://api.deepseek.com/chat/completions',
@@ -226,8 +237,8 @@ Page({
         header: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
         data: { model: 'deepseek-chat', max_tokens: 600, temperature: 0.5,
           messages: [
-            { role: 'system', content: '你是一个专业的AI战略顾问，基于新闻情报提供分析建议。回答简洁有力，分点作答。' },
-            { role: 'user', content: prompt }
+            { role: 'system', content: '你是基于实时数据的AI战略顾问。根据提供的今日情报数据，回答用户问题。回答简洁有力，分点作答，每点引用具体数据。' },
+            { role: 'user', content: `今日情报数据:\n${ctx}\n\n用户问题: ${prompt}` }
           ]},
         success: resolve, fail: reject
       })
