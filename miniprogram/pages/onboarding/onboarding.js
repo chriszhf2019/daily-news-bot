@@ -52,6 +52,8 @@ Page({
 
   // 步骤导航
   nextStep() {
+    console.log('nextStep called, currentStep:', this.data.currentStep)
+    wx.vibrateShort({ type: 'light' })
     const { currentStep, totalSteps, selectedPersona, selectedTags } = this.data;
     
     // 验证当前步骤
