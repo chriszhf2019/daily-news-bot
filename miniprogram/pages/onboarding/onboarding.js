@@ -144,6 +144,10 @@ Page({
   },
 
   // 完成引导
+  finish() {
+    this.finishOnboarding()
+  },
+
   finishOnboarding() {
     const { selectedPersona, selectedTags, radarKeywords, aiInstruction, interestTags } = this.data;
     
