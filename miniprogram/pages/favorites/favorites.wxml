@@ -391,7 +391,7 @@
       </button>
     </view>
   </view>
-</view>
+  </block>
 
 <!-- 排序选项弹窗 -->
 <view class="modal-overlay" wx:if="{{showSortModal}}" bindtap="hideSortOptions">
@@ -620,6 +620,5 @@
         <text>📋 复制</text>
       </button>
     </view>
-  </block>
 </view>
 </view>
