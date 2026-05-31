@@ -1453,77 +1453,153 @@ Page({
   switchMode(e) {
     wx.vibrateShort({ type: 'light' });
     const mode = e.currentTarget.dataset.mode;
-    
-    // 开始淡出动画
-    this.setData({ modeAnimation: 'fade-out' });
-    
-    // 延迟后切换模式并开始淡入动画
-    setTimeout(() => {
-      this.setData({ readMode: mode });
-      
-      if (mode === 'digest') {
-        this.applyDehydrateMode();
-      } else {
-        this.setData({ filteredNews: this.filterByCategory(this.data.newsData, this.data.currentCategory) });
-      }
-      
-      // 开始淡入动画
-      this.setData({ modeAnimation: 'fade-in' });
-      
-      const modeNames = {
-        'standard': '标准模式',
-        'beginner': '小白模式',
-        'digest': '脱水模式'
-      };
-      
-      wx.showToast({ 
-        title: modeNames[mode] || '标准模式', 
-        icon: 'none' 
-      });
-    }, 300);
+    this.setData({ readMode: mode });
+
+    if (mode === 'beginner') {
+      this.generateBeginnerMode();
+    } else if (mode === 'digest') {
+      this.generateDehydrateMode();
+    } else {
+      this.setData({ filteredNews: this.data.displayedNews || this.data.newsData });
+    }
+
+    const modeNames = { 'standard': '标准模式', 'beginner': '小白模式', 'digest': '脱水模式' };
+    wx.showToast({ title: modeNames[mode] || '标准模式', icon: 'none' });
   },
 
-  openNewsDetail(e) {
-    const newsId = e.currentTarget.dataset.id;
-    wx.navigateTo({
-      url: `/pages/detail/detail?id=${newsId}`
-    });
-  },
+  // 小白模式：用 DeepSeek 简化新闻内容
+  async generateBeginnerMode() {
+    const news = (this.data.displayedNews || this.data.newsData).slice(0, 20)
+    if (!news.length) return
 
-  applyDehydrateMode() {
-    const news = this.data.newsData;
-    const grouped = {};
-    
-    news.forEach(n => {
-      const key = n.tags[0] || n.category;
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(n);
-    });
-    
-    const dehydrated = [];
-    Object.keys(grouped).forEach(key => {
-      const items = grouped[key];
-      if (items.length > 2) {
-        const merged = {
-          ...items[0],
-          id: `merged_${key}`,
-          title: `【${key}专题】${items.length}条相关新闻精华`,
-          summary: items.map(i => `• ${i.title}`).join('\n'),
-          simpleSummary: `关于${key}的${items.length}条新闻要点汇总`,
-          ai_analysis: {
-            interpretation: `综合${items.length}条${key}相关新闻：${items[0].ai_analysis.interpretation}`,
-            prediction: items[0].ai_analysis.prediction
+    // 检查是否已有缓存的小白模式数据
+    const hasContent = news.some(n => n.newbie && n.newbie.simple_summary)
+    if (hasContent) {
+      this.setData({ filteredNews: news })
+      return
+    }
+
+    wx.showLoading({ title: 'AI生成小白模式...' })
+    this.setData({ loading: true })
+
+    const apiKey = wx.getStorageSync('deepseek_api_key')
+    if (!apiKey) {
+      wx.hideLoading()
+      wx.showToast({ title: '请先配置DeepSeek API', icon: 'none' })
+      return
+    }
+
+    try {
+      const titles = news.map((n, i) => `${i+1}. ${n.title}`).join('\n')
+      const resp = await new Promise((resolve, reject) => {
+        wx.request({
+          url: 'https://api.deepseek.com/chat/completions',
+          method: 'POST',
+          header: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+          data: {
+            model: 'deepseek-chat', temperature: 0.3, max_tokens: 2000,
+            messages: [{ role: 'user', content: `将以下新闻用小学生都能听懂的话改写。每条返回3个字段：simple_title(通俗标题20字内), one_liner(一句话说清楚), analogy(用一个生活比喻解释)。返回JSON数组。
+
+${titles}
+
+只输出JSON，格式：[{"index":1,"simple_title":"...","one_liner":"...","analogy":"..."}]` }]
           },
-          isMerged: true,
-          mergedCount: items.length
-        };
-        dehydrated.push(merged);
-      } else {
-        dehydrated.push(...items);
-      }
-    });
-    
-    this.setData({ filteredNews: dehydrated });
+          success: resolve, fail: reject
+        })
+      })
+
+      let text = resp.data.choices[0].message.content
+      if (text.startsWith('```')) text = text.split('```')[1].replace('json', '')
+      const results = JSON.parse(text)
+
+      const enriched = news.map((n, i) => {
+        const r = results.find(x => x.index === i + 1)
+        return r ? { ...n, newbie: { simple_summary: r.simple_title, simple_interpretation: r.one_liner, analogy: r.analogy, jargon_tips: [] } } : n
+      })
+
+      this.setData({ filteredNews: enriched, loading: false })
+      wx.hideLoading()
+    } catch (e) {
+      console.error('小白模式生成失败:', e)
+      wx.hideLoading()
+      this.setData({ filteredNews: news, loading: false })
+    }
+  },
+
+  // 脱水模式：用 DeepSeek 提炼核心要点
+  async generateDehydrateMode() {
+    const news = this.data.newsData.slice(0, 50)
+    if (!news.length) return
+
+    wx.showLoading({ title: 'AI提炼要点...' })
+    this.setData({ loading: true })
+
+    const apiKey = wx.getStorageSync('deepseek_api_key')
+    if (!apiKey) {
+      wx.hideLoading()
+      // 降级：简单分组
+      this.fallbackDehydrate()
+      return
+    }
+
+    try {
+      const titles = news.map((n, i) => `${i+1}. [${n.source}] ${n.title}`).join('\n')
+      const resp = await new Promise((resolve, reject) => {
+        wx.request({
+          url: 'https://api.deepseek.com/chat/completions',
+          method: 'POST',
+          header: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+          data: {
+            model: 'deepseek-chat', temperature: 0.3, max_tokens: 1500,
+            messages: [{ role: 'user', content: `分析以下新闻标题，提炼出5-8个今日核心要点，每个要点20字以内。返回JSON数组，格式：[{"point":"要点内容","count":涉及新闻数,"category":"分类"}]。
+
+${titles}
+
+只输出JSON。` }]
+          },
+          success: resolve, fail: reject
+        })
+      })
+
+      let text = resp.data.choices[0].message.content
+      if (text.startsWith('```')) text = text.split('```')[1].replace('json', '')
+      const points = JSON.parse(text)
+
+      const cards = points.map((p, i) => ({
+        id: `digest_${i}`,
+        title: p.point,
+        summary: `涉及 ${p.count} 条新闻 · ${p.category || '综合'}`,
+        category: p.category || '综合',
+        source: 'AI提炼',
+        tags: [p.category || '核心要点'],
+        isDigest: true,
+      }))
+
+      this.setData({ filteredNews: cards, loading: false })
+      wx.hideLoading()
+    } catch (e) {
+      console.error('脱水模式失败:', e)
+      wx.hideLoading()
+      this.fallbackDehydrate()
+    }
+  },
+
+  // 脱水模式降级方案（无 DeepSeek）
+  fallbackDehydrate() {
+    const news = this.data.newsData
+    const grouped = {}
+    news.forEach(n => {
+      const key = n.category || '综合'
+      if (!grouped[key]) grouped[key] = []
+      grouped[key].push(n)
+    })
+    const cards = Object.keys(grouped).map((key, i) => ({
+      id: `digest_${i}`,
+      title: `【${key}】${grouped[key].length}条相关新闻`,
+      summary: grouped[key].slice(0, 5).map(n => `• ${n.title}`).join('\n'),
+      category: key, source: '分组摘要', tags: [key], isDigest: true,
+    }))
+    this.setData({ filteredNews: cards, loading: false })
   },
 
   async loadNewsData() {
