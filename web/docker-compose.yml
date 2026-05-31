@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:15-alpine
+    container_name: newsbrief-db
+    environment:
+      POSTGRES_USER: newsbrief
+      POSTGRES_PASSWORD: newsbrief123
+      POSTGRES_DB: newsbrief
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  # NewsBrief 应用
+  app:
+    build: .
+    container_name: newsbrief-app
+    environment:
+      DATABASE_URL: postgresql://newsbrief:newsbrief123@postgres:5432/newsbrief
+      NEWSDATA_API_KEY: pub_24e3e6b568bc4dc092f837de6c18ec39
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

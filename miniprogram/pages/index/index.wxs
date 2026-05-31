@@ -1,0 +1,15 @@
+// 工具函数 - 用于 wxml 中调用
+var getCategoryName = function(category) {
+  var map = { 
+    'AI': 'AI 动态', 
+    'tech': '科技前沿', 
+    'finance': '商业财经', 
+    'international': '国际要闻',
+    'sports': '体育竞技'
+  };
+  return map[category] || category;
+}
+
+module.exports = {
+  getCategoryName: getCategoryName
+};

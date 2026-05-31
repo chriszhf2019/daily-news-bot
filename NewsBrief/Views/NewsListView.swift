@@ -30,7 +30,7 @@ struct NewsListView: View {
     
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 16) {
+            LazyVStack(spacing: 16, pinnedViews: []) {
                 // 品牌头部
                 BrandHeaderView()
                 
@@ -49,30 +49,22 @@ struct NewsListView: View {
                     selectedCategory: $selectedCategory
                 )
                 
-                // 新闻列表
-                LazyVStack(spacing: 20) {
-                    // 前20条新闻
-                    ForEach(Array(filteredNews.prefix(20).enumerated()), id: \.element.id) { index, news in
-                        NewsCardDetailView(news: news, index: index + 1)
-                    }
-                    
-                    // 更多新闻按钮
-                    if filteredNews.count > 20 {
-                        MoreNewsButton(
-                            remainingCount: filteredNews.count - 20,
-                            isExpanded: $showMoreNews
-                        )
-                        
-                        // 展开的更多新闻
-                        if showMoreNews {
-                            ForEach(Array(filteredNews.dropFirst(20).enumerated()), id: \.element.id) { index, news in
-                                NewsCardDetailView(news: news, index: index + 21)
-                            }
-                        }
-                    }
+                // 新闻列表 - 使用懒加载优化
+                ForEach(Array(filteredNews.prefix(showMoreNews ? filteredNews.count : 20).enumerated()), id: \.element.id) { index, news in
+                    NewsCardDetailView(news: news, index: index + 1)
+                        .padding(.horizontal, 16)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 120)
+                
+                // 更多新闻按钮
+                if filteredNews.count > 20 {
+                    MoreNewsButton(
+                        remainingCount: filteredNews.count - 20,
+                        isExpanded: $showMoreNews
+                    )
+                    .padding(.horizontal, 16)
+                }
+                
+                Spacer(minLength: 120)
             }
         }
         .background(
@@ -91,7 +83,7 @@ struct NewsListView: View {
                 .environmentObject(favoritesManager)
         }
         .overlay {
-            if viewModel.isLoading {
+            if viewModel.isLoading && viewModel.filteredNews.isEmpty {
                 LoadingView()
             }
         }
@@ -526,6 +518,7 @@ struct NewsCardDetailView: View {
     @State private var userJob = ""
     @State private var showRipples = false // 显示二阶效应
     @State private var showMentalModel = false // 显示思维模型
+    @State private var showSevenElements = false // 显示7要素分析
     
     private let pointBlue = Color(hex: "3B82F6")
     
@@ -628,6 +621,19 @@ struct NewsCardDetailView: View {
                 
                 Spacer()
                 
+                // 7要素分析按钮
+                ActionButton(
+                    icon: "shield.checkered",
+                    text: "7要素",
+                    color: news.aiAnalysis?.sevenElements != nil ? .cyan : .white.opacity(0.4)
+                ) {
+                    if news.aiAnalysis?.sevenElements != nil {
+                        showSevenElements = true
+                    }
+                }
+                
+                Spacer()
+                
                 // 分享按钮
                 ActionButton(
                     icon: "paperplane",
@@ -665,6 +671,10 @@ struct NewsCardDetailView: View {
                     .presentationDetents([.medium])
                     .presentationDragIndicator(.visible)
             }
+        }
+        // 7要素分析弹窗
+        .sheet(isPresented: $showSevenElements) {
+            SevenElementsView(news: news)
         }
     }
 }

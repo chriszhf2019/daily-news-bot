@@ -1,0 +1,187 @@
+<!-- 稍后读页面 -->
+<view class="read-later-container">
+  
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-bg"></view>
+    <view class="header-content">
+      <text class="header-title">📚 稍后读</text>
+      <text class="header-subtitle">你的私人阅读清单</text>
+    </view>
+    
+    <!-- 统计卡片 -->
+    <view class="stats-cards">
+      <view class="stat-card">
+        <text class="stat-value">{{filteredList.length}}</text>
+        <text class="stat-label">待读</text>
+      </view>
+      <view class="stat-card">
+        <text class="stat-value">{{totalReadingTime}}</text>
+        <text class="stat-label">分钟</text>
+      </view>
+      <view class="stat-card">
+        <text class="stat-value">+{{todayAdded}}</text>
+        <text class="stat-label">今日新增</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索和操作栏 -->
+  <view class="toolbar">
+    <view class="search-box">
+      <text class="search-icon">🔍</text>
+      <input 
+        class="search-input" 
+        placeholder="搜索标题、内容..." 
+        value="{{searchText}}"
+        bindinput="onSearchInput"
+      />
+    </view>
+    <view class="toolbar-actions">
+      <button class="tool-btn" bindtap="showSortOptions">
+        <text class="btn-icon">⚙️</text>
+        <text class="btn-text">排序</text>
+      </button>
+      <button class="tool-btn primary" bindtap="startReading">
+        <text class="btn-icon">▶️</text>
+        <text class="btn-text">开始阅读</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:elif="{{filteredList.length === 0}}" class="empty-state">
+    <text class="empty-icon">📖</text>
+    <text class="empty-title">暂无稍后读内容</text>
+    <text class="empty-desc">在新闻详情页点击"稍后读"按钮添加</text>
+    <button class="empty-btn" bindtap="goToHome">去浏览新闻</button>
+  </view>
+
+  <!-- 列表内容 -->
+  <view wx:else class="content-area">
+    
+    <!-- 批量操作栏 -->
+    <view class="batch-bar" wx:if="{{selectedItems.length > 0}}">
+      <view class="batch-info">
+        <text class="batch-count">已选择 {{selectedItems.length}} 项</text>
+        <text class="batch-cancel" bindtap="cancelSelection">取消</text>
+      </view>
+      <view class="batch-actions">
+        <button class="batch-btn" bindtap="batchMarkAsRead">
+          <text class="batch-icon">✓</text>
+          <text>标记已读</text>
+        </button>
+        <button class="batch-btn danger" bindtap="batchRemove">
+          <text class="batch-icon">🗑️</text>
+          <text>移除</text>
+        </button>
+      </view>
+    </view>
+
+    <!-- 新闻列表 -->
+    <view class="news-list">
+      <view 
+        class="news-item {{item.selected ? 'selected' : ''}} {{item.read ? 'read' : ''}}" 
+        wx:for="{{filteredList}}" 
+        wx:key="id"
+      >
+        <!-- 选择框 -->
+        <view class="item-checkbox" bindtap="toggleSelect" data-id="{{item.id}}">
+          <view class="checkbox {{item.selected ? 'checked' : ''}}">
+            <text wx:if="{{item.selected}}">✓</text>
+          </view>
+        </view>
+
+        <!-- 内容区 -->
+        <view class="item-content" bindtap="viewDetail" data-id="{{item.id}}">
+          <!-- 头部信息 -->
+          <view class="item-header">
+            <view class="category-badge {{item.category}}">
+              {{item.category === 'AI' ? 'AI动态' : item.category === 'tech' ? '科技' : item.category === 'finance' ? '财经' : '其他'}}
+            </view>
+            <text class="item-time">{{item.addedAt}}</text>
+          </view>
+
+          <!-- 标题 -->
+          <text class="item-title">{{item.title}}</text>
+
+          <!-- 摘要 -->
+          <text class="item-summary">{{item.summary}}</text>
+
+          <!-- 底部信息 -->
+          <view class="item-footer">
+            <view class="item-meta">
+              <text class="meta-item">⏱️ {{item.readingTime}}</text>
+              <text class="meta-item">📰 {{item.source}}</text>
+            </view>
+            <view class="item-status" wx:if="{{item.read}}">
+              <text class="status-badge">已读</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="item-actions">
+          <button class="action-btn" bindtap="markAsRead" data-id="{{item.id}}" wx:if="{{!item.read}}">
+            <text class="action-icon">✓</text>
+          </button>
+          <button class="action-btn danger" bindtap="removeItem" data-id="{{item.id}}">
+            <text class="action-icon">✕</text>
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部操作 -->
+    <view class="bottom-actions">
+      <button class="bottom-btn" bindtap="selectAll">全选</button>
+      <button class="bottom-btn" bindtap="clearRead">清空已读</button>
+    </view>
+  </view>
+
+  <!-- 排序弹窗 -->
+  <view class="modal-overlay {{showSortModal ? 'show' : ''}}" bindtap="hideSortOptions">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">排序方式</text>
+        <view class="modal-close" bindtap="hideSortOptions">✕</view>
+      </view>
+      <view class="modal-body">
+        <view 
+          class="sort-option {{sortBy === 'time' ? 'active' : ''}}" 
+          bindtap="selectSort" 
+          data-sort="time"
+        >
+          <text class="option-icon">🕐</text>
+          <text class="option-text">按时间</text>
+          <text class="option-check" wx:if="{{sortBy === 'time'}}">✓</text>
+        </view>
+        <view 
+          class="sort-option {{sortBy === 'title' ? 'active' : ''}}" 
+          bindtap="selectSort" 
+          data-sort="title"
+        >
+          <text class="option-icon">🔤</text>
+          <text class="option-text">按标题</text>
+          <text class="option-check" wx:if="{{sortBy === 'title'}}">✓</text>
+        </view>
+        <view 
+          class="sort-option {{sortBy === 'category' ? 'active' : ''}}" 
+          bindtap="selectSort" 
+          data-sort="category"
+        >
+          <text class="option-icon">📁</text>
+          <text class="option-text">按分类</text>
+          <text class="option-check" wx:if="{{sortBy === 'category'}}">✓</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+</view>

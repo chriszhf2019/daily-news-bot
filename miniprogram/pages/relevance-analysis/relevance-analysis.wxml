@@ -1,0 +1,146 @@
+<!--relevance-analysis.wxml - 私人顾问（决策导向版 08-14）-->
+<view class="advisory-page">
+  <!-- 加载状态 -->
+  <view class="loading-box" wx:if="{{loading}}">
+    <view class="spinner"></view>
+    <text class="loading-tip">私人顾问分析中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-box" wx:elif="{{isEmpty}}">
+    <text class="empty-icon">📭</text>
+    <text class="empty-tip">{{errorMessage}}</text>
+    <button class="back-btn" bindtap="goBack">返回</button>
+  </view>
+
+  <!-- 主内容 -->
+  <block wx:else>
+    <!-- 顶部标题 -->
+    <view class="page-top">
+      <view class="top-left">
+        <text class="page-title">🎯 私人情报顾问</text>
+        <text class="page-subtitle">决策导向 · 从量化到行动</text>
+      </view>
+      <view class="status-tag {{isRealData ? 'success' : 'warn'}}">
+        {{isRealData ? '✅' : '⏳'}}
+      </view>
+    </view>
+
+    <!-- 身份选择器 -->
+    <view class="persona-nav">
+      <view class="persona-tab {{currentPersona === item.id ? 'active' : ''}}" 
+            wx:for="{{personas}}" wx:key="id"
+            bindtap="switchPersona" data-id="{{item.id}}">
+        <text class="tab-icon">{{item.icon}}</text>
+        <text class="tab-name">{{item.name}}</text>
+      </view>
+    </view>
+
+    <!-- 分析内容 -->
+    <scroll-view class="content-scroll" scroll-y="true">
+      
+      <!-- 08 & 09: 量化影响 + 传导机制 -->
+      <view class="section-card impact-section">
+        <view class="section-head">
+          <text class="section-tag">08 ROI & 09 RIPPLE</text>
+          <text class="impact-badge {{impactIdx >= 0 ? 'positive' : 'negative'}}">
+            IMPACT: {{impactIdx >= 0 ? '+' : ''}}{{impactIdx}}%
+          </text>
+        </view>
+        
+        <view class="roi-content">
+          <view class="roi-line gain">
+            <text class="roi-label">📈 收益:</text>
+            <text class="roi-text">{{gainDetail || '暂无'}}</text>
+          </view>
+          <view class="roi-line risk">
+            <text class="roi-label">⚠️ 风险:</text>
+            <text class="roi-text">{{riskDetail || '暂无'}}</text>
+          </view>
+        </view>
+        
+        <!-- 传导路径 -->
+        <view class="flow-path" wx:if="{{moneyFlow.length > 0}}">
+          <text class="path-label">PATH:</text>
+          <text class="path-node" wx:for="{{moneyFlow}}" wx:key="index">
+            {{item}}{{index < moneyFlow.length - 1 ? ' → ' : ''}}
+          </text>
+          <text class="path-winner">🏆 {{winner}}</text>
+        </view>
+      </view>
+
+      <!-- 11 & 13: 博弈方案 + 避坑指南 -->
+      <view class="section-card decision-section">
+        <view class="section-head">
+          <text class="section-tag">11 DECISION & 13 PITFALL</text>
+        </view>
+        
+        <!-- 决策天平 -->
+        <view class="decision-grid">
+          <view class="decision-side bull">
+            <text class="side-label">BULL (进取)</text>
+            <text class="side-text">{{bullCase || '暂无'}}</text>
+          </view>
+          <view class="decision-side bear">
+            <text class="side-label">BEAR (防御)</text>
+            <text class="side-text">{{bearCase || '暂无'}}</text>
+          </view>
+        </view>
+        
+        <!-- 避坑预警 -->
+        <view class="pitfall-box" wx:if="{{pitfall}}">
+          <text class="pitfall-icon">🛡️</text>
+          <view class="pitfall-content">
+            <text class="pitfall-label">避坑预警</text>
+            <text class="pitfall-text">{{pitfall}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 10: 具体行动 -->
+      <view class="section-card action-section">
+        <view class="section-head">
+          <text class="section-tag">10 ACTION PROTOCOL</text>
+        </view>
+        
+        <view class="action-list" wx:if="{{actionsList.length > 0}}">
+          <view class="action-item {{item.checked ? 'checked' : ''}}" 
+                wx:for="{{actionsList}}" wx:key="id"
+                bindtap="toggleAction" data-index="{{index}}">
+            <view class="action-checkbox">
+              <text wx:if="{{item.checked}}">✓</text>
+            </view>
+            <text class="action-text">{{item.text}}</text>
+          </view>
+        </view>
+        <text class="empty-text" wx:else>暂无行动建议</text>
+      </view>
+
+      <!-- 12 & 14: 时间窗口 + 认知溢价 -->
+      <view class="section-card footer-section">
+        <!-- 时间窗口 -->
+        <view class="timing-row">
+          <view class="timing-left">
+            <text class="timing-label">12 TIMING:</text>
+            <text class="timing-horizon">{{timingHorizon || '待定'}}</text>
+          </view>
+          <text class="timing-trigger">{{timingTrigger}}</text>
+        </view>
+        
+        <!-- 金句 -->
+        <view class="gold-quote-box" wx:if="{{goldQuote}}">
+          <text class="quote-text">"{{goldQuote}}"</text>
+          <text class="quote-tag">14 认知溢价</text>
+        </view>
+      </view>
+
+      <view class="bottom-space"></view>
+    </scroll-view>
+
+    <!-- 底部操作 -->
+    <view class="bottom-bar">
+      <button class="bar-btn" bindtap="goBack">← 返回</button>
+      <button class="bar-btn primary" bindtap="shareAnalysis">📤 分享金句</button>
+    </view>
+  </block>
+</view>

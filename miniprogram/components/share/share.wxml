@@ -1,0 +1,88 @@
+<!--components/share/share.wxml-->
+<view class="share-container">
+  <!-- 分享按钮 -->
+  <view class="share-button {{shareButtonClass}}" 
+        bindtap="showShareOptions"
+        wx:if="{{!showShareModal}}">
+    <text class="share-icon">📤</text>
+    <text class="share-text">{{shareButtonText || '分享'}}</text>
+  </view>
+
+  <!-- 分享弹窗 -->
+  <view wx:if="{{showShareModal}}" class="share-modal">
+    <view class="share-modal-mask" bindtap="hideShareOptions"></view>
+    <view class="share-modal-content">
+      <!-- 标题 -->
+      <view class="share-modal-header">
+        <text class="share-modal-title">分享给朋友</text>
+        <view class="share-modal-close" bindtap="hideShareOptions">
+          <text>✕</text>
+        </view>
+      </view>
+
+      <!-- 分享内容预览 -->
+      <view class="share-preview">
+        <image class="share-preview-image" src="{{shareContent.imageUrl}}" mode="aspectFill"></image>
+        <view class="share-preview-info">
+          <text class="share-preview-title">{{shareContent.title}}</text>
+          <text class="share-preview-desc">{{shareContent.desc}}</text>
+        </view>
+      </view>
+
+      <!-- 分享选项 -->
+      <view class="share-options">
+        <view class="share-option-item" 
+              wx:for="{{shareOptions}}" 
+              wx:key="id"
+              data-option="{{item}}"
+              bindtap="selectShareOption">
+          <view class="share-option-icon" style="background-color: {{item.color}}">
+            <text>{{item.icon}}</text>
+          </view>
+          <text class="share-option-name">{{item.name}}</text>
+        </view>
+      </view>
+
+      <!-- 底部操作 -->
+      <view class="share-actions">
+        <button class="share-action-btn primary" open-type="share">
+          <text>📱</text>
+          <text>分享到微信</text>
+        </button>
+        <button class="share-action-btn secondary" bindtap="generateMiniProgramCode">
+          <text>📷</text>
+          <text>生成小程序码</text>
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分享选项面板 -->
+  <view wx:if="{{showOptions}}" class="share-panel">
+    <view class="share-panel-mask" bindtap="hideShareOptions"></view>
+    <view class="share-panel-content">
+      <view class="share-panel-header">
+        <text class="share-panel-title">分享</text>
+        <view class="share-panel-close" bindtap="hideShareOptions">
+          <text>✕</text>
+        </view>
+      </view>
+      
+      <view class="share-panel-grid">
+        <view class="share-grid-item" 
+              wx:for="{{shareOptions}}" 
+              wx:key="id"
+              data-option="{{item}}"
+              bindtap="selectShareOption">
+          <view class="share-grid-icon" style="background-color: {{item.color}}">
+            <text>{{item.icon}}</text>
+          </view>
+          <text class="share-grid-name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Canvas用于生成分享图片 -->
+  <canvas canvas-id="shareCanvas" class="share-canvas"></canvas>
+</view>

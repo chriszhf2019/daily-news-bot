@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "相关性分析",
+  "navigationBarBackgroundColor": "#0f0c29",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#0f0c29",
+  "backgroundTextStyle": "light",
+  "enablePullDownRefresh": false
+}

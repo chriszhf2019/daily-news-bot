@@ -3,6 +3,15 @@
 .env.local
 .env.*.local
 
+# 归档文档
+docs/archive/
+
+# 构建产物
+.build/
+.snapshots/
+*.tar.gz
+node_modules/
+
 # Python缓存文件
 __pycache__/
 *.py[cod]

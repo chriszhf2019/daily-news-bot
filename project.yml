@@ -1,0 +1,34 @@
+name: NewsBrief
+options:
+  bundleIdPrefix: com.newsbrief
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+  
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    INFOPLIST_FILE: NewsBrief/Info.plist
+    CODE_SIGN_ENTITLEMENTS: NewsBrief/NewsBrief.entitlements
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  NewsBrief:
+    type: application
+    platform: iOS
+    sources:
+      - path: NewsBrief
+        excludes:
+          - "**/*.md"
+    resources:
+      - path: NewsBrief/Assets.xcassets
+      - path: NewsBrief/Resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.newsbrief.app
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: NO
+    info:
+      path: NewsBrief/Info.plist

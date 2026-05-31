@@ -26,45 +26,24 @@ struct ContentView: View {
                         }
                     }
                 )
-                .onAppear {
-                    print("❌ ContentView: 显示错误页面 - \(errorMessage)")
-                }
             } else if !hasCompletedOnboarding {
                 // 显示引导流程
                 OnboardingView()
-                    .onAppear {
-                        print("📱 ContentView: 显示引导页面")
-                    }
                     .onDisappear {
                         // 当引导流程消失时，检查是否已完成
                         hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
-                        print("✅ ContentView: 引导流程完成")
                     }
             } else {
                 // 显示主界面
                 TabBarView()
-                    .onAppear {
-                        print("✅ ContentView: 显示主界面，新闻数量: \(newsViewModel.news.count)")
-                    }
             }
         }
         .task {
-            print("🚀 ContentView: 开始加载新闻...")
-            // 应用启动时加载新闻
-            await newsViewModel.fetchNews()
-            print("✅ ContentView: 新闻加载完成，共 \(newsViewModel.news.count) 条")
-            if let error = newsViewModel.errorMessage {
-                print("❌ ContentView: 加载出错 - \(error)")
-            }
+            // 使用优化后的加载方法，防止重复加载
+            await newsViewModel.loadInitialDataIfNeeded()
         }
         .refreshable {
-            print("🔄 ContentView: 用户下拉刷新")
             await newsViewModel.refreshNews()
-        }
-        .overlay {
-            if newsViewModel.isLoading {
-                LoadingView()
-            }
         }
         // 设置全局背景色为深海蓝渐变
         .background(

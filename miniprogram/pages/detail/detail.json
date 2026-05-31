@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "深度阅读",
+  "navigationBarBackgroundColor": "#1e3a8a",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": false,
+  "usingComponents": {}
+}

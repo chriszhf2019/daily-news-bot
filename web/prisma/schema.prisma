@@ -1,0 +1,105 @@
+// Prisma Schema for NewsBrief
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  name      String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  settings  UserSettings?
+  favorites Favorite[]
+  history   ReadHistory[]
+  analyses  Analysis[]
+}
+
+// 用户设置
+model UserSettings {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // API 配置
+  deepseekApiKey  String?
+  deepseekEndpoint String  @default("https://api.deepseek.com/v1")
+  newsDataApiKey  String?
+  
+  // 偏好设置
+  aiPersona       String   @default("analyst")
+  theme           String   @default("deep-blue")
+  readingDepth    Int      @default(1)
+  focusKeywords   String[] @default([])
+  interestTags    String[] @default([])
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// 新闻表
+model News {
+  id          String   @id @default(cuid())
+  title       String
+  summary     String?
+  content     String?
+  source      String?
+  sourceUrl   String?
+  imageUrl    String?
+  category    String   @default("AI")
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  favorites   Favorite[]
+  history     ReadHistory[]
+  analyses    Analysis[]
+}
+
+// 收藏表
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  newsId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  news      News     @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, newsId])
+}
+
+// 阅读历史
+model ReadHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  newsId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  news      News     @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  readAt    DateTime @default(now())
+
+  @@unique([userId, newsId])
+}
+
+// 分析结果缓存
+model Analysis {
+  id        String   @id @default(cuid())
+  userId    String?
+  newsId    String
+  type      String   // seven-elements, relevance, deep-exploration
+  result    Json
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  news      News     @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([newsId, type])
+}

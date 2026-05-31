@@ -1,0 +1,342 @@
+{
+  "news": [
+    {
+      "id": "1",
+      "title": "OpenAI发布GPT-5模型，推理能力大幅提升",
+      "content": "OpenAI今日正式发布GPT-5大语言模型，这是继GPT-4之后的又一重大突破。GPT-5在推理能力、代码生成和多模态理解方面实现显著提升。参数规模达1.76万亿，支持200万token上下文。",
+      "summary": "OpenAI发布GPT-5，推理能力大幅提升，参数规模达1.76万亿，支持200万token上下文。",
+      "source": "OpenAI官网",
+      "imageUrl": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop",
+      "category": "AI动态",
+      "publishedAt": "2026年01月20日 08:00",
+      "tags": ["OpenAI", "GPT-5", "人工智能", "大语言模型"],
+      "views": 12543,
+      "shares": 1234,
+      "readTime": 3,
+      "isBreaking": true,
+      "aiAnalysis": {
+        "sentiment": "positive",
+        "importance": 95,
+        "keywords": ["GPT-5", "OpenAI", "大语言模型", "AI突破"],
+        "summary": "这是AI领域的重要里程碑，GPT-5的发布将重塑AI应用格局。",
+        "trends": ["大模型发展", "多模态AI", "AGI研究"],
+        "impact": "high",
+        "predictedViews": 50000,
+        "recommendedActions": ["关注技术发展", "学习相关技能"],
+        "reliability": 95,
+        "rippleEffect": {
+          "industries": ["软件开发", "教育", "客服"],
+          "description": "将推动AI应用在各行业的深度渗透，特别是知识密集型行业"
+        },
+        "futureOutlook": "预计2026年下半年将有更多基于GPT-5的应用落地，AI助手能力将接近人类专家水平",
+        "personalRelevance": "如果你从事编程、写作、设计等创意工作，GPT-5将成为你的得力助手，建议尽早学习使用"
+      },
+      "intel_pro": {
+        "ripples": [
+          {
+            "level": "一阶(直接)",
+            "content": "直接推动AI应用开发加速，企业将加大大模型投入，预计2026年全球AI应用市场规模增长40%"
+          },
+          {
+            "level": "二阶(联动)",
+            "content": "间接影响教育体系，AI辅助学习将成为主流，传统教育模式面临重构"
+          },
+          {
+            "level": "三阶(长远)",
+            "content": "长远改变就业结构，创造新的AI相关职业，同时淘汰重复性工作岗位"
+          }
+        ],
+        "mentalModel": {
+          "name": "技术扩散S曲线",
+          "logic": "GPT-5正处于技术扩散的快速增长阶段，符合S曲线模型的上升期特征。从早期采用者（技术圈）向早期大众（企业用户）扩散，预计2-3年内进入主流市场"
+        },
+        "bayesianUpdate": {
+          "target": "AGI在2030年前实现",
+          "shift": "+8%",
+          "currentProb": "65%"
+        },
+        "narrativeHeat": {
+          "score": 92,
+          "trend": "rising",
+          "description": "正在从技术圈快速扩散至大众金融圈，社交媒体讨论量24小时内增长300%，主流媒体开始深度报道"
+        },
+        "memoryQuiz": {
+          "question": "GPT-5的参数规模是多少？支持多长的上下文？",
+          "answer": "1.76万亿参数，支持200万token上下文"
+        }
+      }
+    },
+
+    {
+      "id": "2",
+      "title": "特斯拉Robotaxi正式在全球50城市运营",
+      "content": "特斯拉公司宣布其Robotaxi无人驾驶出租车服务已在全球50个城市正式运营。基于FSD V13系统，安全记录比人类驾驶低95%，单程费用仅为传统出租车的30%。",
+      "summary": "特斯拉Robotaxi全球50城运营，费用仅为传统出租车30%。",
+      "source": "Tesla官网",
+      "imageUrl": "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=400&h=300&fit=crop",
+      "category": "自动驾驶",
+      "publishedAt": "2026年01月20日 09:00",
+      "tags": ["特斯拉", "Robotaxi", "自动驾驶", "智能出行"],
+      "views": 15876,
+      "shares": 1587,
+      "readTime": 4,
+      "isBreaking": true,
+      "aiAnalysis": {
+        "sentiment": "very_positive",
+        "importance": 96,
+        "keywords": ["Robotaxi", "特斯拉", "自动驾驶", "出行革命"],
+        "summary": "Robotaxi的全球化运营标志着出行方式的根本性变革。",
+        "trends": ["自动驾驶商业化", "智能出行", "交通革命"],
+        "impact": "revolutionary",
+        "predictedViews": 80000,
+        "recommendedActions": ["体验服务", "关注覆盖城市"],
+        "reliability": 92,
+        "rippleEffect": {
+          "industries": ["出租车行业", "网约车", "汽车保险"],
+          "description": "传统出租车和网约车司机将面临转型压力，汽车保险业务模式需重构"
+        },
+        "futureOutlook": "预计2027年Robotaxi将覆盖全球200个城市，出行成本将降低70%，城市交通拥堵问题有望缓解",
+        "personalRelevance": "如果你经常打车通勤，Robotaxi将大幅降低你的出行成本；如果你是司机，需要考虑职业转型"
+      },
+      "intel_pro": {
+        "ripples": [
+          {
+            "level": "一阶(直接)",
+            "content": "直接冲击传统出租车和网约车行业，预计全球300万司机岗位在5年内受影响，Uber/Lyft等平台需转型"
+          },
+          {
+            "level": "二阶(联动)",
+            "content": "间接推动汽车保险业务模式转型，从个人责任险转向制造商责任险，保费结构将重构"
+          },
+          {
+            "level": "三阶(长远)",
+            "content": "长远改变城市规划理念，停车场需求减少60%，城市空间重新分配用于绿地和公共设施"
+          }
+        ],
+        "mentalModel": {
+          "name": "网络效应与规模经济",
+          "logic": "Robotaxi服务的价值随着覆盖城市数量增加而指数级增长，50城运营形成临界规模，单位成本大幅下降，竞争壁垒显著提升。类似Uber早期扩张策略，但无需支付司机成本"
+        },
+        "bayesianUpdate": {
+          "target": "2028年全球Robotaxi市场规模突破1000亿美元",
+          "shift": "+12%",
+          "currentProb": "72%"
+        },
+        "narrativeHeat": {
+          "score": 88,
+          "trend": "rising",
+          "description": "正在从科技和金融圈扩散至政策制定者和普通消费者，多国政府开始制定相关监管政策，社交媒体讨论量激增"
+        },
+        "memoryQuiz": {
+          "question": "特斯拉Robotaxi在多少个城市运营？费用是传统出租车的多少？",
+          "answer": "50个城市，费用仅为传统出租车的30%"
+        }
+      }
+    },
+    {
+      "id": "3",
+      "title": "比亚迪固态电池量产，续航突破1200公里",
+      "content": "比亚迪宣布其固态电池正式量产，首批搭载车型续航里程突破1200公里。能量密度达550Wh/kg，充电15分钟可行驶500公里，彻底解决续航焦虑。",
+      "summary": "比亚迪固态电池量产，续航1200公里，15分钟充电500公里。",
+      "source": "比亚迪官网",
+      "imageUrl": "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=400&h=300&fit=crop",
+      "category": "自动驾驶",
+      "publishedAt": "2026年01月20日 10:00",
+      "tags": ["比亚迪", "固态电池", "电动车", "续航"],
+      "views": 14345,
+      "shares": 1434,
+      "readTime": 4,
+      "isBreaking": true,
+      "aiAnalysis": {
+        "sentiment": "breakthrough",
+        "importance": 95,
+        "keywords": ["固态电池", "比亚迪", "电动车", "续航突破"],
+        "summary": "固态电池量产将彻底改变电动车市场格局。",
+        "trends": ["电池技术", "电动车发展", "新能源革命"],
+        "impact": "revolutionary",
+        "predictedViews": 70000,
+        "recommendedActions": ["关注新车型", "评估购车时机"],
+        "reliability": 90,
+        "rippleEffect": {
+          "industries": ["电动车", "充电桩", "石油"],
+          "description": "电动车续航焦虑彻底消除，充电桩需求减少，燃油车加速淘汰"
+        },
+        "futureOutlook": "2027年固态电池将成为主流，电动车价格将与燃油车持平，全球新能源车渗透率将超60%",
+        "personalRelevance": "如果你计划买车，建议等待固态电池车型上市；如果你已有燃油车，其二手车价值将快速贬值"
+      },
+      "intel_pro": {
+        "ripples": [
+          {
+            "level": "一阶(直接)",
+            "content": "直接推动电动车销量爆发，预计2026年全球电动车销量增长60%，比亚迪市值有望突破万亿美元"
+          },
+          {
+            "level": "二阶(联动)",
+            "content": "间接冲击充电桩行业，快充需求下降40%，慢充桩投资回报期延长，行业洗牌加速"
+          },
+          {
+            "level": "三阶(长远)",
+            "content": "长远加速石油需求下降，预计2030年全球石油需求将比峰值下降30%，产油国经济转型压力加大"
+          }
+        ],
+        "mentalModel": {
+          "name": "技术突破的临界点理论",
+          "logic": "固态电池量产是电动车技术的临界点突破，续航1200公里超越燃油车，15分钟快充媲美加油，消除了电动车最后的劣势，将触发市场快速转换"
+        },
+        "bayesianUpdate": {
+          "target": "2027年全球电动车渗透率突破50%",
+          "shift": "+20%",
+          "currentProb": "68%"
+        },
+        "narrativeHeat": {
+          "score": 90,
+          "trend": "rising",
+          "description": "正在从汽车圈快速扩散至主流消费者，社交媒体讨论量24小时内增长500%，'续航焦虑终结'成为热搜话题"
+        },
+        "memoryQuiz": {
+          "question": "比亚迪固态电池的能量密度是多少？充电15分钟可行驶多远？",
+          "answer": "能量密度550Wh/kg，充电15分钟可行驶500公里"
+        }
+      }
+    },
+
+    {
+      "id": "4",
+      "title": "英伟达发布RTX 6090显卡，AI渲染性能翻倍",
+      "content": "英伟达在CES 2026上发布了全新的RTX 6090显卡，采用下一代Hopper架构，AI渲染性能较上代翻倍。支持DLSS 5.0技术，光追性能提升150%。",
+      "summary": "英伟达RTX 6090发布，Hopper架构带来AI渲染性能翻倍。",
+      "source": "NVIDIA官网",
+      "imageUrl": "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400&h=300&fit=crop",
+      "category": "科技前沿",
+      "publishedAt": "2026年01月20日 11:00",
+      "tags": ["英伟达", "RTX 6090", "显卡", "AI渲染"],
+      "views": 11234,
+      "shares": 1123,
+      "readTime": 3,
+      "isBreaking": true,
+      "aiAnalysis": {
+        "sentiment": "excited",
+        "importance": 92,
+        "keywords": ["RTX 6090", "英伟达", "显卡", "AI渲染"],
+        "summary": "RTX 6090将重新定义游戏和AI计算的性能标准。",
+        "trends": ["GPU性能", "AI加速", "游戏技术"],
+        "impact": "high",
+        "predictedViews": 55000,
+        "recommendedActions": ["关注发售日期", "评估升级需求"],
+        "reliability": 93,
+        "rippleEffect": {
+          "industries": ["游戏", "AI训练", "视频制作"],
+          "description": "游戏画质将达到电影级别，AI模型训练成本降低，视频创作门槛大幅降低"
+        },
+        "futureOutlook": "预计2026年中发售，首发价格1.2万元，年底将降至8000元左右",
+        "personalRelevance": "如果你是游戏玩家或内容创作者，RTX 6090将带来质的飞跃；如果你做AI开发，训练效率将提升3倍"
+      },
+      "intel_pro": {
+        "ripples": [
+          {
+            "level": "一阶(直接)",
+            "content": "直接推动游戏产业升级，3A游戏开发成本增加30%，但画质将达到电影级别，玩家付费意愿提升"
+          },
+          {
+            "level": "二阶(联动)",
+            "content": "间接降低AI创业门槛，个人开发者也能训练中型模型，AI应用创新将加速"
+          },
+          {
+            "level": "三阶(长远)",
+            "content": "长远推动内容创作民主化，视频制作、3D建模等专业技能门槛大幅降低，UGC内容质量提升"
+          }
+        ],
+        "mentalModel": {
+          "name": "摩尔定律的延续",
+          "logic": "RTX 6090延续了GPU性能每18个月翻倍的趋势，AI渲染性能翻倍符合摩尔定律预测，这种指数级增长将持续推动计算密集型应用发展"
+        },
+        "bayesianUpdate": {
+          "target": "2027年实时光追成为游戏标配",
+          "shift": "+15%",
+          "currentProb": "80%"
+        },
+        "narrativeHeat": {
+          "score": 85,
+          "trend": "rising",
+          "description": "正在从游戏玩家和专业创作者圈层扩散至科技爱好者，CES展会现场演示视频在社交媒体疯传"
+        },
+        "memoryQuiz": {
+          "question": "RTX 6090采用什么架构？AI渲染性能提升了多少？",
+          "answer": "Hopper架构，AI渲染性能较上代翻倍"
+        }
+      }
+    },
+    {
+      "id": "5",
+      "title": "美联储维持利率不变，市场预期2026年降息",
+      "content": "美联储在1月议息会议上宣布维持联邦基金利率在4.00%-4.25%不变。鲍威尔表示通胀已接近2%目标，市场预期2026年将有2-3次降息。",
+      "summary": "美联储维持利率不变，市场预期2026年将有2-3次降息。",
+      "source": "美联储官网",
+      "imageUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop",
+      "category": "商业财经",
+      "publishedAt": "2026年01月20日 12:00",
+      "tags": ["美联储", "利率", "货币政策", "金融市场"],
+      "views": 12432,
+      "shares": 1243,
+      "readTime": 5,
+      "isBreaking": false,
+      "aiAnalysis": {
+        "sentiment": "neutral",
+        "importance": 89,
+        "keywords": ["美联储", "利率", "货币政策", "降息预期"],
+        "summary": "利率决议符合预期，降息周期或将在年中开启。",
+        "trends": ["货币政策", "资产配置", "经济复苏"],
+        "impact": "high",
+        "predictedViews": 50000,
+        "recommendedActions": ["调整投资策略", "关注市场动态"],
+        "reliability": 98,
+        "rippleEffect": {
+          "industries": ["房地产", "股市", "债券"],
+          "description": "降息预期将推动资产价格上涨，房贷利率下降，企业融资成本降低"
+        },
+        "futureOutlook": "预计6月首次降息25个基点，全年降息75-100个基点，美股有望创新高",
+        "personalRelevance": "如果你有房贷，降息将减轻还款压力；如果你有投资，股票和房产将受益；如果你有存款，收益将下降"
+      },
+      "intel_pro": {
+        "ripples": [
+          {
+            "level": "一阶(直接)",
+            "content": "直接推动资产价格上涨，预计美股标普500指数将上涨15-20%，房价止跌回升"
+          },
+          {
+            "level": "二阶(联动)",
+            "content": "间接刺激企业投资和消费，GDP增速有望从1.8%回升至2.5%，就业市场改善"
+          },
+          {
+            "level": "三阶(长远)",
+            "content": "长远影响全球资本流动，美元走弱促使资本流向新兴市场，全球经济再平衡"
+          }
+        ],
+        "mentalModel": {
+          "name": "货币政策传导机制",
+          "logic": "美联储降息通过利率渠道、信贷渠道和资产价格渠道传导至实体经济，降息→融资成本下降→企业投资增加→就业改善→消费增长，形成正向循环"
+        },
+        "bayesianUpdate": {
+          "target": "2026年美国经济软着陆成功（避免衰退）",
+          "shift": "+10%",
+          "currentProb": "75%"
+        },
+        "narrativeHeat": {
+          "score": 87,
+          "trend": "stable",
+          "description": "在金融圈和投资者中保持高热度，主流媒体持续跟踪报道，但普通民众关注度有限，主要影响有房贷和投资的人群"
+        },
+        "memoryQuiz": {
+          "question": "美联储当前的联邦基金利率区间是多少？市场预期2026年降息几次？",
+          "answer": "4.00%-4.25%，市场预期2026年降息2-3次"
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "version": "2.0",
+    "lastUpdated": "2026-01-20T12:00:00Z",
+    "totalNews": 5,
+    "categories": 4
+  }
+}

@@ -1,0 +1,26 @@
+# Render Blueprint — 免费部署 Flask 后端
+# https://render.com
+
+services:
+  - type: web
+    name: newsbrief-api
+    env: python
+    region: singapore  # 亚洲延迟最低
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && python -c "from models import init_database; from config import get_config; engine=init_database(get_config().DATABASE_URL); print('DB ready')" && gunicorn -w 2 -b 0.0.0.0:$PORT --timeout 60 app:app --chdir backend
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false  # 从 Neon 控制台获取
+      - key: DEEPSEEK_API_KEY
+        sync: false  # 可选，用于 AI 分析
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: LOG_LEVEL
+        value: INFO
+    autoDeploy: true

@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "📚 稍后读",
+  "navigationBarBackgroundColor": "#0F172A",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#0F172A",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "light"
+}

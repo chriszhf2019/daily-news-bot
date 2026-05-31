@@ -22,30 +22,21 @@ struct NewsDetailView: View {
     @State private var showingNoteView = false
     @State private var currentNote: Note?
     @State private var isAIProcessing = false
+    @State private var showingPersonalRelevance = false
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                // 标题区域
-                headerSection
+            VStack(alignment: .leading, spacing: 24) {
+                // 1. 七要素部分
+                sevenElementsSection
                 
-                // 新闻内容
-                contentSection
+                // 2. 相关性部分
+                relevanceSection
                 
-                // AI分析
-                if let aiAnalysis = news.aiAnalysis {
-                    aiAnalysisSection(aiAnalysis)
-                }
+                // 3. 扩展性部分
+                expansionSection
                 
-                // 标签
-                if !news.tags.isEmpty {
-                    tagsSection
-                }
-                
-                // 统计数据
-                statsSection
-                
-                Spacer(minLength: 20)
+                Spacer(minLength: 40)
             }
             .padding()
         }
@@ -111,82 +102,80 @@ struct NewsDetailView: View {
         .tint(.white)
     }
     
-    // MARK: - 头部区域
-    private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // 分类和突发标签
-            HStack {
-                Text(news.category)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.blue.opacity(0.2))
-                    .cornerRadius(4)
-                
-                if news.isBreaking {
-                    Text("🚨 突发")
+    // MARK: - 1. 七要素部分
+    private var sevenElementsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // 标题和分类
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text(news.category)
                         .font(.caption)
                         .fontWeight(.medium)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.red.opacity(0.2))
+                        .background(Color.blue.opacity(0.2))
                         .cornerRadius(4)
-                }
-                
-                Spacer()
-            }
-            
-            // 标题
-            Text(news.title)
-                .font(.title2)
-                .fontWeight(.bold)
-                .lineLimit(nil)
-                .multilineTextAlignment(.leading)
-            
-            // 发布信息
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("来源: \(news.source)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
                     
-                    Text(news.publishedAt)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    if news.isBreaking {
+                        Text("🚨 突发")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.red.opacity(0.2))
+                            .cornerRadius(4)
+                    }
+                    
+                    Spacer()
                 }
                 
-                Spacer()
-            }
-        }
-    }
-    
-    // MARK: - 内容区域
-    private var contentSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("内容摘要")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            Text(news.summary)
-                .font(.body)
-                .foregroundColor(.primary)
-                .lineSpacing(4)
-            
-            Divider()
-            
-            Text("详细内容")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            Text(news.content)
-                .font(.body)
-                .foregroundColor(.primary)
-                .lineSpacing(4)
-            
-            if let url = news.url {
-                Divider()
+                Text(news.title)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .lineLimit(nil)
+                    .multilineTextAlignment(.leading)
                 
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("来源: \(news.source)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Text(news.publishedAt)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                }
+            }
+            
+            // 内容摘要
+            VStack(alignment: .leading, spacing: 8) {
+                Text("内容摘要")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Text(news.summary)
+                    .font(.body)
+                    .foregroundColor(.primary)
+                    .lineSpacing(4)
+            }
+            
+            // 详细内容
+            VStack(alignment: .leading, spacing: 8) {
+                Text("详细内容")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Text(news.content)
+                    .font(.body)
+                    .foregroundColor(.primary)
+                    .lineSpacing(4)
+            }
+            
+            // 原文链接
+            if let url = news.url {
                 Button(action: {
                     webViewURL = URL(string: url)
                     showingWebView = true
@@ -205,226 +194,280 @@ struct NewsDetailView: View {
                 .buttonStyle(PlainButtonStyle())
             }
         }
+        .padding()
+        .background(Color.blue.opacity(0.05))
+        .cornerRadius(12)
     }
     
-    // MARK: - AI分析区域
-    private func aiAnalysisSection(_ aiAnalysis: News.AIAnalysis) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+    // MARK: - 2. 相关性部分
+    private var relevanceSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Image(systemName: "brain.head.profile")
+                Image(systemName: "connect")
+                    .foregroundColor(.green)
+                Text("相关性分析")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.green)
+            }
+            
+            // 涟漪效应
+            if let rippleEffect = news.aiAnalysis?.rippleEffect {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "waveform")
+                            .foregroundColor(.blue)
+                        Text("涟漪效应")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
+                    
+                    if !rippleEffect.industries.isEmpty {
+                        Text("影响行业: \(rippleEffect.industries.joined(separator: ", "))")
+                            .font(.body)
+                    }
+                    
+                    Text(rippleEffect.description)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+                .background(Color.blue.opacity(0.05))
+                .cornerRadius(8)
+            }
+            
+            // 正反观点
+            if let proConViews = news.aiAnalysis?.proConViews {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "balance")
+                            .foregroundColor(.yellow)
+                        Text("正反观点")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
+                    
+                    // 正面观点
+                    if !proConViews.pros.isEmpty {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("正面观点:")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                            ForEach(proConViews.pros, id: \.self) {
+                                Text("• \($0)")
+                                    .font(.body)
+                            }
+                        }
+                    }
+                    
+                    // 负面观点
+                    if !proConViews.cons.isEmpty {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("负面观点:")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                            ForEach(proConViews.cons, id: \.self) {
+                                Text("• \($0)")
+                                    .font(.body)
+                            }
+                        }
+                    }
+                    
+                    // 平衡分析
+                    if let balance = proConViews.balance {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("平衡分析:")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                            Text(balance)
+                                .font(.body)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .padding()
+                .background(Color.yellow.opacity(0.05))
+                .cornerRadius(8)
+            }
+            
+            // 与我何干
+            if let personalRelevance = news.aiAnalysis?.personalRelevance {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "target")
+                            .foregroundColor(.purple)
+                        Text("与我何干")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
+                    
+                    Text(personalRelevance)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+                .background(Color.purple.opacity(0.05))
+                .cornerRadius(8)
+            }
+        }
+        .padding()
+        .background(Color.green.opacity(0.05))
+        .cornerRadius(12)
+    }
+    
+    // MARK: - 3. 扩展性部分
+    private var expansionSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "sparkles")
                     .foregroundColor(.purple)
-                Text("AI智能分析")
+                Text("扩展性分析")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.purple)
             }
             
-            // 情感分析
-            HStack {
-                Text("情感倾向:")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                Spacer()
-                Text(aiAnalysis.sentiment)
-                    .font(.subheadline)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
-                    .background(sentimentColor(aiAnalysis.sentiment).opacity(0.2))
-                    .cornerRadius(4)
-            }
-            
-            // 重要性评级
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text("重要性评级:")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    Spacer()
-                    Text("\(aiAnalysis.importance)/100")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                }
-                
-                ProgressView(value: Double(aiAnalysis.importance), total: 100)
-                    .progressViewStyle(LinearProgressViewStyle(tint: .yellow))
-            }
-            
-            // 关键词
-            if !aiAnalysis.keywords.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("关键词:")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
+            // AI逻辑溯源
+            if let aiLogicTrace = news.aiAnalysis?.aiLogicTrace {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "brain.head.profile")
+                            .foregroundColor(.blue)
+                        Text("AI逻辑溯源")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
                     
-                    FlowLayout(items: aiAnalysis.keywords) { keyword in
-                        Text(keyword)
+                    // 逻辑链
+                    if !aiLogicTrace.logicChain.isEmpty {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("逻辑链:")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                            ForEach(aiLogicTrace.logicChain.indices, id: \.self) {
+                                Text("\($0 + 1). \(aiLogicTrace.logicChain[$0])")
+                                    .font(.body)
+                            }
+                        }
+                    }
+                    
+                    // 推理过程
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("推理过程:")
                             .font(.caption)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.gray.opacity(0.2))
-                            .cornerRadius(4)
+                            .fontWeight(.medium)
+                        Text(aiLogicTrace.reasoning)
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    // 参考来源
+                    if let sources = aiLogicTrace.sources, !sources.isEmpty {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("参考来源:")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                            ForEach(sources, id: \.self) {
+                                Text("• \($0)")
+                                    .font(.body)
+                            }
+                        }
                     }
                 }
+                .padding()
+                .background(Color.blue.opacity(0.05))
+                .cornerRadius(8)
             }
             
-            // 分析摘要
-            VStack(alignment: .leading, spacing: 4) {
-                Text("AI分析摘要:")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                
-                Text(aiAnalysis.summary)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                    .lineSpacing(4)
-            }
-            
-            // 趋势分析
-            if !aiAnalysis.trends.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("相关趋势:")
+            // 深度阅读
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: "book")
+                        .foregroundColor(.orange)
+                    Text("深度阅读")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                    
-                    ForEach(aiAnalysis.trends, id: \.self) { trend in
-                        HStack {
-                            Image(systemName: "trending.up")
-                                .foregroundColor(.green)
-                                .font(.caption)
-                            Text(trend)
-                                .font(.body)
-                            Spacer()
-                        }
-                        .padding(.vertical, 2)
-                    }
                 }
-            }
-            
-            // 影响评估
-            VStack(alignment: .leading, spacing: 4) {
-                Text("影响评估:")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
                 
-                Text(aiAnalysis.impact)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-            }
-            
-            // 预测浏览量
-            HStack {
-                Text("预测浏览量:")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                Spacer()
-                Text(formatNumber(aiAnalysis.predictedViews))
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.blue)
-            }
-            
-            // 推荐行动
-            if !aiAnalysis.recommendedActions.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("推荐行动:")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    
-                    ForEach(aiAnalysis.recommendedActions, id: \.self) { action in
-                        HStack {
-                            Image(systemName: "checkmark.circle")
-                                .foregroundColor(.green)
+                // 标签
+                if !news.tags.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("相关标签:")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                        FlowLayout(items: news.tags) {
+                            Text("#\($0)")
                                 .font(.caption)
-                            Text(action)
-                                .font(.body)
-                            Spacer()
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.gray.opacity(0.2))
+                                .cornerRadius(12)
                         }
-                        .padding(.vertical, 2)
                     }
                 }
+                
+                // 统计数据
+                HStack {
+                    // 浏览量
+                    VStack {
+                        Image(systemName: "eye")
+                            .foregroundColor(.blue)
+                        Text(formatNumber(news.views))
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                        Text("浏览")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    // 分享数
+                    VStack {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundColor(.green)
+                        Text(formatNumber(news.shares))
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                        Text("分享")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    // 阅读时间
+                    VStack {
+                        Image(systemName: "clock")
+                            .foregroundColor(.orange)
+                        Text("\(news.readTime)分钟")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                        Text("阅读")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    // 收藏数
+                    VStack {
+                        Image(systemName: "heart")
+                            .foregroundColor(.red)
+                        Text("❤️")
+                            .font(.caption)
+                        Text("收藏")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
             }
         }
         .padding()
         .background(Color.purple.opacity(0.05))
-        .cornerRadius(12)
-    }
-    
-    // MARK: - 标签区域
-    private var tagsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("相关标签")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            FlowLayout(items: news.tags) { tag in
-                Text("#\(tag)")
-                    .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.gray.opacity(0.2))
-                    .cornerRadius(12)
-            }
-        }
-    }
-    
-    // MARK: - 统计数据区域
-    private var statsSection: some View {
-        HStack {
-            // 浏览量
-            VStack {
-                Image(systemName: "eye")
-                    .foregroundColor(.blue)
-                Text(formatNumber(news.views))
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                Text("浏览")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
-            
-            Spacer()
-            
-            // 分享数
-            VStack {
-                Image(systemName: "square.and.arrow.up")
-                    .foregroundColor(.green)
-                Text(formatNumber(news.shares))
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                Text("分享")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
-            
-            Spacer()
-            
-            // 阅读时间
-            VStack {
-                Image(systemName: "clock")
-                    .foregroundColor(.orange)
-                Text("\(news.readTime)分钟")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                Text("阅读")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
-            
-            Spacer()
-            
-            // 收藏数
-            VStack {
-                Image(systemName: "heart")
-                    .foregroundColor(.red)
-                Text("❤️")
-                    .font(.caption)
-                Text("收藏")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding()
-        .background(Color(.systemGray6))
         .cornerRadius(12)
     }
     
@@ -688,6 +731,47 @@ struct SafariView: UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {
         // 无需更新
+    }
+}
+
+// MARK: - 个人关联分析视图
+struct PersonalRelevanceView: View {
+    let news: News
+    
+    var body: some View {
+        NavigationView {
+            VStack(alignment: .leading, spacing: 16) {
+                // 标题
+                Text("这条新闻与我何干？")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                // 分析内容
+                if let personalRelevance = news.aiAnalysis?.personalRelevance {
+                    Text(personalRelevance)
+                        .font(.body)
+                        .foregroundColor(.white.opacity(0.9))
+                        .lineSpacing(6)
+                } else {
+                    Text("暂无个人关联分析数据")
+                        .font(.body)
+                        .foregroundColor(.white.opacity(0.6))
+                }
+                
+                Spacer()
+            }
+            .padding()
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color(hex: "0F172A"), Color(hex: "1E293B")]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            )
+            .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }
 

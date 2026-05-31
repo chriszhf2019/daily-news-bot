@@ -1,0 +1,178 @@
+<!--deep-exploration.wxml - 深度探索（战略智库版 15-21）-->
+<view class="research-page">
+  <!-- 加载状态 -->
+  <view class="loading-box" wx:if="{{loading}}">
+    <view class="spinner"></view>
+    <text class="loading-tip">战略研究中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-box" wx:elif="{{isEmpty}}">
+    <text class="empty-icon">📭</text>
+    <text class="empty-tip">{{errorMessage}}</text>
+    <button class="back-btn" bindtap="goBack">返回</button>
+  </view>
+
+  <!-- 主内容 -->
+  <block wx:else>
+    <!-- 顶部标题 -->
+    <view class="page-top">
+      <view class="top-left">
+        <text class="page-title">⚜️ 背后的故事</text>
+        <text class="page-subtitle">Strategic Intelligence · 因果溯源</text>
+      </view>
+      <view class="status-tag {{isRealData ? 'success' : ''}}">
+        {{isRealData ? '✅' : '⏳'}}
+      </view>
+    </view>
+
+    <!-- 新闻标题 -->
+    <view class="news-box" wx:if="{{newsData.title}}">
+      <text class="news-title">{{newsData.title}}</text>
+    </view>
+
+    <!-- 未展开状态 -->
+    <view class="expand-trigger" wx:if="{{!expanded}}" bindtap="expandResearch">
+      <text class="trigger-icon">🔍</text>
+      <text class="trigger-text">展开深度探源</text>
+      <text class="trigger-hint">点击加载战略级因果分析</text>
+    </view>
+
+    <!-- 已展开内容 -->
+    <scroll-view class="content-scroll" scroll-y="true" wx:if="{{expanded && !loading}}">
+      
+      <!-- 20. 显微镜核查（逻辑起点）-->
+      <view class="section-card micro-section">
+        <view class="section-head">
+          <text class="section-tag">🔬 20 MICRO-AUDIT</text>
+          <text class="section-label">显微镜核查</text>
+        </view>
+        <view class="micro-content" wx:if="{{microAuditTarget}}">
+          <view class="micro-target">
+            <text class="target-bracket">[</text>
+            <text class="target-text">{{microAuditTarget}}</text>
+            <text class="target-bracket">]</text>
+          </view>
+          <text class="micro-logic">{{microAuditLogic}}</text>
+        </view>
+        <text class="empty-text" wx:else>暂无核查数据</text>
+      </view>
+
+      <!-- 15. AI推理逻辑树 -->
+      <view class="section-card reasoning-section">
+        <view class="section-head">
+          <text class="section-tag">15 REASONING CHAIN</text>
+        </view>
+        <view class="reasoning-tree" wx:if="{{reasoningSteps.length > 0}}">
+          <view class="reason-step" wx:for="{{reasoningSteps}}" wx:key="index">
+            <view class="step-dot"></view>
+            <text class="step-text">{{item}}</text>
+          </view>
+        </view>
+        <text class="empty-text" wx:else>暂无推理链</text>
+      </view>
+
+      <!-- 16. 历史相似基因 -->
+      <view class="section-card history-section" wx:if="{{historyMatch}}">
+        <view class="section-head">
+          <text class="section-tag">16 HISTORY MATCH</text>
+          <text class="section-label">历史相似基因</text>
+        </view>
+        <view class="history-content">
+          <view class="history-match">
+            <text class="match-label">📜 对标事件</text>
+            <text class="match-text">{{historyMatch}}</text>
+          </view>
+          <view class="history-lesson" wx:if="{{historyLesson}}">
+            <text class="lesson-label">💡 历史教训</text>
+            <text class="lesson-text">{{historyLesson}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 17. 隐秘利益图谱 -->
+      <view class="section-card interests-section">
+        <view class="section-head">
+          <text class="section-tag">17 INTERESTS MAP</text>
+          <text class="section-label">利益动向</text>
+        </view>
+        <view class="interests-list" wx:if="{{hiddenInterests.length > 0}}">
+          <view class="interest-row" wx:for="{{hiddenInterests}}" wx:key="index">
+            <text class="interest-entity">{{item.entity}}</text>
+            <text class="interest-motivation">{{item.motivation}}</text>
+          </view>
+        </view>
+        <text class="empty-text" wx:else>暂无利益图谱</text>
+      </view>
+
+      <!-- 18. 生态位扩展 -->
+      <view class="section-card ecosystem-section">
+        <view class="section-head">
+          <text class="section-tag">18 KNOWLEDGE EXPANSION</text>
+          <text class="section-label">生态位</text>
+        </view>
+        <view class="ecosystem-groups">
+          <view class="eco-group" wx:if="{{ecosystemUpstream.length > 0}}">
+            <text class="eco-title">⬆️ 上游</text>
+            <view class="eco-tags">
+              <text class="eco-tag upstream" wx:for="{{ecosystemUpstream}}" wx:key="*this">{{item}}</text>
+            </view>
+          </view>
+          <view class="eco-group" wx:if="{{ecosystemDownstream.length > 0}}">
+            <text class="eco-title">⬇️ 下游</text>
+            <view class="eco-tags">
+              <text class="eco-tag downstream" wx:for="{{ecosystemDownstream}}" wx:key="*this">{{item}}</text>
+            </view>
+          </view>
+          <view class="eco-group" wx:if="{{ecosystemRivals.length > 0}}">
+            <text class="eco-title">⚔️ 竞争</text>
+            <view class="eco-tags">
+              <text class="eco-tag rival" wx:for="{{ecosystemRivals}}" wx:key="*this">{{item}}</text>
+            </view>
+          </view>
+        </view>
+        <text class="empty-text" wx:if="{{ecosystemUpstream.length === 0 && ecosystemDownstream.length === 0 && ecosystemRivals.length === 0}}">暂无生态数据</text>
+      </view>
+
+      <!-- 19. 黑天鹅触发点 -->
+      <view class="section-card blackswan-section" wx:if="{{blackSwanTrigger}}">
+        <view class="section-head">
+          <text class="section-tag">⚠️ 19 CRITICAL VARIABLE</text>
+          <text class="section-label">变量监控</text>
+        </view>
+        <view class="blackswan-content">
+          <text class="blackswan-prefix">若出现</text>
+          <text class="blackswan-trigger">{{blackSwanTrigger}}</text>
+          <text class="blackswan-suffix">，本逻辑链即刻失效。</text>
+        </view>
+      </view>
+
+      <!-- 21. 战略终局预言 -->
+      <view class="section-card outlook-section">
+        <view class="outlook-divider">
+          <view class="divider-line"></view>
+          <text class="divider-icon">⚜️</text>
+          <view class="divider-line"></view>
+        </view>
+        <view class="section-head outlook-head">
+          <text class="section-tag">21 STRATEGIC OUTLOOK</text>
+        </view>
+        <view class="outlook-content" wx:if="{{strategicOutlook}}">
+          <text class="outlook-quote">" {{strategicOutlook}} "</text>
+        </view>
+        <text class="empty-text" wx:else>暂无战略预言</text>
+        <view class="outlook-footer">
+          <text class="footer-text">Secret Intelligence Service · Project Kernel</text>
+        </view>
+      </view>
+
+      <view class="bottom-space"></view>
+    </scroll-view>
+
+    <!-- 底部操作 -->
+    <view class="bottom-bar">
+      <button class="bar-btn" bindtap="goBack">← 返回</button>
+      <button class="bar-btn primary" bindtap="shareAnalysis">📤 分享预言</button>
+    </view>
+  </block>
+</view>

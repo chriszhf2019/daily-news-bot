@@ -1,0 +1,123 @@
+<view class="logic-trace-container {{showTransition ? 'transition-active' : ''}}">
+  <!-- 页面转场闪烁层 -->
+  <view class="transition-flash {{showTransition ? 'flash' : ''}}"></view>
+  
+  <!-- 星星散开效果 -->
+  <view class="stars-container {{showTransition ? 'stars-explode' : ''}}">
+    <view class="star" wx:for="{{stars}}" wx:key="index" 
+          style="left: 50%; top: 50%; --tx: {{item.tx}}rpx; --ty: {{item.ty}}rpx; animation-delay: {{item.delay}}s;"></view>
+  </view>
+
+  <!-- 顶部导航 -->
+  <view class="nav-bar">
+    <view class="nav-back" bindtap="goBack">
+      <text class="nav-back-icon">←</text>
+    </view>
+    <text class="nav-title">AI 逻辑深度溯源</text>
+  </view>
+
+  <!-- 背景微粒 -->
+  <view class="particles-container">
+    <view class="particle" wx:for="{{particles}}" wx:key="index" style="left: {{item.x}}%; top: {{item.y}}%; animation-delay: {{item.delay}}s;"></view>
+  </view>
+
+  <!-- 背景文字水印 -->
+  <view class="watermark-container">
+    <text class="watermark-text">AI 推演引擎</text>
+    <text class="watermark-subtext">基于全球 500+ 信源实时计算</text>
+  </view>
+
+  <!-- 关键变量浮窗 -->
+  <view class="variables-panel">
+    <view class="variables-title">关键变量</view>
+    <view class="variables-list">
+      <view class="variable-item" wx:for="{{logicTree.variables}}" wx:key="id" bindtap="showVariableDetail" data-item="{{item}}">
+        <view class="variable-name">{{item.name}}</view>
+        <view class="variable-value">{{item.value}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 逻辑树容器 -->
+  <view class="logic-tree-container">
+    <!-- 起源区 -->
+    <view class="origins-section">
+      <view class="section-label">起源区</view>
+      <view class="origins-nodes">
+        <view class="origin-node {{item.weight > 80 ? 'high-weight' : ''}} {{item.weight < 60 ? 'low-weight' : ''}}" 
+              wx:for="{{logicTree.origins}}" 
+              wx:key="id"
+              bindtap="showNodeDetail"
+              data-item="{{item}}"
+              style="animation-delay: {{index * 0.1}}s; border-color: rgba(147, 197, 253, {{item.weight / 100}}); box-shadow: 0 0 {{item.weight / 5}}rpx rgba(147, 197, 253, {{item.weight / 100}});">
+          <view class="node-content">
+            <text class="node-title" style="font-weight: {{item.weight > 80 ? '700' : '400'}};">{{item.title}}</text>
+            <text class="node-weight">权重: {{item.weight}}</text>
+          </view>
+        </view>
+      </view>
+      <!-- 连线 -->
+      <view class="connection-lines">
+        <view class="connection-line" 
+              wx:for="{{logicTree.origins}}" 
+              wx:key="id"
+              style="height: {{item.weight / 3}}rpx; background: rgba(147, 197, 253, {{item.weight / 100}});">
+          <view class="flow-dot" style="animation-duration: {{2 - item.weight / 100}}s;"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 中心节点 -->
+    <view class="center-node-container">
+      <view class="center-node" 
+            style="animation-delay: 0.3s; box-shadow: 0 0 60rpx 20rpx rgba(139, 92, 246, 0.6);">
+        <text class="center-node-title">{{logicTree.root.title}}</text>
+        <text class="center-node-subtitle">{{logicTree.root.subtitle}}</text>
+      </view>
+    </view>
+
+    <!-- 影响区 -->
+    <view class="impacts-section">
+      <!-- 连线 -->
+      <view class="connection-lines">
+        <view class="connection-line" 
+              wx:for="{{logicTree.impacts}}" 
+              wx:key="id"
+              style="height: {{item.weight / 3}}rpx; background: rgba(34, 197, 94, {{item.weight / 100}});">
+          <view class="flow-dot" style="animation-duration: {{2 - item.weight / 100}}s;"></view>
+        </view>
+      </view>
+      <view class="section-label">影响区</view>
+      <view class="impacts-nodes">
+        <view class="impact-node {{item.weight > 80 ? 'high-weight' : ''}} {{item.weight < 60 ? 'low-weight' : ''}}" 
+              wx:for="{{logicTree.impacts}}" 
+              wx:key="id"
+              bindtap="showNodeDetail"
+              data-item="{{item}}"
+              style="animation-delay: {{0.4 + index * 0.1}}s; border-color: rgba(34, 197, 94, {{item.weight / 100}}); box-shadow: 0 0 {{item.weight / 5}}rpx rgba(34, 197, 94, {{item.weight / 100}});">
+          <view class="node-content">
+            <text class="node-title" style="font-weight: {{item.weight > 80 ? '700' : '400'}};">{{item.title}}</text>
+            <text class="node-weight">权重: {{item.weight}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 详情浮层 -->
+  <view class="detail-overlay {{showDetail ? 'show' : ''}}" bindtap="hideDetail">
+    <view class="detail-content" catchtap="stopPropagation">
+      <view class="detail-header">
+        <text class="detail-title">{{selectedNode.title}}</text>
+        <view class="detail-close" bindtap="hideDetail">✕</view>
+      </view>
+      <view class="detail-body">
+        <text class="detail-description">{{selectedNode.description}}</text>
+        <view class="detail-meta">
+          <text class="detail-weight">权重: {{selectedNode.weight}}</text>
+          <text class="detail-type">类型: {{selectedNode.type}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

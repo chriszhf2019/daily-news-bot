@@ -1,0 +1,804 @@
+<view class="container {{themeClass}}">
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载设置中...</text>
+  </view>
+
+  <!-- 页面头部 -->
+  <view class="page-header" wx:if="{{!isLoading}}">
+    <view class="header-content">
+      <text class="page-title">设置中心</text>
+    </view>
+  </view>
+
+  <view class="settings-section ai-persona-section" wx:if="{{!isLoading}}">
+    <view class="section-header">
+      <text class="section-title">🤖 AI 情报官人设</text>
+      <text class="section-badge">核心功能</text>
+    </view>
+    
+    <view class="persona-selector">
+      <view class="persona-card {{aiPersona === 'analyst' ? 'active' : ''}}" bindtap="selectPersona" data-persona="analyst">
+        <view class="persona-icon">📊</view>
+        <view class="persona-info">
+          <text class="persona-name">专业分析师</text>
+          <text class="persona-desc">冷峻客观，侧重数据</text>
+        </view>
+        <view class="persona-check" wx:if="{{aiPersona === 'analyst'}}">✓</view>
+      </view>
+      
+      <view class="persona-card {{aiPersona === 'geek' ? 'active' : ''}}" bindtap="selectPersona" data-persona="geek">
+        <view class="persona-icon">😈</view>
+        <view class="persona-info">
+          <text class="persona-name">毒舌极客</text>
+          <text class="persona-desc">辛辣幽默，技术吐槽</text>
+        </view>
+        <view class="persona-check" wx:if="{{aiPersona === 'geek'}}">✓</view>
+      </view>
+      
+      <view class="persona-card {{aiPersona === 'mentor' ? 'active' : ''}}" bindtap="selectPersona" data-persona="mentor">
+        <view class="persona-icon">👨‍🏫</view>
+        <view class="persona-info">
+          <text class="persona-name">耐心导师</text>
+          <text class="persona-desc">通俗易懂，底层科普</text>
+        </view>
+        <view class="persona-check" wx:if="{{aiPersona === 'mentor'}}">✓</view>
+      </view>
+    </view>
+    
+    <view class="persona-preview">
+      <text class="preview-label">预览效果：</text>
+      <text class="preview-text">{{personaPreviewText}}</text>
+    </view>
+  </view>
+
+  <view class="settings-row" wx:if="{{!isLoading}}">
+    <view class="settings-section">
+      <view class="section-header">
+        <text class="section-title">🎨 主题配色</text>
+      </view>
+      
+      <view class="theme-selector">
+        <view class="theme-card {{themeColor === 'deep-blue' ? 'active' : ''}}" bindtap="selectTheme" data-theme="deep-blue">
+          <view class="theme-preview deep-blue-preview"></view>
+          <text class="theme-name">深邃蓝</text>
+        </view>
+        <view class="theme-card {{themeColor === 'geek-black' ? 'active' : ''}}" bindtap="selectTheme" data-theme="geek-black">
+          <view class="theme-preview geek-black-preview"></view>
+          <text class="theme-name">极客黑</text>
+        </view>
+        <view class="theme-card {{themeColor === 'eye-green' ? 'active' : ''}}" bindtap="selectTheme" data-theme="eye-green">
+          <view class="theme-preview eye-green-preview"></view>
+          <text class="theme-name">护眼绿</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="settings-section">
+      <view class="section-header">
+        <text class="section-title">📖 阅读深度</text>
+      </view>
+      
+      <view class="depth-slider-wrap">
+        <view class="depth-labels">
+          <text class="depth-label left">极致脱水</text>
+          <text class="depth-label center">平衡模式</text>
+          <text class="depth-label right">深度研报</text>
+        </view>
+        <slider class="depth-slider" min="0" max="2" step="1" value="{{readingDepth}}" activeColor="#667eea" backgroundColor="rgba(255,255,255,0.2)" block-size="24" bindchange="changeReadingDepth"/>
+        <view class="depth-preview">
+          <text class="depth-current">当前：{{readingDepthText}}</text>
+          <text class="depth-desc">{{readingDepthDesc}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="settings-section" wx:if="{{!isLoading}}">
+    <view class="section-header">
+      <view class="section-title-group">
+        <text class="section-title">📡 关键词雷达</text>
+        <text class="section-hint">命中时卡片金边高亮+置顶</text>
+      </view>
+    </view>
+    
+    <view class="focus-keywords-wrap">
+      <view class="keyword-input-row">
+        <input class="focus-input" placeholder="输入关注词，如：华为、马斯克" value="{{newFocusKeyword}}" bindinput="onFocusKeywordInput" bindconfirm="addFocusKeyword"/>
+        <button class="add-focus-btn" bindtap="addFocusKeyword">添加</button>
+      </view>
+      
+      <view class="focus-tags" wx:if="{{focusKeywords.length > 0}}">
+        <view class="focus-tag" wx:for="{{focusKeywords}}" wx:key="*this">
+          <text class="focus-tag-icon">✨</text>
+          <text class="focus-tag-text">{{item}}</text>
+          <text class="focus-tag-remove" catchtap="removeFocusKeyword" data-keyword="{{item}}">✕</text>
+        </view>
+      </view>
+      
+      <view class="focus-presets">
+        <text class="presets-label">热门推荐：</text>
+        <view class="preset-tags">
+          <text class="preset-tag {{focusKeywords.indexOf(item) > -1 ? 'added' : ''}}" wx:for="{{presetKeywords}}" wx:key="*this" bindtap="addPresetKeyword" data-keyword="{{item}}">
+            {{item}} {{focusKeywords.indexOf(item) > -1 ? '✓' : '+'}}
+          </text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="settings-row" wx:if="{{!isLoading}}">
+    <view class="settings-section">
+      <view class="section-header">
+        <text class="section-title">🏷️ 兴趣标签</text>
+        <text class="section-badge" bindtap="openInterestModal">管理</text>
+      </view>
+      
+      <view class="interest-preview">
+        <view class="interest-tag-mini" wx:for="{{interestTagsDisplay}}" wx:key="*this" wx:if="{{index < 6}}">
+          <text>{{item}}</text>
+        </view>
+        <view class="interest-more" wx:if="{{interestTagsDisplay.length > 6}}">+{{interestTagsDisplay.length - 6}}</view>
+        <view class="interest-empty" wx:if="{{interestTagsDisplay.length === 0}}" bindtap="openInterestModal">
+          <text>点击添加兴趣标签 →</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="settings-section ai-instruction-section">
+      <view class="section-header">
+        <text class="section-title">✨ AI定制指令</text>
+        <text class="section-badge premium">高级</text>
+      </view>
+      
+      <view class="ai-instruction-preview" bindtap="openAiInstructionModal">
+        <view class="instruction-content" wx:if="{{aiInstruction}}">
+          <text class="instruction-text">{{aiInstruction}}</text>
+          <text class="instruction-edit">编辑</text>
+        </view>
+        <view class="instruction-empty" wx:else>
+          <text class="empty-icon">🎯</text>
+          <text class="empty-text">用一句话描述你的身份和关注点</text>
+          <text class="empty-hint">AI将为你精准筛选和解读新闻</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- AI API配置单独一列 -->
+  <view class="settings-section full-width api-config-section" wx:if="{{!isLoading}}">
+    <view class="section-header">
+      <text class="section-title">🔑 AI API配置</text>
+      <text class="section-badge new">必填</text>
+    </view>
+    
+    <view class="api-config-content">
+      <!-- API密钥配置 -->
+      <view class="config-item">
+        <view class="config-label">
+          <text class="label-icon">🔑</text>
+          <text class="label-text">API密钥</text>
+        </view>
+        <view class="config-input-wrap">
+          <input class="config-input" 
+                 placeholder="sk-xxxxxxxxxxxxxxxx" 
+                 password="{{!showApiKey}}"
+                 value="{{apiKey}}"
+                 bindinput="onApiKeyInput"
+                 bindblur="onApiKeyBlur"/>
+          <view class="toggle-password" bindtap="toggleApiKeyVisibility">
+            <text>{{showApiKey ? '👁' : '👁️‍🗨️'}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="config-status" wx:if="{{apiKey}}">
+        <text class="status-icon {{apiKeyStatus}}">{{apiKeyStatus === 'valid' ? '✓' : (apiKeyStatus === 'invalid' ? '✕' : '○')}}</text>
+        <text class="status-text {{apiKeyStatus}}">{{apiKeyStatusText}}</text>
+      </view>
+      
+      <!-- API端点配置 -->
+      <view class="config-item">
+        <view class="config-label">
+          <text class="label-icon">🌐</text>
+          <text class="label-text">API端点</text>
+        </view>
+        <view class="config-input-wrap">
+          <input class="config-input" 
+                 placeholder="https://api.deepseek.com/v1" 
+                 value="{{apiEndpoint}}"
+                 bindinput="onApiEndpointInput"
+                 bindblur="onApiEndpointBlur"/>
+        </view>
+      </view>
+      
+      <!-- 模型选择 -->
+      <view class="config-item model-config">
+        <view class="config-label">
+          <text class="label-icon">🤖</text>
+          <text class="label-text">模型选择</text>
+        </view>
+        <view class="model-selector">
+          <view class="model-option {{selectedModel === 'deepseek-chat' ? 'active' : ''}}" bindtap="selectModel" data-model="deepseek-chat">
+            <text class="model-name">DeepSeek Chat</text>
+            <text class="model-desc">通用对话模型</text>
+          </view>
+          <view class="model-option {{selectedModel === 'deepseek-coder' ? 'active' : ''}}" bindtap="selectModel" data-model="deepseek-coder">
+            <text class="model-name">DeepSeek Coder</text>
+            <text class="model-desc">代码生成模型</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 操作按钮 -->
+      <view class="config-button-group">
+        <button class="config-btn test-btn" bindtap="testApiConnection" disabled="{{!apiKey}}">
+          <text class="btn-icon">🔌</text>
+          <text class="btn-text">测试连接</text>
+        </button>
+        <button class="config-btn save-btn" bindtap="saveApiConfig" disabled="{{!apiKey}}">
+          <text class="btn-icon">💾</text>
+          <text class="btn-text">保存配置</text>
+        </button>
+      </view>
+      
+      <view class="config-button-group">
+        <button class="config-btn secondary-btn" bindtap="exportApiConfig" disabled="{{!apiKey}}">
+          <text class="btn-icon">📤</text>
+          <text class="btn-text">导出配置</text>
+        </button>
+        <button class="config-btn secondary-btn" bindtap="importApiConfig">
+          <text class="btn-icon">📥</text>
+          <text class="btn-text">导入配置</text>
+        </button>
+      </view>
+      
+      <!-- API统计信息 -->
+      <view class="api-stats">
+        <view class="stat-item">
+          <text class="stat-label">本月调用</text>
+          <text class="stat-value">{{apiCallCount}}</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-label">连接状态</text>
+          <text class="stat-status {{apiStatus}}">{{apiStatusText}}</text>
+        </view>
+      </view>
+      
+      <!-- 帮助提示 -->
+      <view class="api-help">
+        <text class="help-icon">💡</text>
+        <text class="help-text">获取API密钥：访问 platform.deepseek.com 注册并创建密钥</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- NewsData.io API 配置（新闻源） -->
+  <view class="settings-row" wx:if="{{!isLoading}}">
+    <view class="settings-section api-config-section">
+      <view class="section-header">
+        <text class="section-title">📰 新闻源配置</text>
+        <text class="section-badge">可选</text>
+      </view>
+      
+      <view class="api-config-content">
+        <view class="config-description">
+          <text class="desc-text">配置 NewsData.io API 可获取更多国际新闻。不配置则使用免费 RSS 源（36氪、虎嗅等）。</text>
+        </view>
+        
+        <!-- NewsData.io API密钥 -->
+        <view class="config-item">
+          <view class="config-label">
+            <text class="label-icon">🔑</text>
+            <text class="label-text">NewsData.io API Key</text>
+          </view>
+          <view class="config-input-wrap">
+            <input class="config-input" 
+                   placeholder="pub_xxxxxxxxxxxxxxxx（可选）" 
+                   password="{{!showNewsDataApiKey}}"
+                   value="{{newsDataApiKey}}"
+                   bindinput="onNewsDataApiKeyInput"
+                   bindblur="onNewsDataApiKeyBlur"/>
+            <view class="toggle-password" bindtap="toggleNewsDataApiKeyVisibility">
+              <text>{{showNewsDataApiKey ? '👁' : '👁️‍🗨️'}}</text>
+            </view>
+          </view>
+        </view>
+        
+        <view class="config-status">
+          <text class="status-icon {{newsDataApiKeyStatus}}">{{newsDataApiKeyStatus === 'valid' ? '✓' : (newsDataApiKeyStatus === 'invalid' ? '✕' : '○')}}</text>
+          <text class="status-text {{newsDataApiKeyStatus}}">{{newsDataApiKeyStatusText}}</text>
+        </view>
+        
+        <!-- 操作按钮 -->
+        <view class="config-button-group">
+          <button class="config-btn test-btn" bindtap="testNewsDataConnection" disabled="{{!newsDataApiKey}}">
+            <text class="btn-icon">🔌</text>
+            <text class="btn-text">测试连接</text>
+          </button>
+          <button class="config-btn save-btn" bindtap="saveNewsDataApiConfig">
+            <text class="btn-icon">💾</text>
+            <text class="btn-text">保存配置</text>
+          </button>
+        </view>
+        
+        <!-- 帮助提示 -->
+        <view class="api-help">
+          <text class="help-icon">💡</text>
+          <text class="help-text">免费注册：newsdata.io（每天200次请求）</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="settings-row" wx:if="{{!isLoading}}">
+    <view class="settings-section">
+      <view class="section-header">
+        <text class="section-title">📊 情报看板模块</text>
+      </view>
+      
+      <view class="dashboard-modules">
+        <view class="module-item" bindlongpress="showModuleTip" data-module="sentiment">
+          <view class="module-info">
+            <text class="module-icon">📈</text>
+            <text class="module-name">情绪指数</text>
+          </view>
+          <text class="module-tip-icon">?</text>
+          <switch class="module-switch" checked="{{dashboardModules.sentiment}}" bindchange="toggleDashboardModule" data-module="sentiment"/>
+        </view>
+        <view class="module-item" bindlongpress="showModuleTip" data-module="density">
+          <view class="module-info">
+            <text class="module-icon">⏰</text>
+            <text class="module-name">24小时密度</text>
+          </view>
+          <text class="module-tip-icon">?</text>
+          <switch class="module-switch" checked="{{dashboardModules.density}}" bindchange="toggleDashboardModule" data-module="density"/>
+        </view>
+        <view class="module-item" bindlongpress="showModuleTip" data-module="prediction">
+          <view class="module-info">
+            <text class="module-icon">🔮</text>
+            <text class="module-name">未来预测</text>
+          </view>
+          <text class="module-tip-icon">?</text>
+          <switch class="module-switch" checked="{{dashboardModules.prediction}}" bindchange="toggleDashboardModule" data-module="prediction"/>
+        </view>
+        <view class="module-item" bindlongpress="showModuleTip" data-module="signals">
+          <view class="module-info">
+            <text class="module-icon">⚡</text>
+            <text class="module-name">重要信号</text>
+          </view>
+          <text class="module-tip-icon">?</text>
+          <switch class="module-switch" checked="{{dashboardModules.signals}}" bindchange="toggleDashboardModule" data-module="signals"/>
+        </view>
+      </view>
+    </view>
+
+    <view class="settings-section">
+      <view class="section-header">
+        <text class="section-title">👤 账户设置</text>
+      </view>
+      
+      <view class="settings-list">
+        <view class="setting-item" bindtap="openProfileSettings">
+          <view class="setting-info">
+            <text class="setting-icon">�</text>
+            <view class="setting-text">
+              <text class="setting-title">个人资料</text>
+              <text class="setting-desc">编辑个人信息</text>
+            </view>
+          </view>
+          <text class="setting-arrow">›</text>
+        </view>
+
+        <view class="setting-item" bindtap="openPrivacySettings">
+          <view class="setting-info">
+            <text class="setting-icon">�</text>
+            <view class="setting-text">
+              <text class="setting-title">隐私设置</text>
+              <text class="setting-desc">管理数据和隐私</text>
+            </view>
+          </view>
+          <text class="setting-arrow">›</text>
+        </view>
+
+        <view class="setting-item" bindtap="exportUserData">
+          <view class="setting-info">
+            <text class="setting-icon">�</text>
+            <view class="setting-text">
+              <text class="setting-title">导出数据</text>
+              <text class="setting-desc">导出个人数据</text>
+            </view>
+          </view>
+          <text class="setting-arrow">›</text>
+        </view>
+
+        <view class="setting-item" bindtap="clearCache">
+          <view class="setting-info">
+            <text class="setting-icon">�️</text>
+            <view class="setting-text">
+              <text class="setting-title">清理缓存</text>
+              <text class="setting-desc">清理应用缓存</text>
+            </view>
+          </view>
+          <text class="setting-arrow">›</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="settings-row" wx:if="{{!isLoading}}">
+    <view class="settings-section">
+      <view class="section-header">
+        <text class="section-title">🎯 内容筛选</text>
+      </view>
+      
+      <view class="settings-list">
+        <view class="setting-item" bindtap="openCategorySettings">
+          <view class="setting-info">
+            <text class="setting-icon">📂</text>
+            <view class="setting-text">
+              <text class="setting-title">偏好分类</text>
+              <text class="setting-desc">已选择 {{preferredCategories.length}} 个分类</text>
+            </view>
+          </view>
+          <text class="setting-arrow">›</text>
+        </view>
+
+        <view class="setting-item" bindtap="openKeywordSettings">
+          <view class="setting-info">
+            <text class="setting-icon">🚫</text>
+            <view class="setting-text">
+              <text class="setting-title">关键词过滤</text>
+              <text class="setting-desc">已屏蔽 {{blockedKeywords.length}} 个关键词</text>
+            </view>
+          </view>
+          <text class="setting-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="settings-section">
+      <view class="section-header">
+        <text class="section-title">📱 基础设置</text>
+      </view>
+    
+    <view class="settings-list">
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-icon">🔔</text>
+          <view class="setting-text">
+            <text class="setting-title">推送通知</text>
+            <text class="setting-desc">接收重要新闻推送</text>
+          </view>
+        </view>
+        <switch class="setting-control" checked="{{settings.pushNotifications}}" bindchange="togglePushNotifications"/>
+      </view>
+
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-icon">🔄</text>
+          <view class="setting-text">
+            <text class="setting-title">自动刷新</text>
+            <text class="setting-desc">页面自动更新最新内容</text>
+          </view>
+        </view>
+        <switch class="setting-control" checked="{{settings.autoRefresh}}" bindchange="toggleAutoRefresh"/>
+      </view>
+
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-icon">🔤</text>
+          <view class="setting-text">
+            <text class="setting-title">字体大小</text>
+            <text class="setting-desc">调整阅读字体大小</text>
+          </view>
+        </view>
+        <picker class="setting-picker" mode="selector" range="{{fontSizeOptions}}" value="{{settings.fontSizeIndex}}" bindchange="changeFontSize">
+          <text class="picker-value">{{settings.fontSize}}</text>
+        </picker>
+      </view>
+
+      <view class="setting-item">
+        <view class="setting-info">
+          <text class="setting-icon">🌙</text>
+          <view class="setting-text">
+            <text class="setting-title">深色模式</text>
+            <text class="setting-desc">开启后使用深色主题</text>
+          </view>
+        </view>
+        <switch class="setting-control" checked="{{settings.darkMode}}" bindchange="toggleDarkMode"/>
+      </view>
+    </view>
+    </view>
+  </view>
+
+  <view class="settings-section" wx:if="{{!isLoading}}">
+    <view class="section-header">
+      <text class="section-title">📱 关于</text>
+    </view>
+    
+    <view class="settings-list">
+      <view class="setting-item" bindtap="checkForUpdates">
+        <view class="setting-info">
+          <text class="setting-icon">🔄</text>
+          <view class="setting-text">
+            <text class="setting-title">检查更新</text>
+            <text class="setting-desc">当前版本：1.0.0</text>
+          </view>
+        </view>
+        <text class="setting-arrow">›</text>
+      </view>
+
+      <view class="setting-item" bindtap="showAbout">
+        <view class="setting-info">
+          <text class="setting-icon">ℹ️</text>
+          <view class="setting-text">
+            <text class="setting-title">关于应用</text>
+            <text class="setting-desc">了解更多关于新闻简报</text>
+          </view>
+        </view>
+        <text class="setting-arrow">›</text>
+      </view>
+
+      <view class="setting-item" bindtap="showPrivacyPolicy">
+        <view class="setting-info">
+          <text class="setting-icon">🔒</text>
+          <view class="setting-text">
+            <text class="setting-title">隐私政策</text>
+            <text class="setting-desc">查看隐私保护政策</text>
+          </view>
+        </view>
+        <text class="setting-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-section" wx:if="{{!isLoading}}">
+    <button class="reset-btn" bindtap="resetToDefault">
+      <text class="btn-icon">🔄</text>
+      <text class="btn-text">恢复默认设置</text>
+    </button>
+  </view>
+</view>
+
+<view class="modal-overlay" wx:if="{{showCategoryModal}}" bindtap="closeCategoryModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">选择偏好分类</text>
+      <button class="modal-close" bindtap="closeCategoryModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="category-list">
+        <view class="category-chip {{preferredCategories.indexOf(cat) > -1 ? 'selected' : ''}}" wx:for="{{allCategories}}" wx:key="*this" wx:for-item="cat" bindtap="toggleCategory" data-category="{{cat}}">
+          {{cat}}
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="modal-overlay" wx:if="{{showModuleTipModal}}" bindtap="hideModuleTip">
+  <view class="modal-content module-tip-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">{{moduleTipTitle}}</text>
+      <button class="modal-close" bindtap="hideModuleTip">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="module-tip-content">
+        <text class="tip-icon">{{moduleTipIcon}}</text>
+        <text class="tip-description">{{moduleTipDescription}}</text>
+      </view>
+      <view class="tip-examples" wx:if="{{moduleTipExamples.length > 0}}">
+        <text class="examples-title">示例：</text>
+        <text class="example-item" wx:for="{{moduleTipExamples}}" wx:key="*this">• {{item}}</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="modal-overlay" wx:if="{{showKeywordModal}}" bindtap="closeKeywordModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">关键词过滤</text>
+      <button class="modal-close" bindtap="closeKeywordModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="keyword-input-wrap">
+        <input class="keyword-input" placeholder="输入要屏蔽的关键词" value="{{newKeyword}}" bindinput="onKeywordInput" bindconfirm="addKeyword"/>
+        <button class="add-keyword-btn" bindtap="addKeyword">+</button>
+      </view>
+      <view class="keyword-list" wx:if="{{blockedKeywords.length > 0}}">
+        <view class="keyword-tag" wx:for="{{blockedKeywords}}" wx:key="*this">
+          <text class="keyword-text">{{item}}</text>
+          <text class="keyword-remove" bindtap="removeKeyword" data-keyword="{{item}}">✕</text>
+        </view>
+      </view>
+      <view class="empty-keywords" wx:else>
+        <text>暂无屏蔽关键词</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="modal-overlay" wx:if="{{showInterestModal}}" bindtap="closeInterestModal">
+  <view class="modal-content interest-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">🏷️ 兴趣标签管理</text>
+      <button class="modal-close" bindtap="closeInterestModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="interest-actions">
+        <button class="interest-action-btn" bindtap="selectAllInterestTags">全选</button>
+        <button class="interest-action-btn clear" bindtap="clearAllInterestTags">清空</button>
+      </view>
+      
+      <view class="interest-category">
+        <text class="interest-category-title">🤖 AI 领域</text>
+        <view class="interest-tag-list">
+          <view class="interest-tag-item {{interestTags.indexOf(item.id) > -1 ? 'selected' : ''}}" wx:for="{{allInterestTags}}" wx:key="id" wx:if="{{item.category === 'AI'}}" bindtap="toggleInterestTag" data-tag="{{item.id}}">
+            <text class="tag-icon">{{item.icon}}</text>
+            <text class="tag-name">{{item.name}}</text>
+            <text class="tag-check" wx:if="{{interestTags.indexOf(item.id) > -1}}">✓</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="interest-category">
+        <text class="interest-category-title">💡 科技前沿</text>
+        <view class="interest-tag-list">
+          <view class="interest-tag-item {{interestTags.indexOf(item.id) > -1 ? 'selected' : ''}}" wx:for="{{allInterestTags}}" wx:key="id" wx:if="{{item.category === 'tech'}}" bindtap="toggleInterestTag" data-tag="{{item.id}}">
+            <text class="tag-icon">{{item.icon}}</text>
+            <text class="tag-name">{{item.name}}</text>
+            <text class="tag-check" wx:if="{{interestTags.indexOf(item.id) > -1}}">✓</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="interest-category">
+        <text class="interest-category-title">💰 财经金融</text>
+        <view class="interest-tag-list">
+          <view class="interest-tag-item {{interestTags.indexOf(item.id) > -1 ? 'selected' : ''}}" wx:for="{{allInterestTags}}" wx:key="id" wx:if="{{item.category === 'finance'}}" bindtap="toggleInterestTag" data-tag="{{item.id}}">
+            <text class="tag-icon">{{item.icon}}</text>
+            <text class="tag-name">{{item.name}}</text>
+            <text class="tag-check" wx:if="{{interestTags.indexOf(item.id) > -1}}">✓</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="interest-category">
+        <text class="interest-category-title">🌍 其他领域</text>
+        <view class="interest-tag-list">
+          <view class="interest-tag-item {{interestTags.indexOf(item.id) > -1 ? 'selected' : ''}}" wx:for="{{allInterestTags}}" wx:key="id" wx:if="{{item.category === 'international' || item.category === 'sports'}}" bindtap="toggleInterestTag" data-tag="{{item.id}}">
+            <text class="tag-icon">{{item.icon}}</text>
+            <text class="tag-name">{{item.name}}</text>
+            <text class="tag-check" wx:if="{{interestTags.indexOf(item.id) > -1}}">✓</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="interest-summary">
+        <text>已选择 {{interestTags.length}} 个标签</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="modal-overlay" wx:if="{{showAiInstructionModal}}" bindtap="closeAiInstructionModal">
+  <view class="modal-content ai-instruction-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">✨ AI定制指令</text>
+      <button class="modal-close" bindtap="closeAiInstructionModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="instruction-intro">
+        <text class="intro-title">🎯 用一句话定义你的情报官</text>
+        <text class="intro-desc">描述你的身份和关注点，AI将为你精准筛选和解读新闻</text>
+      </view>
+      
+      <textarea class="instruction-textarea" placeholder="例如：我是一个大厂程序员，我只关心能提升开发效率的AI工具，以及程序员的职场变动。" value="{{aiInstruction}}" bindinput="onAiInstructionInput" maxlength="200"/>
+      
+      <view class="instruction-counter">
+        <text>{{aiInstruction.length}}/200</text>
+      </view>
+      
+      <view class="instruction-templates">
+        <text class="templates-title">💡 参考模板：</text>
+        <view class="template-item" bindtap="useInstructionTemplate" data-template="我是一个大厂程序员，关注AI工具和程序员职场动态。">
+          <text>👨‍💻 程序员模板</text>
+        </view>
+        <view class="template-item" bindtap="useInstructionTemplate" data-template="我是投资者，关注科技股、新能源和宏观经济政策。">
+          <text>📈 投资者模板</text>
+        </view>
+        <view class="template-item" bindtap="useInstructionTemplate" data-template="我是创业者，关注行业趋势、融资动态和商业模式创新。">
+          <text>🚀 创业者模板</text>
+        </view>
+        <view class="template-item" bindtap="useInstructionTemplate" data-template="我是学生，关注就业趋势、技能学习和行业前景。">
+          <text>🎓 学生模板</text>
+        </view>
+      </view>
+      
+      <view class="instruction-actions">
+        <button class="instruction-btn clear" bindtap="clearAiInstruction">清除</button>
+        <button class="instruction-btn save" bindtap="saveAiInstruction">保存指令</button>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 个人资料弹窗 -->
+<view class="modal-overlay" wx:if="{{showProfileModal}}" bindtap="closeProfileModal">
+  <view class="modal-content profile-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">👤 个人资料</text>
+      <button class="modal-close" bindtap="closeProfileModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="profile-item">
+        <text class="profile-label">昵称</text>
+        <input class="profile-input" placeholder="请输入昵称" value="{{profile.nickname}}" bindinput="onProfileChange" data-field="nickname" maxlength="20"/>
+      </view>
+      <view class="profile-item">
+        <text class="profile-label">头像</text>
+        <input class="profile-input" placeholder="请输入头像URL" value="{{profile.avatar}}" bindinput="onProfileChange" data-field="avatar" maxlength="200"/>
+      </view>
+      <view class="profile-item">
+        <text class="profile-label">个性签名</text>
+        <textarea class="profile-textarea" placeholder="介绍一下自己吧" value="{{profile.bio}}" bindinput="onProfileChange" data-field="bio" maxlength="100"/>
+      </view>
+      <view class="profile-item">
+        <text class="profile-label">邮箱</text>
+        <input class="profile-input" placeholder="请输入邮箱" value="{{profile.email}}" bindinput="onProfileChange" data-field="email" maxlength="100"/>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn cancel" bindtap="closeProfileModal">取消</button>
+      <button class="modal-btn confirm" bindtap="saveProfile">保存</button>
+    </view>
+  </view>
+</view>
+
+<!-- 隐私设置弹窗 -->
+<view class="modal-overlay" wx:if="{{showPrivacyModal}}" bindtap="closePrivacyModal">
+  <view class="modal-content privacy-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">🔒 隐私设置</text>
+      <button class="modal-close" bindtap="closePrivacyModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="privacy-item">
+        <view class="privacy-info">
+          <text class="privacy-title">数据收集</text>
+          <text class="privacy-desc">允许收集使用数据以改善服务</text>
+        </view>
+        <switch class="privacy-switch" checked="{{privacy.dataCollection}}" bindchange="onPrivacyChange" data-field="dataCollection"/>
+      </view>
+      <view class="privacy-item">
+        <view class="privacy-info">
+          <text class="privacy-title">数据分析</text>
+          <text class="privacy-desc">允许分析使用数据以优化体验</text>
+        </view>
+        <switch class="privacy-switch" checked="{{privacy.analytics}}" bindchange="onPrivacyChange" data-field="analytics"/>
+      </view>
+      <view class="privacy-item">
+        <view class="privacy-info">
+          <text class="privacy-title">个性化内容</text>
+          <text class="privacy-desc">根据您的偏好推荐内容</text>
+        </view>
+        <switch class="privacy-switch" checked="{{privacy.personalizedContent}}" bindchange="onPrivacyChange" data-field="personalizedContent"/>
+      </view>
+      <view class="privacy-item">
+        <view class="privacy-info">
+          <text class="privacy-title">第三方共享</text>
+          <text class="privacy-desc">与第三方合作伙伴共享数据</text>
+        </view>
+        <switch class="privacy-switch" checked="{{privacy.thirdPartySharing}}" bindchange="onPrivacyChange" data-field="thirdPartySharing"/>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn cancel" bindtap="closePrivacyModal">取消</button>
+      <button class="modal-btn confirm" bindtap="savePrivacySettings">保存</button>
+    </view>
+  </view>
+</view>

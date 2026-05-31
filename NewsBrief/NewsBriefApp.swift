@@ -14,6 +14,11 @@ struct NewsBriefApp: App {
     @StateObject private var loginManager = LoginManager()
     @StateObject private var noteManager = NoteManager()
     
+    init() {
+        // 在 init 中设置外观，避免在 onAppear 中重复设置
+        setupAppAppearance()
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -21,10 +26,6 @@ struct NewsBriefApp: App {
                 .environmentObject(favoritesManager)
                 .environmentObject(loginManager)
                 .environmentObject(noteManager)
-                .onAppear {
-                    // 设置应用主题和启动时初始化
-                    setupAppAppearance()
-                }
         }
     }
     
@@ -32,7 +33,6 @@ struct NewsBriefApp: App {
         // 配置应用整体外观
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
-        // 使用深邃蓝渐变背景
         navBarAppearance.backgroundColor = UIColor(red: 0.05, green: 0.2, blue: 0.4, alpha: 1.0)
         navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
         navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
@@ -44,7 +44,6 @@ struct NewsBriefApp: App {
         // 配置标签栏外观
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()
-        // 使用深邃蓝渐变背景
         tabBarAppearance.backgroundColor = UIColor(red: 0.05, green: 0.2, blue: 0.4, alpha: 1.0)
         tabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.white]
         tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.white]
@@ -62,7 +61,10 @@ class FavoritesManager: ObservableObject {
     private let favoritesKey = "favoriteNewsIDs"
     
     init() {
-        loadFavorites()
+        // 延迟加载收藏数据，避免阻塞启动
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            self?.loadFavorites()
+        }
     }
     
     func toggleFavorite(newsID: String) {
@@ -92,7 +94,9 @@ class FavoritesManager: ObservableObject {
     private func loadFavorites() {
         if let data = UserDefaults.standard.data(forKey: favoritesKey),
            let savedIDs = try? JSONDecoder().decode([String].self, from: data) {
-            favoriteNewsIDs = Set(savedIDs)
+            DispatchQueue.main.async { [weak self] in
+                self?.favoriteNewsIDs = Set(savedIDs)
+            }
         }
     }
 }
@@ -123,7 +127,10 @@ class NoteManager: ObservableObject {
     private let notesKey = "notes"
     
     init() {
-        loadNotes()
+        // 延迟加载笔记数据，避免阻塞启动
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            self?.loadNotes()
+        }
     }
     
     func getNote(for newsID: String) -> Note? {
@@ -153,7 +160,9 @@ class NoteManager: ObservableObject {
     private func loadNotes() {
         if let data = UserDefaults.standard.data(forKey: notesKey),
            let savedNotes = try? JSONDecoder().decode([Note].self, from: data) {
-            notes = savedNotes
+            DispatchQueue.main.async { [weak self] in
+                self?.notes = savedNotes
+            }
         }
     }
 }

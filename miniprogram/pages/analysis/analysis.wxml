@@ -1,0 +1,222 @@
+<!--pages/analysis/analysis.wxml-->
+<!-- AI 情报中心 - 宏观决策看板 -->
+<view class="intelligence-center">
+  
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载情报数据中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:elif="{{!hasData}}">
+    <view class="empty-icon">🌐</view>
+    <text class="empty-title">暂无情报数据</text>
+    <text class="empty-desc">点击下方按钮，AI将为您生成最新的全球情报分析</text>
+    <button class="refresh-btn-large" bindtap="refreshIntelligenceData" disabled="{{refreshing}}">
+      <text class="btn-icon">{{refreshing ? '⏳' : '🔄'}}</text>
+      <text class="btn-text">{{refreshing ? 'AI生成中...' : '生成情报'}}</text>
+    </button>
+  </view>
+
+  <!-- 有数据时显示内容 -->
+  <block wx:else>
+    <!-- 顶部情报图谱 Dashboard -->
+    <view class="intelligence-dashboard">
+      <view class="dashboard-bg"></view>
+      
+      <!-- 标题和刷新按钮 -->
+      <view class="dashboard-header">
+        <view class="header-left">
+          <text class="dashboard-title">🌐 全球情报中心</text>
+          <text class="dashboard-subtitle">{{currentDate}}</text>
+          <text class="dashboard-subtitle-secondary">宏观决策 · 关联分析 · AI 交互</text>
+        </view>
+        <view class="header-right">
+          <button class="refresh-btn" bindtap="refreshIntelligenceData" disabled="{{refreshing}}">
+            <text class="refresh-icon {{refreshing ? 'spinning' : ''}}">🔄</text>
+            <text class="refresh-text">{{refreshing ? '生成中' : '刷新'}}</text>
+          </button>
+        </view>
+      </view>
+      
+      <!-- 上次刷新时间 -->
+      <view class="last-refresh" wx:if="{{lastRefreshTime}}">
+        <text class="refresh-time-text">上次更新：{{lastRefreshTime}}</text>
+      </view>
+      
+      <!-- 核心指标 -->
+      <view class="core-metrics">
+        <view class="metric-card">
+          <text class="metric-icon">📈</text>
+          <text class="metric-value">{{insightHub.market_sentiment}}%</text>
+          <text class="metric-label">市场乐观度</text>
+          <view class="metric-bar">
+            <view class="metric-fill" style="width: {{insightHub.market_sentiment}}%"></view>
+          </view>
+        </view>
+        <view class="metric-card">
+          <text class="metric-icon">📜</text>
+          <text class="metric-value">{{insightHub.policy_sensitivity}}%</text>
+          <text class="metric-label">政策敏感度</text>
+          <view class="metric-bar">
+            <view class="metric-fill policy" style="width: {{insightHub.policy_sensitivity}}%"></view>
+          </view>
+        </view>
+        <view class="metric-card">
+          <text class="metric-icon">💥</text>
+          <text class="metric-value">{{insightHub.tech_breakthroughs}}</text>
+          <text class="metric-label">技术突破点</text>
+          <view class="metric-bar">
+            <view class="metric-fill tech" style="width: {{(insightHub.tech_breakthroughs / 10) * 100}}%"></view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 情绪热力图和情报密度 -->
+      <view class="charts-section">
+        <!-- AI 情绪热力图 -->
+        <view class="chart-card sentiment-chart">
+          <view class="chart-header">
+            <text class="chart-title">AI 情绪热力图</text>
+            <text class="chart-subtitle">24小时市场情绪变化</text>
+          </view>
+          <view class="sentiment-heatmap">
+            <view class="heatmap-grid">
+              <view class="heatmap-cell" wx:for="{{hourlySentiment}}" wx:key="hour"
+                    style="background: {{item.color}}; opacity: {{item.intensity}}">
+                <text class="cell-hour">{{item.hour}}:00</text>
+                <text class="cell-value">{{item.value}}%</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 情报产出密度曲线 -->
+        <view class="chart-card density-chart">
+          <view class="chart-header">
+            <text class="chart-title">全球情报产出密度</text>
+            <text class="chart-subtitle">每小时情报数量</text>
+          </view>
+          <view class="density-chart-container">
+            <view class="density-line" style="clip-path: polygon({{densityPath}})"></view>
+            <view class="density-points">
+              <view class="density-point" wx:for="{{insightHub.daily_density}}" wx:key="index"
+                    style="left: {{index * 4.166}}%; bottom: {{(item / maxDensity) * 100}}%">
+                <view class="point-dot"></view>
+                <view class="point-value">{{item}}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 深度专题聚合 -->
+    <view class="topics-section" wx:if="{{insightHub.top_themes.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">📊 深度专题聚合</text>
+        <text class="section-subtitle">由 AI 自动聚合的宏观话题</text>
+      </view>
+      <view class="topics-grid">
+        <view class="topic-card" wx:for="{{insightHub.top_themes}}" wx:key="id" bindtap="openTopicDetail" data-topic-id="{{item.id}}">
+          <view class="topic-header">
+            <view class="topic-bg" style="background: linear-gradient(135deg, {{item.color}}40, {{item.color}}20)"></view>
+            <text class="topic-title">{{item.title}}</text>
+            <view class="topic-image">
+              <image src="{{item.image_url}}" mode="aspectFill"></image>
+            </view>
+          </view>
+          <view class="topic-content">
+            <text class="topic-insight">{{item.insight}}</text>
+            <view class="topic-stats">
+              <text class="stat-item">📰 含 {{item.news_ids.length}} 篇关联情报</text>
+            </view>
+            <view class="topic-logic">
+              <text class="logic-label">核心逻辑链：</text>
+              <view class="logic-steps">
+                <view class="logic-step" wx:for="{{item.logic_chain}}" wx:key="index">
+                  <text class="step-arrow" wx:if="{{index > 0}}">→</text>
+                  <text class="step-text">{{item}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- AI 战略顾问 -->
+    <view class="ai-advisor-section">
+      <view class="advisor-card">
+        <view class="advisor-header">
+          <text class="advisor-icon">🤖</text>
+          <text class="advisor-title">AI 战略顾问</text>
+          <text class="advisor-subtitle">基于全球情报的智能分析</text>
+        </view>
+        <view class="advisor-content">
+          <view class="prompt-suggestions">
+            <view class="suggestion-item" wx:for="{{advisorPrompts}}" wx:key="index" bindtap="askAdvisor" data-prompt="{{item}}">
+              <text class="suggestion-icon">💡</text>
+              <text class="suggestion-text">{{item}}</text>
+            </view>
+          </view>
+          <view class="advisor-input">
+            <input class="input-field" placeholder="输入你的问题..." value="{{advisorInput}}" bindinput="onAdvisorInput" bindconfirm="askAdvisor"/>
+            <button class="send-btn" bindtap="askAdvisor">
+              <text class="send-icon">🚀</text>
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 明天点名 -->
+    <view class="watchlist-section" wx:if="{{insightHub.tomorrow_watch.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">🔮 明天点名</text>
+        <text class="section-subtitle">AI 预测的关键事件</text>
+      </view>
+      <view class="watchlist-cards">
+        <view class="watchlist-card" wx:for="{{insightHub.tomorrow_watch}}" wx:key="event">
+          <view class="watchlist-header">
+            <text class="event-title">{{item.event}}</text>
+            <view class="probability-badge" style="background: {{item.probability > 70 ? '#4ade80' : item.probability > 40 ? '#fbbf24' : '#fb7185'}}">
+              <text class="probability-value">{{item.probability}}%</text>
+            </view>
+          </view>
+          <text class="event-reason">{{item.reason}}</text>
+          <button class="track-btn" bindtap="trackEvent" data-event="{{item.event}}">
+            <text class="track-icon">🔔</text>
+            <text class="track-text">追踪</text>
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 今日盲区补全 -->
+    <view class="blindspot-section" wx:if="{{insightHub.blind_spot}}">
+      <view class="blindspot-card">
+        <view class="blindspot-header">
+          <text class="blindspot-icon">⚡</text>
+          <text class="blindspot-title">今日盲区补全</text>
+          <text class="blindspot-subtitle">跳出信息茧房</text>
+        </view>
+        <view class="blindspot-content">
+          <text class="blindspot-message">{{insightHub.blind_spot.message}}</text>
+          <view class="blindspot-news" bindtap="openBlindspotNews" data-news-id="{{insightHub.blind_spot.news_id}}">
+            <text class="news-title">{{insightHub.blind_spot.title}}</text>
+            <text class="news-reason">{{insightHub.blind_spot.reason}}</text>
+          </view>
+          <button class="read-btn" bindtap="openBlindspotNews" data-news-id="{{insightHub.blind_spot.news_id}}">
+            <text class="read-icon">📖</text>
+            <text class="read-text">强制阅读</text>
+          </button>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-bottom"></view>
+</view>

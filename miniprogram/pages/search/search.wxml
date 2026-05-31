@@ -1,0 +1,192 @@
+<!--search.wxml - 全局搜索页面-->
+<view class="search-page">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" 
+             placeholder="搜索新闻标题、标签、内容..." 
+             value="{{searchKeyword}}"
+             bindinput="onSearchInput"
+             bindconfirm="onSearchConfirm"
+             focus="{{true}}" />
+      <text class="clear-icon" wx:if="{{searchKeyword}}" bindtap="clearSearch">✕</text>
+      <text class="voice-icon" bindtap="startVoiceSearch">🎤</text>
+    </view>
+    <text class="cancel-btn" bindtap="goBack">取消</text>
+  </view>
+
+  <!-- 搜索模式切换 -->
+  <view class="search-mode-toggle">
+    <view class="toggle-tab {{searchMode === 'local' ? 'active' : ''}}" bindtap="switchSearchMode" data-mode="local">
+      <text class="tab-icon">📚</text>
+      <text class="tab-text">智库内寻</text>
+    </view>
+    <view class="toggle-tab {{searchMode === 'global' ? 'active' : ''}}" bindtap="switchSearchMode" data-mode="global">
+      <text class="tab-icon">🌍</text>
+      <text class="tab-text">全网溯源</text>
+    </view>
+  </view>
+
+  <!-- 信源纯净度滑块（仅在全网溯源模式下显示） -->
+  <view class="source-purity-slider" wx:if="{{searchMode === 'global' && !searchKeyword}}">
+    <view class="slider-header">
+      <text class="slider-title">信源纯净度</text>
+      <text class="slider-value">{{sourcePurityMode}}</text>
+    </view>
+    <view class="slider-container">
+      <view class="slider-track">
+        <view class="slider-progress" style="width: {{sourcePurity * 50}}%"></view>
+      </view>
+      <view class="slider-handle" style="left: {{sourcePurity * 50}}%" bindtouchstart="startSlider" bindtouchmove="moveSlider" bindtouchend="endSlider">
+        <view class="handle-dot"></view>
+      </view>
+    </view>
+    <view class="slider-labels">
+      <text class="label-item">社交模式</text>
+      <text class="label-item">平衡模式</text>
+      <text class="label-item">专业模式</text>
+    </view>
+  </view>
+
+  <!-- 搜索历史 -->
+  <view class="search-history" wx:if="{{!searchKeyword && searchHistory.length > 0}}">
+    <view class="history-header">
+      <text class="history-title">搜索历史</text>
+      <text class="clear-history" bindtap="clearHistory">清空</text>
+    </view>
+    <view class="history-tags">
+      <view class="history-tag" 
+            wx:for="{{searchHistory}}" 
+            wx:key="*this"
+            bindtap="selectHistory"
+            data-keyword="{{item}}">
+        <text class="tag-icon">🕐</text>
+        <text class="tag-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 热门搜索 -->
+  <view class="hot-search" wx:if="{{!searchKeyword}}">
+    <view class="hot-header">
+      <text class="hot-title">🔥 热门搜索</text>
+    </view>
+    <view class="hot-tags">
+      <view class="hot-tag" 
+            wx:for="{{hotKeywords}}" 
+            wx:key="*this"
+            wx:for-index="idx"
+            bindtap="selectHotKeyword"
+            data-keyword="{{item}}">
+        <text class="tag-rank rank-{{idx < 3 ? 'top' : 'normal'}}">{{idx + 1}}</text>
+        <text class="tag-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="search-results" wx:if="{{searchKeyword}}">
+    <!-- 结果统计 -->
+    <view class="result-stats" wx:if="{{!searching && !globalSearching}}">
+      <text class="stats-text">找到 {{searchResults.length}} 条相关内容</text>
+      <text class="stats-subtext">包含 {{relatedAnalysis.length}} 条私人关联分析和 {{rippleEffects.length}} 条涟漪效应</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading-state" wx:if="{{searching && !globalSearching}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">语义搜索中...</text>
+    </view>
+
+    <!-- 全网搜索动态状态 -->
+    <view class="global-search-status" wx:if="{{globalSearching}}">
+      <view class="status-step {{globalSearchStep === 1 ? 'active' : ''}}">
+        <text class="step-icon">🔍</text>
+        <text class="step-text">正在检索全球信源...</text>
+      </view>
+      <view class="status-step {{globalSearchStep === 2 ? 'active' : ''}}">
+        <text class="step-icon">🧠</text>
+        <text class="step-text">正在交叉验证事实...</text>
+      </view>
+      <view class="status-step {{globalSearchStep === 3 ? 'active' : ''}}">
+        <text class="step-icon">✨</text>
+        <text class="step-text">正在构建逻辑模型...</text>
+      </view>
+    </view>
+
+    <!-- 逻辑演变时间轴 -->
+    <view class="timeline-section" wx:if="{{!searching && searchResults.length > 0 && timelineData.length > 0}}">
+      <view class="timeline-header">
+        <text class="timeline-title">🔄 逻辑演变时间轴</text>
+      </view>
+      <view class="timeline-container">
+        <view class="timeline-line"></view>
+        <view class="timeline-items">
+          <view class="timeline-item" wx:for="{{timelineData}}" wx:key="id">
+            <view class="timeline-dot"></view>
+            <view class="timeline-content">
+              <text class="timeline-date">{{item.date}}</text>
+              <text class="timeline-event">{{item.event}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 搜索结果列表 -->
+    <view class="result-list" wx:if="{{!searching && searchResults.length > 0}}">
+      <view class="result-card" 
+            wx:for="{{searchResults}}" 
+            wx:key="id"
+            bindtap="viewNewsDetail"
+            data-id="{{item.id}}">
+        <view class="card-header">
+          <view class="category-badge {{item.category}}">
+            {{item.categoryName}}
+          </view>
+          <view class="impact-score">
+            <text class="score-value">{{item.impactScore}}</text>
+            <text class="score-label">影响力</text>
+          </view>
+        </view>
+        <text class="card-title">{{item.title}}</text>
+        <text class="card-summary">{{item.summary}}</text>
+        <view class="card-tags">
+          <text class="tag-chip" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">
+            {{tag}}
+          </text>
+        </view>
+        <view class="card-meta">
+          <text class="meta-item">📅 {{item.published_at}}</text>
+          <text class="meta-item">📰 {{item.source}}</text>
+        </view>
+        <!-- 相关分析标记 -->
+        <view class="analysis-badges" wx:if="{{item.hasAnalysis || item.hasRipple}}">
+          <view class="analysis-badge" wx:if="{{item.hasAnalysis}}">
+            <text class="badge-icon">🧠</text>
+            <text class="badge-text">私人关联分析</text>
+          </view>
+          <view class="analysis-badge" wx:if="{{item.hasRipple}}">
+            <text class="badge-icon">🌊</text>
+            <text class="badge-text">涟漪效应</text>
+          </view>
+        </view>
+        <!-- 逻辑溯源按钮 -->
+        <view class="card-actions">
+          <view class="action-button" bindtap="viewLogicTrace" data-id="{{item.id}}">
+            <text class="action-icon">🔗</text>
+            <text class="action-text">逻辑溯源</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 无结果 -->
+    <view class="no-results" wx:if="{{!searching && searchResults.length === 0}}">
+      <text class="no-results-icon">🔍</text>
+      <text class="no-results-text">未找到相关内容</text>
+      <text class="no-results-hint">试试其他关键词或调整搜索策略</text>
+    </view>
+  </view>
+</view>

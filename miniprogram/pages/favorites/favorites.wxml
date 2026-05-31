@@ -1,0 +1,608 @@
+<!-- pages/favorites/favorites.wxml -->
+<view class="container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-content">
+      <text class="page-title">收藏</text>
+    </view>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="stats-section" wx:if="{{favorites.length > 0}}">
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-number">{{favorites.length}}</text>
+        <text class="stat-label">总收藏数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{weekFavorites}}</text>
+        <text class="stat-label">本周新增</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{coreDomain}}</text>
+        <text class="stat-label">核心关注领域</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{unreadCount}}</text>
+        <text class="stat-label">未读</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- AI 收藏总结模块 -->
+  <view class="ai-summary-section" wx:if="{{favorites.length > 0}}">
+    <view class="ai-summary-card">
+      <view class="ai-summary-header">
+        <view class="ai-icon-wrapper">
+          <text class="ai-icon {{aiAnalyzing ? 'analyzing' : ''}}">🤖</text>
+          <view class="ai-glow"></view>
+        </view>
+        <view class="ai-title-area">
+          <text class="ai-title">✨ AI 智库复盘</text>
+          <text class="ai-subtitle">分析你的收藏偏好与知识图谱</text>
+        </view>
+      </view>
+      
+      <!-- AI 总结内容 -->
+      <view class="ai-summary-content" wx:if="{{aiSummary}}">
+        <text class="ai-summary-text">{{aiSummary}}</text>
+        <view class="ai-tags" wx:if="{{aiTags.length > 0}}">
+          <text class="ai-tag" wx:for="{{aiTags}}" wx:key="*this">{{item}}</text>
+        </view>
+      </view>
+      
+      <!-- 一键复盘按钮 -->
+      <button class="ai-analyze-btn {{aiAnalyzing ? 'analyzing' : ''}} glow-button" 
+              bindtap="startAIAnalysis" 
+              disabled="{{aiAnalyzing}}">
+        <text class="btn-icon">{{aiAnalyzing ? '⏳' : '✨'}}</text>
+        <text class="btn-text">{{aiAnalyzing ? '分析中...' : (aiSummary ? '重新分析' : 'AI 智库复盘')}}</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 搜索和筛选 -->
+  <view class="search-filter-section">
+    <view class="search-box">
+      <input class="search-input" 
+             placeholder="搜索标题、内容或笔记..." 
+             value="{{searchText}}"
+             bindinput="onSearchInput"
+             bindconfirm="onSearchConfirm"/>
+      <button class="search-btn" bindtap="performSearch">🔍</button>
+    </view>
+    
+    <!-- 视图切换 -->
+    <view class="view-toggle">
+      <view class="toggle-item {{viewMode === 'list' ? 'active' : ''}}" 
+            bindtap="switchViewMode" data-mode="list">
+        <text class="toggle-icon">📋</text>
+        <text class="toggle-text">列表</text>
+      </view>
+      <view class="toggle-item {{viewMode === 'timeline' ? 'active' : ''}}" 
+            bindtap="switchViewMode" data-mode="timeline">
+        <text class="toggle-icon">📅</text>
+        <text class="toggle-text">时间轴</text>
+      </view>
+    </view>
+    
+    <view class="filter-tabs">
+      <view class="tab-item {{selectedTab === 'all' ? 'active' : ''}}" 
+            bindtap="selectTab" data-tab="all">
+        全部
+      </view>
+      <view class="tab-item {{selectedTab === 'recent' ? 'active' : ''}}" 
+            bindtap="selectTab" data-tab="recent">
+        最近
+      </view>
+      <view class="tab-item {{selectedTab === 'category' ? 'active' : ''}}" 
+            bindtap="selectTab" data-tab="category">
+        按分类
+      </view>
+      <view class="tab-item {{selectedTab === 'smart' ? 'active' : ''}}" 
+            bindtap="selectTab" data-tab="smart">
+        <text class="smart-icon">🤖</text> AI分类
+      </view>
+    </view>
+
+    <!-- AI 智能分类 -->
+    <view class="smart-category-chips" wx:if="{{selectedTab === 'smart'}}">
+      <view class="chip {{selectedSmartCategory === '' ? 'active' : ''}}" 
+            bindtap="selectSmartCategory" data-category="">
+        全部
+      </view>
+      <view class="chip smart-chip {{selectedSmartCategory === cat.id ? 'active' : ''}}" 
+            wx:for="{{smartCategories}}" 
+            wx:key="id" 
+            wx:for-item="cat"
+            bindtap="selectSmartCategory" 
+            data-category="{{cat.id}}">
+        <text class="chip-icon">{{cat.icon}}</text>
+        <text>{{cat.name}}</text>
+        <text class="chip-count">{{cat.count}}</text>
+      </view>
+    </view>
+
+    <!-- 分类筛选 -->
+    <view class="category-chips" wx:if="{{selectedTab === 'category'}}">
+      <view class="chip {{selectedCategory === '' ? 'active' : ''}}" 
+            bindtap="selectCategory" data-category="">
+        全部分类
+      </view>
+      <view class="chip {{selectedCategory === category ? 'active' : ''}}" 
+            wx:for="{{categories}}" 
+            wx:key="id" 
+            wx:for-item="category"
+            bindtap="selectCategory" 
+            data-category="{{category.name}}">
+        {{category.name}}
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <view class="loading-spinner"></view>
+    <text>加载收藏内容中...</text>
+  </view>
+
+  <!-- 错误状态 -->
+  <view wx:elif="{{error}}" class="error">
+    <text class="error-icon">⚠️</text>
+    <text>{{error}}</text>
+    <button class="retry-btn" bindtap="retryLoad">重试</button>
+  </view>
+
+  <!-- 收藏列表 -->
+  <view wx:else class="favorites-list">
+    <!-- 批量操作栏 -->
+    <view class="batch-actions" wx:if="{{selectedItems.length > 0}}">
+      <view class="batch-info">
+        <text>已选择 {{selectedItems.length}} 项</text>
+      </view>
+      <view class="batch-buttons">
+        <button class="batch-btn ai-merge-btn" bindtap="batchAIMerge">
+          <text class="btn-icon">🤖</text>
+          <text>AI合并</text>
+        </button>
+        <button class="batch-btn export-btn" bindtap="batchExportPDF">
+          <text class="btn-icon">📄</text>
+          <text>导出PDF</text>
+        </button>
+        <button class="batch-btn email-btn" bindtap="batchSendEmail">
+          <text class="btn-icon">📧</text>
+          <text>发邮件</text>
+        </button>
+        <button class="batch-btn delete-btn" bindtap="batchDelete">
+          <text class="btn-icon">🗑️</text>
+          <text>删除</text>
+        </button>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{filteredFavorites.length === 0}}" class="empty-state">
+      <text class="empty-icon">💔</text>
+      <text class="empty-title">暂无收藏内容</text>
+      <text class="empty-desc">去浏览新闻，收藏感兴趣的内容吧</text>
+      <button class="go-browse-btn" bindtap="goToBrowse">去浏览</button>
+    </view>
+
+    <!-- 收藏内容列表 - 普通视图 -->
+    <view wx:if="{{viewMode === 'list'}}" class="content-list">
+      <view class="favorite-item {{item.selected ? 'selected' : ''}}" 
+            wx:for="{{filteredFavorites}}" 
+            wx:key="id" 
+            wx:for-item="item"
+            bindtap="toggleSelect" 
+            data-id="{{item.id}}">
+        
+        <!-- 选择框 -->
+        <view class="checkbox">
+          <view class="checkbox-icon {{item.selected ? 'checked' : ''}}">
+            <text wx:if="{{item.selected}}">✓</text>
+          </view>
+        </view>
+
+        <!-- 内容卡片 -->
+        <view class="content-card" 
+              bindtap="viewDetail" 
+              bindlongpress="showCardActions"
+              data-id="{{item.id}}">
+          
+          <!-- 阅读状态标记 -->
+          <view class="read-status-badge" wx:if="{{item.readStatus}}">
+            <text class="read-status-text {{item.readStatus === '未读' ? 'unread' : item.readStatus === '已内化' ? 'internalized' : 'read'}}">{{item.readStatus}}</text>
+          </view>
+
+          <!-- 用户分类标签（放在标题上方） -->
+          <view class="user-category-tags" wx:if="{{item.userCategory}}">
+            <view class="user-category-tag">{{item.userCategory}}</view>
+          </view>
+
+          <!-- AI 智能分类标签 -->
+          <view class="ai-category-tag" wx:if="{{item.aiCategory}}">
+            <text class="ai-cat-icon">{{item.aiCategoryIcon}}</text>
+            <text>{{item.aiCategory}}</text>
+          </view>
+
+          <!-- 新闻标题和更多菜单 -->
+          <view class="content-header">
+            <view class="title-row">
+              <text class="news-title">{{item.title}}</text>
+              <view class="more-menu-btn" catchtap="showMoreMenu" data-id="{{item.id}}">
+                <text class="more-icon">⋯</text>
+              </view>
+            </view>
+            <view class="content-meta">
+              <text class="source">{{item.source}}</text>
+              <text class="separator">•</text>
+              <text class="publish-time">{{item.published_at}}</text>
+            </view>
+          </view>
+
+          <!-- AI 提醒 -->
+          <view class="ai-reminder" wx:if="{{item.aiReminder}}">
+            <text class="ai-reminder-icon">💡</text>
+            <text class="ai-reminder-text">{{item.aiReminder}}</text>
+          </view>
+
+          <!-- 高亮摘要（AI 自动生成的核心三句话） -->
+          <view class="highlighted-summary" wx:if="{{item.reviewSummary}}">
+            <view class="highlighted-header">
+              <text class="highlighted-icon">✨</text>
+              <text class="highlighted-title">核心要点</text>
+            </view>
+            <text class="highlighted-content">{{item.reviewSummary}}</text>
+          </view>
+
+          <!-- 内容摘要 -->
+          <view class="content-summary">
+            <text>{{item.summary}}</text>
+          </view>
+
+          <!-- 新闻自带标签（浅色系） -->
+          <view class="content-tags">
+            <view class="news-tag">{{item.category}}</view>
+            <view class="news-tag" wx:if="{{item.readingTime}}">📖 {{item.readingTime}}</view>
+            <view class="news-tag" wx:if="{{item.bookmarkedAt}}">🔖 {{item.bookmarkedAt}}</view>
+            <view class="news-tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</view>
+          </view>
+
+          <!-- AI 建议操作 -->
+          <view class="ai-suggestions" wx:if="{{item.suggestedActions && item.suggestedActions.length > 0}}">
+            <view class="suggestions-header">
+              <text class="suggestions-icon">📋</text>
+              <text class="suggestions-title">建议操作</text>
+            </view>
+            <view class="suggestions-list">
+              <view class="suggestion-item" wx:for="{{item.suggestedActions}}" wx:key="*this">
+                <text class="suggestion-bullet">•</text>
+                <text class="suggestion-text">{{item}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 个人笔记 - 便签纸风格 -->
+          <view class="personal-note" wx:if="{{item.note}}">
+            <view class="note-paper">
+              <view class="note-lines"></view>
+              <view class="note-header">
+                <text class="note-icon">📝</text>
+                <text class="note-title">我的笔记</text>
+              </view>
+              <text class="note-content">{{item.note}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 时间轴视图 -->
+    <view wx:if="{{viewMode === 'timeline'}}" class="timeline-view">
+      <view class="timeline-month" wx:for="{{timelineData}}" wx:key="month" wx:for-item="monthData">
+        <view class="month-header">
+          <text class="month-title">{{monthData.month}}</text>
+          <text class="month-count">{{monthData.items.length}} 条收藏</text>
+        </view>
+        <view class="timeline-items">
+          <view class="timeline-item" 
+                wx:for="{{monthData.items}}" 
+                wx:key="id" 
+                wx:for-item="item"
+                bindtap="viewDetail"
+                data-id="{{item.id}}">
+            <view class="timeline-dot"></view>
+            <view class="timeline-line"></view>
+            <view class="timeline-content">
+              <view class="timeline-date">{{item.dateStr}}</view>
+              <view class="timeline-card">
+                <text class="timeline-title">{{item.title}}</text>
+                <view class="timeline-meta">
+                  <text class="timeline-category">{{item.category}}</text>
+                  <text class="timeline-source">{{item.source}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view wx:if="{{loadingMore}}" class="loading-more">
+      <view class="loading-spinner"></view>
+      <text>加载更多...</text>
+    </view>
+
+    <!-- 没有更多数据 -->
+    <view wx:if="{{!hasMore && filteredFavorites.length > 0}}" class="no-more">
+      <text>没有更多收藏了</text>
+    </view>
+  </view>
+
+  <!-- 全选和批量操作 -->
+  <view class="bottom-actions" wx:if="{{filteredFavorites.length > 0 && selectedItems.length === 0}}">
+    <view class="action-group">
+      <button class="bottom-btn select-all-btn" bindtap="selectAll">
+        <text class="btn-icon">☐</text>
+        <text class="btn-text">全选</text>
+      </button>
+      
+      <button class="bottom-btn sort-btn" bindtap="showSortOptions">
+        <text class="btn-icon">🔄</text>
+        <text class="btn-text">排序</text>
+      </button>
+      
+      <button class="bottom-btn export-btn" bindtap="exportAll">
+        <text class="btn-icon">📤</text>
+        <text class="btn-text">导出</text>
+      </button>
+      
+      <button class="bottom-btn clear-btn" bindtap="clearAll">
+        <text class="btn-icon">🗑️</text>
+        <text class="btn-text">清空</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 取消全选 -->
+  <view class="bottom-actions" wx:if="{{selectedItems.length > 0}}">
+    <view class="action-group">
+      <button class="bottom-btn cancel-selection-btn" bindtap="cancelSelection">
+        <text class="btn-icon">✕</text>
+        <text class="btn-text">取消选择</text>
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 排序选项弹窗 -->
+<view class="modal-overlay" wx:if="{{showSortModal}}" bindtap="hideSortOptions">
+  <view class="modal-content" catchtap="noop">
+    <view class="modal-header">
+      <text class="modal-title">选择排序方式</text>
+      <button class="modal-close" bindtap="hideSortOptions">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="sort-option {{sortBy === 'time' ? 'active' : ''}}" 
+            bindtap="selectSort" data-sort="time">
+        <text class="option-icon">🕐</text>
+        <text class="option-text">按收藏时间</text>
+        <text class="option-desc">最新收藏在前</text>
+      </view>
+      <view class="sort-option {{sortBy === 'title' ? 'active' : ''}}" 
+            bindtap="selectSort" data-sort="title">
+        <text class="option-icon">🔤</text>
+        <text class="option-text">按标题排序</text>
+        <text class="option-desc">字母顺序</text>
+      </view>
+      <view class="sort-option {{sortBy === 'category' ? 'active' : ''}}" 
+            bindtap="selectSort" data-sort="category">
+        <text class="option-icon">📂</text>
+        <text class="option-text">按分类排序</text>
+        <text class="option-desc">相同分类在一起</text>
+      </view>
+      <view class="sort-option {{sortBy === 'read' ? 'active' : ''}}" 
+            bindtap="selectSort" data-sort="read">
+        <text class="option-icon">📖</text>
+        <text class="option-text">按阅读状态</text>
+        <text class="option-desc">未读在前</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 更多操作菜单 -->
+<view class="action-sheet-overlay" wx:if="{{showActionSheet}}" bindtap="hideActionSheet">
+  <view class="action-sheet" catchtap="noop">
+    <view class="action-sheet-header">
+      <text class="action-sheet-title">操作</text>
+    </view>
+    <view class="action-sheet-body">
+      <view class="action-sheet-item" bindtap="markAsReadFromMenu">
+        <text class="action-item-icon">{{currentActionItem.read ? '📖' : '✅'}}</text>
+        <text class="action-item-text">{{currentActionItem.read ? '标记未读' : '标记已读'}}</text>
+      </view>
+      <view class="action-sheet-item" bindtap="shareItemFromMenu">
+        <text class="action-item-icon">📤</text>
+        <text class="action-item-text">分享</text>
+      </view>
+      <view class="action-sheet-item" bindtap="addNoteFromMenu">
+        <text class="action-item-icon">📝</text>
+        <text class="action-item-text">{{currentActionItem.note ? '编辑笔记' : '添加笔记'}}</text>
+      </view>
+      <view class="action-sheet-item" bindtap="setCategoryFromMenu">
+        <text class="action-item-icon">🏷️</text>
+        <text class="action-item-text">设置分类</text>
+      </view>
+      <view class="action-sheet-item danger" bindtap="removeFavoriteFromMenu">
+        <text class="action-item-icon">🗑️</text>
+        <text class="action-item-text">取消收藏</text>
+      </view>
+    </view>
+    <view class="action-sheet-cancel" bindtap="hideActionSheet">
+      <text>取消</text>
+    </view>
+  </view>
+</view>
+
+<!-- 分类选择弹窗 -->
+<view class="modal-overlay" wx:if="{{showCategoryModal}}" bindtap="hideCategoryModal">
+  <view class="modal-content category-modal" catchtap="noop">
+    <view class="modal-header">
+      <text class="modal-title">选择收藏分类</text>
+      <button class="modal-close" bindtap="hideCategoryModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="category-option {{currentActionItem.userCategory === '' ? 'active' : ''}}" 
+            bindtap="selectUserCategory" data-category="">
+        <text class="category-option-text">无分类</text>
+      </view>
+      <view class="category-option {{currentActionItem.userCategory === cat ? 'active' : ''}}" 
+            wx:for="{{userCategories}}" 
+            wx:key="*this"
+            wx:for-item="cat"
+            bindtap="selectUserCategory" 
+            data-category="{{cat}}">
+        <text class="category-option-text">{{cat}}</text>
+      </view>
+      <view class="add-category-row">
+        <input class="add-category-input" 
+               placeholder="添加新分类..." 
+               value="{{newCategoryName}}"
+               bindinput="onNewCategoryInput"/>
+        <button class="add-category-btn" bindtap="addNewCategory">添加</button>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 笔记弹窗 - 增强版 -->
+<view class="modal-overlay" wx:if="{{showNoteModal}}" bindtap="hideNoteModal">
+  <view class="modal-content note-modal" catchtap="noop">
+    <view class="modal-header">
+      <text class="modal-title">{{currentNoteItem.note ? '编辑笔记' : '添加笔记'}}</text>
+      <button class="modal-close" bindtap="hideNoteModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="news-info">
+        <text class="news-title">{{currentNoteItem.title}}</text>
+      </view>
+      
+      <!-- AI 辅助区域 -->
+      <view class="ai-assist-section">
+        <view class="ai-assist-header">
+          <text class="ai-assist-title">🤖 AI 辅助</text>
+          <button class="ai-extract-btn {{aiExtractingPoints ? 'loading' : ''}}" 
+                  bindtap="aiExtractPoints"
+                  disabled="{{aiExtractingPoints}}">
+            {{aiExtractingPoints ? '提炼中...' : 'AI 提炼要点'}}
+          </button>
+        </view>
+        
+        <!-- AI 生成的要点 -->
+        <view class="ai-points" wx:if="{{aiExtractedPoints.length > 0}}">
+          <view class="ai-point-item" 
+                wx:for="{{aiExtractedPoints}}" 
+                wx:key="index"
+                bindtap="insertAIPoint"
+                data-point="{{item}}">
+            <text class="point-bullet">{{index + 1}}</text>
+            <text class="point-text">{{item}}</text>
+            <text class="point-add">+</text>
+          </view>
+        </view>
+      </view>
+      
+      <textarea class="note-textarea" 
+                placeholder="在这里记录你的想法、感悟或重要信息..." 
+                value="{{currentNote}}"
+                bindinput="onNoteInput"
+                maxlength="500"
+                auto-height/>
+      <view class="note-tools">
+        <view class="note-counter">{{currentNote.length}}/500</view>
+        <button class="ai-polish-btn" bindtap="aiPolishNote" disabled="{{!currentNote || aiPolishing}}">
+          {{aiPolishing ? '润色中...' : '✨ AI润色'}}
+        </button>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn cancel-btn" bindtap="hideNoteModal">取消</button>
+      <button class="modal-btn confirm-btn" bindtap="saveNote">保存</button>
+    </view>
+  </view>
+</view>
+
+<!-- AI 合并总结弹窗 -->
+<view class="modal-overlay" wx:if="{{showAIMergeModal}}" bindtap="hideAIMergeModal">
+  <view class="modal-content ai-merge-modal" catchtap="noop">
+    <view class="modal-header">
+      <text class="modal-title">🤖 AI 合并总结</text>
+      <button class="modal-close" bindtap="hideAIMergeModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="merge-info">
+        <text>已选择 {{selectedItems.length}} 条新闻进行合并</text>
+      </view>
+      
+      <view class="merge-loading" wx:if="{{aiMerging}}">
+        <view class="merge-spinner"></view>
+        <text>AI 正在分析并生成简报...</text>
+      </view>
+      
+      <view class="merge-result" wx:if="{{aiMergeResult && !aiMerging}}">
+        <view class="merge-title">📋 智能简报</view>
+        <text class="merge-content">{{aiMergeResult}}</text>
+      </view>
+    </view>
+    <view class="modal-footer" wx:if="{{aiMergeResult && !aiMerging}}">
+      <button class="modal-btn export-btn" bindtap="exportMergeAsPDF">
+        <text>📄 导出PDF</text>
+      </button>
+      <button class="modal-btn email-btn" bindtap="sendMergeToEmail">
+        <text>📧 发送邮件</text>
+      </button>
+      <button class="modal-btn copy-btn" bindtap="copyMergeResult">
+        <text>📋 复制</text>
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- AI 搜索报告弹窗 -->
+<view class="modal-overlay" wx:if="{{showAIReportModal}}" bindtap="hideAIReportModal">
+  <view class="modal-content ai-merge-modal" catchtap="noop">
+    <view class="modal-header">
+      <text class="modal-title">🤖 AI 搜索分析报告</text>
+      <button class="modal-close" bindtap="hideAIReportModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="merge-info">
+        <text>关键词：{{searchKeyword}}</text>
+      </view>
+      
+      <view class="merge-loading" wx:if="{{aiReportGenerating}}">
+        <view class="merge-spinner"></view>
+        <text>AI 正在分析搜索结果...</text>
+      </view>
+      
+      <view class="merge-result" wx:if="{{aiReport && !aiReportGenerating}}">
+        <view class="merge-title">📋 分析报告</view>
+        <text class="merge-content">{{aiReport}}</text>
+      </view>
+    </view>
+    <view class="modal-footer" wx:if="{{aiReport && !aiReportGenerating}}">
+      <button class="modal-btn save-btn" bindtap="saveReport">
+        <text>💾 保存</text>
+      </button>
+      <button class="modal-btn share-btn" bindtap="shareReportAsImage">
+        <text>📷 分享图片</text>
+      </button>
+      <button class="modal-btn copy-btn" bindtap="copyReportContent">
+        <text>📋 复制</text>
+      </button>
+    </view>
+  </view>
+</view>

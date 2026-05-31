@@ -1,0 +1,68 @@
+<!-- components/notification/notification.wxml -->
+<view 
+  class="notification-container {{position}} {{animationState}} {{clickable ? 'clickable' : ''}}"
+  style="{{notificationStyle}}"
+  bindtap="onNotificationTap"
+  wx:if="{{visible}}"
+>
+  <!-- 通知内容 -->
+  <view class="notification-content">
+    <!-- 图标 -->
+    <view class="notification-icon" wx:if="{{icon || type}}">
+      <text class="icon-text">{{getNotificationIcon()}}</text>
+    </view>
+    
+    <!-- 文本内容 -->
+    <view class="notification-text">
+      <!-- 标题 -->
+      <view class="notification-title" wx:if="{{title}}">
+        {{title}}
+      </view>
+      
+      <!-- 内容 -->
+      <view class="notification-message" wx:if="{{content}}">
+        {{content}}
+      </view>
+    </view>
+  </view>
+  
+  <!-- 关闭按钮 -->
+  <view 
+    class="notification-close" 
+    wx:if="{{showClose}}"
+    catchtap="onCloseTap"
+  >
+    <text class="close-icon">×</text>
+  </view>
+  
+  <!-- 进度条（用于加载状态） -->
+  <view class="notification-progress" wx:if="{{type === 'loading' && content}}">
+    <view 
+      class="progress-bar"
+      style="width: {{content.replace('%', '')}}%"
+    ></view>
+  </view>
+  
+  <!-- 底部操作按钮 -->
+  <view class="notification-actions" wx:if="{{actions && actions.length > 0}}">
+    <button 
+      wx:for="{{actions}}" 
+      wx:key="index"
+      class="action-btn {{item.type || 'default'}}"
+      catchtap="onActionTap"
+      data-action="{{item}}"
+    >
+      {{item.text}}
+    </button>
+  </view>
+</view>
+
+<!-- 遮罩层（用于模态通知） -->
+<view 
+  class="notification-mask"
+  wx:if="{{position === 'center' && visible}}"
+  catchtap="onCloseTap"
+></view>
+
+<!-- 底部安全区域适配 -->
+<view class="safe-area-bottom" wx:if="{{position === 'bottom'}}"></view>

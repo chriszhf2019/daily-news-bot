@@ -1,0 +1,201 @@
+<!--seven-elements.wxml - 七要素审计页面（极简版）-->
+<view class="audit-page">
+  <!-- 加载状态 -->
+  <view class="loading-box" wx:if="{{loading}}">
+    <view class="spinner"></view>
+    <text class="loading-tip">AI审计中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-box" wx:elif="{{isEmpty}}">
+    <text class="empty-icon">📭</text>
+    <text class="empty-tip">{{errorMessage}}</text>
+    <button class="back-btn" bindtap="goBack">返回</button>
+  </view>
+
+  <!-- 主内容 -->
+  <block wx:else>
+    <!-- 顶部标题 -->
+    <view class="page-top">
+      <text class="page-title">🔍 七要素审计</text>
+      <view class="status-tag {{isRealData ? 'success' : 'warn'}}">
+        <text>{{isRealData ? '✅ AI实时' : '⚠️ ' + errorMessage}}</text>
+      </view>
+    </view>
+
+    <!-- 新闻标题 -->
+    <view class="news-box" wx:if="{{newsData.title}}">
+      <text class="news-cat">[{{categoryName}}]</text>
+      <text class="news-title">{{newsData.title}}</text>
+    </view>
+
+    <!-- 七要素内容 -->
+    <scroll-view class="content-scroll" scroll-y="true">
+      
+      <!-- 01 证据链审计 -->
+      <view class="audit-section">
+        <view class="section-head">
+          <text class="section-num">01</text>
+          <text class="section-name">证据链审计</text>
+          <text class="score-tag {{audit01.score >= 90 ? 'high' : (audit01.score >= 70 ? 'mid' : 'low')}}">{{audit01.score}}%</text>
+        </view>
+        <view class="section-body">
+          <view class="fact-list" wx:if="{{audit01.verifiedFacts.length > 0}}">
+            <view class="fact-row" wx:for="{{audit01.verifiedFacts}}" wx:key="index">
+              <text class="fact-icon">✓</text>
+              <text class="fact-text">{{item}}</text>
+            </view>
+          </view>
+          <text class="empty-line" wx:else>暂无已核实事实</text>
+          
+          <view class="conflict-box" wx:if="{{audit01.conflicts.length > 0}}">
+            <text class="conflict-label">⚠ 审计疑点</text>
+            <view class="conflict-row" wx:for="{{audit01.conflicts}}" wx:key="index">
+              <text class="conflict-text">{{item}}</text>
+            </view>
+          </view>
+          
+          <text class="verdict-line" wx:if="{{audit01.verdict}}">{{audit01.verdict}}</text>
+        </view>
+      </view>
+
+      <!-- 02 共识与冲突 -->
+      <view class="audit-section">
+        <view class="section-head">
+          <text class="section-num">02</text>
+          <text class="section-name">共识与冲突</text>
+          <text class="score-tag mid">吻合{{audit02.alignment}}%</text>
+        </view>
+        <view class="section-body">
+          <view class="compare-box">
+            <view class="compare-col consensus-col">
+              <text class="col-title">✅ 共识</text>
+              <view class="col-list">
+                <text class="col-item" wx:for="{{audit02.consensus}}" wx:key="index">{{item}}</text>
+                <text class="empty-line" wx:if="{{audit02.consensus.length === 0}}">无</text>
+              </view>
+            </view>
+            <view class="compare-col gap-col">
+              <text class="col-title">❓ 漏洞</text>
+              <view class="col-list">
+                <text class="col-item" wx:for="{{audit02.gaps}}" wx:key="index">{{item}}</text>
+                <text class="empty-line" wx:if="{{audit02.gaps.length === 0}}">无</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 03 原子事实清单 -->
+      <view class="audit-section">
+        <view class="section-head">
+          <text class="section-num">03</text>
+          <text class="section-name">原子事实清单</text>
+        </view>
+        <view class="section-body">
+          <view class="data-table" wx:if="{{audit03.keyData.length > 0}}">
+            <view class="table-row table-header">
+              <text class="table-cell cell-key">项目</text>
+              <text class="table-cell cell-val">数据</text>
+              <text class="table-cell cell-status">状态</text>
+            </view>
+            <view class="table-row" wx:for="{{audit03.keyData}}" wx:key="index">
+              <text class="table-cell cell-key">{{item.key}}</text>
+              <text class="table-cell cell-val">{{item.value}}</text>
+              <text class="table-cell cell-status {{item.status === '已对证' ? 'verified' : 'pending'}}">{{item.status}}</text>
+            </view>
+          </view>
+          <text class="empty-line" wx:else>暂无原子事实</text>
+        </view>
+      </view>
+
+      <!-- 04 底层原理审计 -->
+      <view class="audit-section">
+        <view class="section-head">
+          <text class="section-num">04</text>
+          <text class="section-name">底层原理审计</text>
+        </view>
+        <view class="section-body">
+          <view class="logic-flow" wx:if="{{audit04.logicPath.length > 0}}">
+            <text class="logic-step" wx:for="{{audit04.logicPath}}" wx:key="index">
+              <text class="step-text">{{item}}</text>
+              <text class="step-arrow" wx:if="{{index < audit04.logicPath.length - 1}}">→</text>
+            </text>
+          </view>
+          <text class="empty-line" wx:else>暂无逻辑推导</text>
+          
+          <view class="glossary-box" wx:if="{{audit04.glossary.term}}">
+            <text class="glossary-term">📖 {{audit04.glossary.term}}</text>
+            <text class="glossary-explain">{{audit04.glossary.explain}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 05 逻辑证伪预警 -->
+      <view class="audit-section">
+        <view class="section-head">
+          <text class="section-num">05</text>
+          <text class="section-name">证伪预警</text>
+          <text class="impact-tag">破坏力: {{audit05.impact}}</text>
+        </view>
+        <view class="section-body">
+          <view class="redline-list" wx:if="{{audit05.redlines.length > 0}}">
+            <view class="redline-row" wx:for="{{audit05.redlines}}" wx:key="index">
+              <text class="redline-icon">🚨</text>
+              <text class="redline-text">{{item.text || item}}</text>
+            </view>
+          </view>
+          <text class="empty-line" wx:else>暂无证伪红线</text>
+        </view>
+      </view>
+
+      <!-- 06 最终情报鉴定 -->
+      <view class="audit-section verdict-section">
+        <view class="section-head">
+          <text class="section-num">06</text>
+          <text class="section-name">最终鉴定</text>
+        </view>
+        <view class="section-body">
+          <view class="verdict-box">
+            <view class="verdict-score">
+              <text class="score-num">{{audit06.finalScore}}</text>
+              <text class="score-unit">分</text>
+            </view>
+            <view class="verdict-stars">
+              <text class="star {{index < audit06.actionStar ? 'active' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:key="index">★</text>
+            </view>
+            <text class="verdict-text">{{audit06.verdictText || '暂无鉴定'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 07 情报演进时间轴 -->
+      <view class="audit-section">
+        <view class="section-head">
+          <text class="section-num">07</text>
+          <text class="section-name">情报时间轴</text>
+        </view>
+        <view class="section-body">
+          <view class="timeline-box" wx:if="{{audit07.length > 0}}">
+            <view class="timeline-node {{item.type || 'past'}}" wx:for="{{audit07}}" wx:key="index">
+              <view class="node-dot"></view>
+              <view class="node-content">
+                <text class="node-date">{{item.date}}</text>
+                <text class="node-event">{{item.event}}</text>
+              </view>
+            </view>
+          </view>
+          <text class="empty-line" wx:else>暂无时间轴</text>
+        </view>
+      </view>
+
+      <view class="bottom-space"></view>
+    </scroll-view>
+
+    <!-- 底部操作 -->
+    <view class="bottom-bar">
+      <button class="bar-btn" bindtap="goBack">← 返回</button>
+      <button class="bar-btn" bindtap="shareAnalysis">📤 分享</button>
+    </view>
+  </block>
+</view>

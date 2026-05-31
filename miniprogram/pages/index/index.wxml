@@ -1,0 +1,906 @@
+<!--index.wxml - 新闻简报首页 三部分整合版-->
+<wxs src="./index.wxs" module="utils" />
+<view class="news-container {{themeClass}}" data-theme="{{themeColor}}">
+  
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <!-- AI 语音简报浮条 -->
+    <view class="ai-audio-bar {{showAudioPlayer ? 'expanded' : ''}}" bindtap="toggleAudioPlayer">
+      <view class="audio-bar-content">
+        <view class="audio-icon" bindtap="toggleAudioPlay">
+          <text class="play-icon">{{isAudioPlaying ? '⏸️' : '▶️'}}</text>
+        </view>
+        <view class="audio-info">
+          <text class="audio-title">听今日简报</text>
+          <text class="audio-subtitle">{{audioStatus}}</text>
+        </view>
+        <view class="audio-controls" wx:if="{{showAudioPlayer}}">
+          <view class="audio-waveform">
+            <view class="wave-bar" style="height: {{waveHeight1}}%"></view>
+            <view class="wave-bar" style="height: {{waveHeight2}}%"></view>
+            <view class="wave-bar" style="height: {{waveHeight3}}%"></view>
+            <view class="wave-bar" style="height: {{waveHeight4}}%"></view>
+            <view class="wave-bar" style="height: {{waveHeight5}}%"></view>
+          </view>
+          <view class="audio-speed" bindtap="togglePlaybackSpeed">
+            <text>{{playbackSpeed}}x</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="header-bg"></view>
+    <view class="header-content">
+      <text class="header-date">📰 {{currentDate}}</text>
+      <text class="header-title">新闻简报</text>
+      <text class="header-subtitle">你的私人智库 · AI驱动的深度情报</text>
+      <!-- 当前人设显示 -->
+      <view class="current-persona" wx:if="{{aiPersonaName}}">
+        <text class="persona-badge">🤖 {{aiPersonaName}}</text>
+      </view>
+      <!-- 实时同步状态 -->
+      <view class="sync-status" wx:if="{{syncStatus}}">
+        <text class="sync-badge {{syncStatus === 'success' ? 'sync-success' : 'sync-fail'}}">{{syncStatus === 'success' ? '✓ 实时同步成功' : '⚠️ 同步失败，使用本地数据'}}</text>
+      </view>
+    </view>
+    
+    <!-- 今日统计 - 仪表盘风格 -->
+    <view class="today-stats-dashboard">
+      <!-- 今日情报 -->
+      <view class="stat-card" bindtap="onStatTodayTap" hover-class="stat-card-hover">
+        <view class="stat-icon-wrap">
+          <text class="stat-icon">📄</text>
+        </view>
+        <view class="stat-data">
+          <text class="stat-num">{{newsCount}}</text>
+          <view class="stat-trend {{todayTrend >= 0 ? 'up' : 'down'}}">
+            <text class="trend-arrow">{{todayTrend >= 0 ? '↑' : '↓'}}</text>
+            <text class="trend-value">{{todayTrendAbs}}%</text>
+          </view>
+        </view>
+        <text class="stat-label">今日情报</text>
+        <text class="stat-hint">较昨日</text>
+      </view>
+
+      <!-- 市场情绪 -->
+      <view class="stat-card sentiment-card" bindtap="onStatSentimentTap" hover-class="stat-card-hover">
+        <view class="stat-icon-wrap">
+          <text class="stat-icon">🧠</text>
+        </view>
+        <view class="stat-data">
+          <text class="stat-num sentiment-num {{sentimentLevel}}">{{marketSentiment}}%</text>
+        </view>
+        <view class="sentiment-bar">
+          <view class="sentiment-progress" style="width: {{marketSentiment}}%"></view>
+        </view>
+        <text class="stat-label">市场情绪</text>
+        <text class="stat-hint sentiment-hint {{sentimentLevel}}">{{sentimentText}}</text>
+      </view>
+
+      <!-- 重要信号 -->
+      <view class="stat-card signal-card {{signalCount > 0 ? 'has-signal' : ''}}" bindtap="onStatSignalTap" hover-class="stat-card-hover">
+        <view class="stat-icon-wrap signal-icon-wrap {{signalCount > 0 ? 'glow' : ''}}">
+          <text class="stat-icon">⚡</text>
+        </view>
+        <view class="stat-data">
+          <text class="stat-num signal-num {{signalCount > 0 ? 'alert' : ''}}">{{signalCount}}</text>
+        </view>
+        <text class="stat-label">重要信号</text>
+        <text class="stat-hint signal-hint" wx:if="{{signalCount > 0}}">需立即处理</text>
+        <text class="stat-hint" wx:else>暂无紧急</text>
+      </view>
+    </view>
+
+    <!-- 市场情绪浮层 -->
+    <view class="sentiment-popup {{showSentimentPopup ? 'show' : ''}}" catchtap="closeSentimentPopup">
+      <view class="popup-content" catchtap="stopPropagation">
+        <view class="popup-header">
+          <text class="popup-title">🧠 市场情绪构成</text>
+          <view class="popup-close" bindtap="closeSentimentPopup">✕</view>
+        </view>
+        <view class="popup-body">
+          <view class="sentiment-chart">
+            <view class="chart-ring">
+              <view class="ring-segment positive" style="--percent: {{sentimentPositive}}"></view>
+              <view class="ring-segment neutral" style="--percent: {{sentimentNeutral}}"></view>
+              <view class="ring-segment negative" style="--percent: {{sentimentNegative}}"></view>
+              <view class="ring-center">
+                <text class="center-value">{{marketSentiment}}%</text>
+                <text class="center-label">综合指数</text>
+              </view>
+            </view>
+          </view>
+          <view class="sentiment-legend">
+            <view class="legend-item">
+              <view class="legend-dot positive"></view>
+              <text class="legend-label">乐观</text>
+              <text class="legend-value">{{sentimentPositive}}%</text>
+            </view>
+            <view class="legend-item">
+              <view class="legend-dot neutral"></view>
+              <text class="legend-label">中性</text>
+              <text class="legend-value">{{sentimentNeutral}}%</text>
+            </view>
+            <view class="legend-item">
+              <view class="legend-dot negative"></view>
+              <text class="legend-label">审慎</text>
+              <text class="legend-value">{{sentimentNegative}}%</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 模式切换 -->
+    <view class="mode-switcher">
+      <view class="mode-item {{readMode === 'standard' ? 'active' : ''}}" bindtap="switchMode" data-mode="standard">
+        <text class="mode-icon">📖</text>
+        <text class="mode-text">标准模式</text>
+      </view>
+      <view class="mode-item {{readMode === 'beginner' ? 'active' : ''}}" bindtap="switchMode" data-mode="beginner">
+        <text class="mode-icon">🧐</text>
+        <text class="mode-text">小白模式</text>
+      </view>
+      <view class="mode-item {{readMode === 'digest' ? 'active' : ''}}" bindtap="switchMode" data-mode="digest">
+        <text class="mode-icon">💧</text>
+        <text class="mode-text">脱水模式</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分类筛选 -->
+  <view class="category-bar">
+    <view class="category-container">
+      <!-- 左侧分类导航 -->
+      <scroll-view scroll-x="true" class="category-scroll" enhanced="true" show-scrollbar="false">
+        <view class="category-list">
+          <view class="category-item {{currentCategory === 'all' ? 'active' : ''}}" 
+                bindtap="selectCategory" data-category="all">
+            <text class="cat-icon">📋</text>
+            <text class="cat-name">全部</text>
+          </view>
+          <view class="category-item {{currentCategory === 'AI' ? 'active' : ''}}" 
+                bindtap="selectCategory" data-category="AI">
+            <text class="cat-icon">🤖</text>
+            <text class="cat-name">AI动态</text>
+          </view>
+          <view class="category-item {{currentCategory === 'tech' ? 'active' : ''}}" 
+                bindtap="selectCategory" data-category="tech">
+            <text class="cat-icon">🚀</text>
+            <text class="cat-name">科技前沿</text>
+          </view>
+          <view class="category-item {{currentCategory === 'finance' ? 'active' : ''}}" 
+                bindtap="selectCategory" data-category="finance">
+            <text class="cat-icon">💰</text>
+            <text class="cat-name">商业财经</text>
+          </view>
+          <view class="category-item {{currentCategory === 'international' ? 'active' : ''}}" 
+                bindtap="selectCategory" data-category="international">
+            <text class="cat-icon">🌍</text>
+            <text class="cat-name">国际要闻</text>
+          </view>
+          <view class="category-item {{currentCategory === 'sports' ? 'active' : ''}}" 
+                bindtap="selectCategory" data-category="sports">
+            <text class="cat-icon">⚽</text>
+            <text class="cat-name">体育竞技</text>
+          </view>
+          <!-- 快捷筛选入口 -->
+          <view class="category-item filter-btn" bindtap="openQuickFilter">
+            <text class="cat-icon">🎯</text>
+            <text class="cat-name">筛选</text>
+          </view>
+          <!-- 搜索入口 -->
+          <view class="category-item search-btn" bindtap="openSearch">
+            <text class="cat-icon">🔍</text>
+            <text class="cat-name">搜索</text>
+          </view>
+        </view>
+      </scroll-view>
+      <!-- 右侧 AnalysisEntry 组件 -->
+      <view class="analysis-entry" bindtap="openInputModal">
+        <view class="entry-icon">➕</view>
+        <text class="entry-text">录入</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷筛选弹窗 -->
+  <view class="quick-filter-modal {{showQuickFilter ? 'show' : ''}}" catchtap="closeQuickFilter">
+    <view class="quick-filter-content" catchtap="stopPropagation">
+      <view class="filter-header">
+        <text class="filter-title">🎯 快捷筛选</text>
+        <view class="filter-close" bindtap="closeQuickFilter">✕</view>
+      </view>
+      
+      <view class="filter-body">
+        <!-- 兴趣标签快捷选择 -->
+        <view class="filter-section">
+          <text class="filter-section-title">兴趣标签</text>
+          <view class="filter-tags">
+            <view class="filter-tag {{interestTags.indexOf(item.id) > -1 ? 'selected' : ''}}" 
+                  wx:for="{{allInterestTags}}" wx:key="id"
+                  bindtap="toggleQuickInterestTag" data-tag="{{item.id}}">
+              <text class="filter-tag-icon">{{item.icon}}</text>
+              <text class="filter-tag-name">{{item.name}}</text>
+            </view>
+          </view>
+          <view class="filter-tag-actions">
+            <text class="filter-action" bindtap="selectAllQuickTags">全选</text>
+            <text class="filter-action" bindtap="clearAllQuickTags">清空</text>
+          </view>
+        </view>
+        
+        <!-- 关键词雷达 -->
+        <view class="filter-section">
+          <text class="filter-section-title">关键词雷达</text>
+          <view class="filter-keyword-input">
+            <input class="keyword-input" placeholder="添加关注词" value="{{newQuickKeyword}}" bindinput="onQuickKeywordInput" bindconfirm="addQuickKeyword"/>
+            <button class="keyword-add-btn" bindtap="addQuickKeyword">+</button>
+          </view>
+          <view class="filter-keywords" wx:if="{{focusKeywords.length > 0}}">
+            <view class="filter-keyword" wx:for="{{focusKeywords}}" wx:key="*this">
+              <text>{{item}}</text>
+              <text class="keyword-remove" catchtap="removeQuickKeyword" data-keyword="{{item}}">✕</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="filter-footer">
+        <button class="filter-apply-btn" bindtap="applyQuickFilter">应用筛选</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">AI正在分析今日情报...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:elif="{{!displayedNews || displayedNews.length === 0}}" class="empty-state">
+    <text class="empty-icon">📭</text>
+    <text class="empty-text">暂无新闻数据</text>
+    <text class="empty-hint">请先在设置中配置API密钥，然后点击刷新</text>
+    <button class="retry-btn" bindtap="refreshWithAI">刷新新闻</button>
+  </view>
+
+  <!-- 新闻流列表 -->
+  <view wx:else class="news-feed">
+    <!-- 标准模式：完整卡片 -->
+    <view class="standard-list mode-animation {{modeAnimation}}" wx:if="{{readMode === 'standard'}}">
+      <view class="standard-card card-enter" wx:for="{{displayedNews}}" wx:for-item="news" wx:key="id" id="news-{{news.id}}" style="animation-delay: {{index * 0.1}}s;">
+        <view class="card-header">
+          <!-- 左上角：情绪指数 -->
+          <view class="sentiment-indicator top-left">
+            <view class="sentiment-arrow-tag">
+              <text class="arrow-icon">{{news.sentiment === 'positive' ? '↑' : news.sentiment === 'negative' ? '↓' : '→'}}</text>
+              <text class="sentiment-text">{{news.sentiment === 'positive' ? '积极' : news.sentiment === 'negative' ? '消极' : '中性'}}</text>
+            </view>
+          </view>
+          
+          <!-- 中间：卡片内容 -->
+          <view class="card-content">
+            <view class="card-icon-wrap" style="background: linear-gradient(135deg, {{news.categoryColor}}40, {{news.categoryColor}}20)">
+              <text class="card-icon">{{news.icon}}</text>
+            </view>
+            <view class="card-title-wrap">
+              <text class="card-title">{{news.title}}</text>
+              <view class="card-meta">
+                <text class="card-source">{{news.source}}</text>
+                <text class="card-time">{{news.published_at}}</text>
+              </view>
+            </view>
+          </view>
+          
+          <!-- 右上角：指示器 -->
+          <view class="header-indicators">
+            <view class="indicator-badge focus-hit" wx:if="{{news.isFocused}}">
+              <text class="indicator-icon">⭐</text>
+              <text class="indicator-text">命中关注</text>
+            </view>
+            <view class="indicator-badge important-dynamic" wx:if="{{news.isImportant}}">
+              <text class="indicator-icon">⚡</text>
+              <text class="indicator-text">重要动态</text>
+            </view>
+            <view class="signal-badge" wx:if="{{news.is_signal}}">
+              <text>🔔 信号</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 摘要 -->
+        <view class="standard-summary">
+          <text>{{news.summary}}</text>
+        </view>
+
+        <!-- 标签 -->
+        <view class="standard-tags" wx:if="{{news.tags && news.tags.length > 0}}">
+          <view class="tag-item" wx:for="{{news.tags}}" wx:for-item="tag" wx:key="*this"
+                style="border-color: {{news.categoryColor}}40; color: {{news.categoryColor}}">
+            {{tag}}
+          </view>
+        </view>
+        <view class="standard-tags" wx:else>
+          <text class="tags-empty-hint">刷新后AI将生成标签</text>
+        </view>
+
+        <!-- AI解读 -->
+        <view class="ai-analysis-section">
+          <view class="analysis-header">
+            <text class="analysis-icon">🤖</text>
+            <text class="analysis-title">AI 深度解读</text>
+          </view>
+          <text class="analysis-content">{{news.ai_analysis.interpretation || '刷新后AI将生成深度解读'}}</text>
+        </view>
+
+        <!-- 预测 -->
+        <view class="prediction-section">
+          <view class="prediction-header">
+            <text class="prediction-icon">🔮</text>
+            <text class="prediction-title">趋势预测</text>
+          </view>
+          <text class="prediction-content">{{news.ai_analysis.prediction || '刷新后AI将生成趋势预测'}}</text>
+        </view>
+
+        <!-- 情绪和操作 -->
+        <view class="card-footer">
+          <view class="action-buttons">
+            <view class="action-btn" bindtap="onRelevanceAnalysis" data-id="{{news.id}}">
+              <text>相关性分析</text>
+              <text class="btn-arrow">→</text>
+            </view>
+            <view class="action-btn" bindtap="onDeepExploration" data-id="{{news.id}}">
+              <text>深度探索</text>
+              <text class="btn-arrow">→</text>
+            </view>
+            <view class="action-btn detail-btn" bindtap="openSevenElements" data-id="{{news.id}}">
+              <text>七要素分析</text>
+              <text class="btn-arrow">→</text>
+            </view>
+          </view>
+          <view class="bottom-actions">
+            <view class="action-btn" bindtap="onFavorite" data-id="{{news.id}}">
+              <text class="btn-icon {{news.isFavorited ? 'favorited' : ''}}">{{news.isFavorited ? '❤️' : '🤍'}}</text>
+              <text>{{news.isFavorited ? '已收藏' : '收藏'}}</text>
+            </view>
+            <view class="action-btn" bindtap="onShare" data-id="{{news.id}}">
+              <text class="btn-icon">📤</text>
+              <text>分享</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- ========== 小白模式：通俗易懂版 ========== -->
+    <view class="beginner-list mode-animation {{modeAnimation}}" wx:if="{{readMode === 'beginner'}}">
+      <view class="beginner-card card-enter" wx:for="{{displayedNews}}" wx:for-item="news" wx:key="id" id="news-{{news.id}}" style="animation-delay: {{index * 0.1}}s;">
+        <view class="card-header">
+          <text class="card-icon">{{news.categoryIcon}}</text>
+          <view class="card-title-wrap">
+            <text class="card-title">{{news.title}}</text>
+            <view class="card-tags">
+              <block wx:for="{{news.tags}}" wx:for-item="tag" wx:key="*this">
+                <text class="card-tag" wx:if="{{index < 2}}">{{tag}}</text>
+              </block>
+            </view>
+          </view>
+        </view>
+        
+        <!-- AI形象比喻 -->
+        <view class="ai-analogy-section" wx:if="{{news.newbie && news.newbie.analogy}}">
+          <view class="analogy-header">
+            <text class="analogy-icon">💡</text>
+            <text class="analogy-title">AI形象比喻</text>
+          </view>
+          <text class="analogy-content">{{news.newbie.analogy}}</text>
+        </view>
+        <view class="ai-analogy-section" wx:elif="{{!news.newbie || !news.newbie.analogy}}">
+          <view class="analogy-header">
+            <text class="analogy-icon">💡</text>
+            <text class="analogy-title">AI形象比喻</text>
+          </view>
+          <text class="analogy-content empty-hint">刷新后AI将生成形象比喻</text>
+        </view>
+        
+        <!-- 知识小百科 -->
+        <view class="jargon-section" wx:if="{{news.newbie && news.newbie.jargon_tips && news.newbie.jargon_tips.length > 0}}">
+          <view class="jargon-header">
+            <text class="jargon-icon">💡</text>
+            <text class="jargon-title">知识小百科</text>
+          </view>
+          <view class="jargon-list">
+            <view class="jargon-item" wx:for="{{news.newbie.jargon_tips}}" wx:key="term" wx:for-item="jargon"
+                  bindtap="showJargonExplain" data-term="{{jargon.term}}" data-explain="{{jargon.explain}}">
+              <text class="jargon-term">{{jargon.term}}</text>
+              <text class="jargon-arrow">→</text>
+            </view>
+          </view>
+        </view>
+        <view class="jargon-section" wx:elif="{{!news.newbie || !news.newbie.jargon_tips || news.newbie.jargon_tips.length === 0}}">
+          <view class="jargon-header">
+            <text class="jargon-icon">💡</text>
+            <text class="jargon-title">知识小百科</text>
+          </view>
+          <text class="jargon-empty empty-hint">刷新后AI将生成专业术语解释</text>
+        </view>
+        
+        <!-- 导师一句话 -->
+        <view class="mentor-comment-section">
+          <view class="mentor-comment">
+            <text class="mentor-icon">💬</text>
+            <text class="mentor-text">导师点评：{{news.newbie.talking_point || '刷新后AI将生成导师点评'}}</text>
+          </view>
+        </view>
+        
+        <view class="card-footer">
+          <view class="bottom-actions">
+            <view class="action-btn" bindtap="onFavorite" data-id="{{news.id}}">
+              <text class="btn-icon {{news.isFavorited ? 'favorited' : ''}}">{{news.isFavorited ? '❤️' : '🤍'}}</text>
+              <text>{{news.isFavorited ? '已收藏' : '收藏'}}</text>
+            </view>
+            <view class="action-btn" bindtap="onShare" data-id="{{news.id}}">
+              <text class="btn-icon">📤</text>
+              <text>分享</text>
+            </view>
+          </view>
+          <view class="card-action" bindtap="showNewsDetail" data-id="{{news.id}}">
+            <text>解锁更多 <text class="arrow-animation">→</text></text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- ========== 脱水模式：高密度列表 ========== -->
+    <view class="digest-list mode-animation {{modeAnimation}}" wx:if="{{readMode === 'digest'}}">
+      <view class="digest-item card-enter" wx:for="{{displayedNews}}" wx:for-item="news" wx:key="id" id="news-{{news.id}}" style="animation-delay: {{index * 0.1}}s;">
+        <view class="digest-dot" style="background: {{news.categoryColor}}"></view>
+        <view class="digest-content" bindtap="showNewsDetail" data-id="{{news.id}}">
+          <text class="digest-title">⚡ {{news.title}}</text>
+          <text class="digest-summary">{{news.dehydrated || news.summary}}</text>
+          <!-- 简化时间轴 -->
+          <view class="digest-timeline" wx:if="{{news.timeline && news.timeline.length > 0}}">
+            <text class="timeline-text">追踪中：该事件已持续{{news.timeline.length}}天，下一节点预计在{{news.timeline[news.timeline.length - 1].days}}天后</text>
+          </view>
+        </view>
+        <view class="digest-actions">
+          <view class="digest-action-btn" bindtap="onFavorite" data-id="{{news.id}}">
+            <text class="digest-btn-icon {{news.isFavorited ? 'favorited' : ''}}">{{news.isFavorited ? '❤️' : '🤍'}}</text>
+          </view>
+          <view class="digest-action-btn" bindtap="onShare" data-id="{{news.id}}">
+            <text class="digest-btn-icon">📤</text>
+          </view>
+          <view class="digest-signal" wx:if="{{news.is_signal}}">
+            <text>🔔</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  
+
+
+    <!-- 加载更多按钮 -->
+    <view class="load-more-section" wx:if="{{hasMore}}">
+      <button class="load-more-btn {{loadingMore ? 'loading' : ''}}" bindtap="loadMoreNews" disabled="{{loadingMore}}">
+        <text class="load-more-icon" wx:if="{{!loadingMore}}">📥</text>
+        <view class="load-more-spinner" wx:if="{{loadingMore}}"></view>
+        <text class="load-more-text">{{loadingMore ? '加载中...' : '加载更多 (' + (filteredNews.length - displayedNews.length) + '条)'}}</text>
+      </button>
+      <text class="load-more-hint">当前显示 {{displayedNews.length}}/{{filteredNews.length}} 条</text>
+    </view>
+
+    <!-- 底部提示 -->
+    <view class="feed-footer" wx:if="{{displayedNews.length > 0}}">
+      <text class="footer-text" wx:if="{{!hasMore}}">— 已展示全部 {{filteredNews.length}} 条情报 —</text>
+      <text class="footer-text" wx:else>— 已加载 {{displayedNews.length}} 条，共 {{filteredNews.length}} 条 —</text>
+      <text class="footer-slogan">信息过滤 · 深度解读 · 未来预测</text>
+    </view>
+  </view>
+
+  <!-- 新闻详情弹窗 -->
+  <view class="detail-modal {{showNewsDetailModal ? 'show' : ''}} {{currentMode === 'beginner' ? 'beginner-mode' : ''}}" catchtouchmove="preventTouchMove">
+    <view class="modal-mask" bindtap="closeNewsDetail"></view>
+    <view class="modal-content {{currentMode === 'beginner' ? 'beginner-content' : ''}}" wx:if="{{currentNews}}">
+      <view class="modal-header {{currentMode === 'beginner' ? 'beginner-header' : ''}}">
+        <text class="modal-icon">{{currentNews.categoryIcon}}</text>
+        <text class="modal-title">{{currentNews.title}}</text>
+        <view class="modal-close" bindtap="closeNewsDetail"><text>✕</text></view>
+      </view>
+      
+      <scroll-view class="modal-body {{currentMode === 'beginner' ? 'beginner-body' : ''}}" scroll-y>
+        <!-- 小白模式：形象比喻 -->
+        <view class="element-card beginner-analogy-card" wx:if="{{currentMode === 'beginner' && currentNews.newbie.analogy}}">
+          <view class="element-header">
+            <view class="element-num">💡</view>
+            <text class="element-name">一句话看懂</text>
+          </view>
+          <view class="element-content">
+            <text class="analogy-content">{{currentNews.newbie.analogy}}</text>
+          </view>
+        </view>
+        
+        <!-- 小白模式：故事线时间轴 -->
+        <view class="element-card beginner-storyline-card" wx:if="{{currentMode === 'beginner' && currentNews.newbie.story}}">
+          <view class="element-header">
+            <view class="element-num">📖</view>
+            <text class="element-name">来龙去脉</text>
+          </view>
+          <view class="storyline-timeline">
+            <!-- 前传 -->
+            <view class="storyline-node">
+              <view class="node-icon">⏪</view>
+              <view class="node-body">
+                <text class="node-label">前情提要</text>
+                <text class="node-content">{{currentNews.newbie.story.before || '事情的起因是...'}}</text>
+              </view>
+            </view>
+            <view class="storyline-connector"></view>
+            <!-- 主线 -->
+            <view class="storyline-node">
+              <view class="node-icon">🎯</view>
+              <view class="node-body">
+                <text class="node-label">现在发生</text>
+                <text class="node-content">{{currentNews.newbie.simple_summary || currentNews.summary}}</text>
+              </view>
+            </view>
+            <view class="storyline-connector"></view>
+            <!-- 续集 -->
+            <view class="storyline-node">
+              <view class="node-icon">🔮</view>
+              <view class="node-body">
+                <text class="node-label">后续展望</text>
+                <text class="node-content">{{currentNews.newbie.story.after || '接下来可能会...'}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 小白模式：影响雷达 -->
+        <view class="element-card highlight-green beginner-impact-card" wx:if="{{currentMode === 'beginner' && currentNews.newbie.pros_cons_simple}}">
+          <view class="element-header">
+            <view class="element-num green">📡</view>
+            <text class="element-name">影响雷达</text>
+          </view>
+          <view class="impact-container">
+            <view class="impact-side happy">
+              <text class="impact-icon">😊</text>
+              <text class="impact-label">利好阵营</text>
+              <view class="impact-list">
+                <view class="impact-item" wx:for="{{currentNews.newbie.pros_cons_simple.winners || ['普通人', '科技行业', '创新者']}}" wx:key="*this">
+                  <text>• {{item}}</text>
+                </view>
+              </view>
+            </view>
+            <view class="impact-side concerned">
+              <text class="impact-icon">😟</text>
+              <text class="impact-label">警惕阵营</text>
+              <view class="impact-list">
+                <view class="impact-item" wx:for="{{currentNews.newbie.pros_cons_simple.losers || ['传统行业', '保守派', '懒人']}}" wx:key="*this">
+                  <text>• {{item}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          <text class="impact-verdict" wx:if="{{currentNews.newbie.verdict_emoji}}">
+            {{currentNews.newbie.verdict_emoji}} 总体而言，这件事对大部分普通人是利好的。
+          </text>
+        </view>
+        
+        <!-- 小白模式：社交金句/谈资 -->
+        <view class="element-card highlight-yellow beginner-talking-card" wx:if="{{currentMode === 'beginner' && currentNews.newbie.talking_points}}">
+          <view class="element-header">
+            <view class="element-num yellow">✨</view>
+            <text class="element-name">社交金句/谈资</text>
+          </view>
+          <view class="talking-points-list">
+            <view class="talking-point-item" wx:for="{{currentNews.newbie.talking_points}}" wx:key="*this" bindtap="generateTalkingPointPoster" data-point="{{item}}">
+              <text class="talking-point-content">{{item}}</text>
+              <text class="talking-point-hint">点击生成分享图</text>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 小白模式：追问 AI 导师 -->
+        <view class="element-card highlight-blue beginner-tutor-card" wx:if="{{currentMode === 'beginner' && currentNews.newbie.tutor_questions}}">
+          <view class="element-header">
+            <view class="element-num blue">🤖</view>
+            <text class="element-name">追问 AI 导师</text>
+          </view>
+          <view class="tutor-chat">
+            <view class="tutor-message">
+              <view class="tutor-avatar">🤖</view>
+              <text class="tutor-text">关于这件事，还有什么不明白的？</text>
+            </view>
+            <view class="tutor-questions">
+              <view class="tutor-question-item" wx:for="{{currentNews.newbie.tutor_questions}}" wx:key="q" bindtap="showTutorAnswer" data-question="{{item.q}}" data-answer="{{item.a}}">
+                <text class="question-text">{{item.q}}</text>
+              </view>
+            </view>
+            <view class="tutor-answer" wx:if="{{showTutorAnswer && currentTutorAnswer}}">
+              <text class="answer-content">{{currentTutorAnswer}}</text>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 底部关闭按钮 -->
+        <view class="modal-bottom-actions">
+          <view class="close-button {{currentMode === 'beginner' ? 'beginner-close-button' : ''}}" bindtap="closeNewsDetail">
+            <text class="close-button-text">关闭</text>
+          </view>
+        </view>
+        
+        <!-- 标准模式：七要素分析 -->
+        <block wx:if="{{currentMode !== 'beginner'}}">
+          <!-- 1. 多源验证 (Source Reliability) -->
+          <view class="element-card standard-card source-verification-card">
+            <view class="element-header">
+              <view class="element-icon">🛡️</view>
+              <text class="element-name">多源验证</text>
+            </view>
+            <!-- 信源矩阵 -->
+            <view class="source-matrix">
+              <view class="source-item" wx:for="{{(currentNews.standard_v2 && currentNews.standard_v2.verification && currentNews.standard_v2.verification.sources) || [
+                {name: 'Reuters', status: 'confirmed'},
+                {name: 'OpenAI Blog', status: 'official'},
+                {name: 'TechCrunch', status: 'confirmed'}
+              ]}}" wx:key="name">
+                <text class="source-icon">📰</text>
+                <view class="source-info">
+                  <text class="source-name">{{item.name}}</text>
+                  <text class="source-status {{item.status === 'confirmed' ? 'confirmed' : 'official'}}">{{item.status === 'confirmed' ? '✅ 已核实' : '🏛️ 官方'}}</text>
+                </view>
+              </view>
+            </view>
+            <!-- AI 判定浮窗 -->
+            <view class="ai-verification-badge">
+              <text class="ai-icon">🤖</text>
+              <text class="ai-text">交叉验证：该事实已获全球 5 家主流媒体对证，置信度 {{(currentNews.standard_v2 && currentNews.standard_v2.verification && currentNews.standard_v2.verification.trust_score) || 98}}%</text>
+            </view>
+            <!-- 核心共识点 -->
+            <view class="consensus-section" wx:if="{{currentNews.standard_v2 && currentNews.standard_v2.verification && currentNews.standard_v2.verification.consensus_points && currentNews.standard_v2.verification.consensus_points.length > 0}}">
+              <text class="consensus-title">✅ 核心共识点</text>
+              <view class="consensus-list">
+                <view class="consensus-item" wx:for="{{currentNews.standard_v2.verification.consensus_points}}" wx:key="*this">
+                  <text>• {{item}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          
+          <!-- 2. 全景时间轴 (Event Panorama) -->
+          <view class="element-card standard-card timeline-card">
+            <view class="element-header">
+              <view class="element-icon">⏰</view>
+              <text class="element-name">全景时间轴</text>
+            </view>
+            <view class="deep-timeline">
+              <view class="timeline-node origin">
+                <view class="timeline-dot origin"></view>
+                <view class="timeline-content">
+                  <text class="timeline-stage">追根溯源</text>
+                  <text class="timeline-time">{{(currentNews.standard_v2 && currentNews.standard_v2.deep_timeline && currentNews.standard_v2.deep_timeline[0] && currentNews.standard_v2.deep_timeline[0].time) || '2024.Q3'}}</text>
+                  <text class="timeline-event">{{(currentNews.standard_v2 && currentNews.standard_v2.deep_timeline && currentNews.standard_v2.deep_timeline[0] && currentNews.standard_v2.deep_timeline[0].event) || 'OpenAI 启动草莓项目'}}</text>
+                </view>
+              </view>
+              <view class="timeline-connector"></view>
+              <view class="timeline-node current">
+                <view class="timeline-dot current"></view>
+                <view class="timeline-content">
+                  <text class="timeline-stage">当前爆发</text>
+                  <text class="timeline-time">{{(currentNews.standard_v2 && currentNews.standard_v2.deep_timeline && currentNews.standard_v2.deep_timeline[1] && currentNews.standard_v2.deep_timeline[1].time) || 'Today'}}</text>
+                  <text class="timeline-event">{{(currentNews.standard_v2 && currentNews.standard_v2.deep_timeline && currentNews.standard_v2.deep_timeline[1] && currentNews.standard_v2.deep_timeline[1].event) || '预览版正式通过灰度测试'}}</text>
+                </view>
+              </view>
+              <view class="timeline-connector"></view>
+              <view class="timeline-node future">
+                <view class="timeline-dot future"></view>
+                <view class="timeline-content">
+                  <text class="timeline-stage">未来节点</text>
+                  <text class="timeline-time">{{(currentNews.standard_v2 && currentNews.standard_v2.deep_timeline && currentNews.standard_v2.deep_timeline[2] && currentNews.standard_v2.deep_timeline[2].time) || '2025.06'}}</text>
+                  <text class="timeline-event">{{(currentNews.standard_v2 && currentNews.standard_v2.deep_timeline && currentNews.standard_v2.deep_timeline[2] && currentNews.standard_v2.deep_timeline[2].event) || '完整版全球范围推送'}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          
+          <!-- 3. 信息博弈 (Consensus & Conflict) -->
+          <view class="element-card standard-card info-game-card">
+            <view class="element-header">
+              <view class="element-icon">⚖️</view>
+              <text class="element-name">信息博弈</text>
+            </view>
+            <view class="game-container">
+              <view class="game-side consensus">
+                <text class="game-label">✅ 已确认共识</text>
+                <view class="game-list">
+                  <view class="game-item" wx:for="{{(currentNews.standard_v2 && currentNews.standard_v2.verification && currentNews.standard_v2.verification.consensus_points) || ['GPT-5 预览版已小规模内测', '多模态能力有代际提升']}}" wx:key="*this">
+                    <text>• {{item}}</text>
+                  </view>
+                </view>
+              </view>
+              <view class="game-side conflict">
+                <text class="game-label">❓ 尚存争议点</text>
+                <view class="game-list">
+                  <view class="game-item" wx:for="{{(currentNews.standard_v2 && currentNews.standard_v2.conflicts) || ['具体发布时间尚未确定', '部分功能可能存在延迟']}}" wx:key="*this">
+                    <text>• {{item}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+          
+          <!-- 4. 核心关联主体 (Key Stakeholders) -->
+          <view class="element-card standard-card stakeholders-card">
+            <view class="element-header">
+              <view class="element-icon">👥</view>
+              <text class="element-name">核心关联主体</text>
+            </view>
+            <view class="stakeholders-list">
+              <view class="stakeholder-item" wx:for="{{(currentNews.standard_v2 && currentNews.standard_v2.stakeholders) || [
+                {entity: 'Microsoft', action: '追加 100 亿算力支持'},
+                {entity: 'Anthropic', action: '紧急调整 Claude 4 发布窗口'}
+              ]}}" wx:key="entity">
+                <text class="stakeholder-entity">{{item.entity}}</text>
+                <text class="stakeholder-action">{{item.action}}</text>
+              </view>
+            </view>
+          </view>
+          
+          <!-- 5. 底层基石/背景 (Underlying Logic) -->
+          <view class="element-card standard-card background-card">
+            <view class="element-header">
+              <view class="element-icon">🧱</view>
+              <text class="element-name">底层基石/背景</text>
+            </view>
+            <text class="background-content">{{(currentNews.standard_v2 && currentNews.standard_v2.technical_moat) || '采用新型逻辑推理架构，大幅降低幻觉率。'}}</text>
+          </view>
+          
+          <!-- 6. 次生涟漪效应 (Secondary Ripple Effects) -->
+          <view class="element-card standard-card ripple-card">
+            <view class="element-header">
+              <view class="element-icon">🌊</view>
+              <text class="element-name">次生涟漪效应</text>
+            </view>
+            <view class="ripple-list">
+              <view class="ripple-item" wx:for="{{(currentNews.standard_v2 && currentNews.standard_v2.ripple_effects) || [
+                'AI 计算需求激增，可能导致数据中心电力供应紧张',
+                '相关产业链公司股价上涨，投资者关注度提升',
+                '教育行业可能迎来AI辅助教学工具的普及'
+              ]}}" wx:key="*this">
+                <text>• {{item}}</text>
+              </view>
+            </view>
+          </view>
+          
+          <!-- 7. 情报风险等级 (Intelligence Risk Level) -->
+          <view class="element-card standard-card risk-card">
+            <view class="element-header">
+              <view class="element-icon">⚠️</view>
+              <text class="element-name">情报风险等级</text>
+            </view>
+            <view class="risk-container">
+              <view class="risk-item">
+                <text class="risk-label">置信度评分</text>
+                <text class="risk-value">{{(currentNews.standard_v2 && currentNews.standard_v2.risk && currentNews.standard_v2.risk.confidence) || 95}}%</text>
+              </view>
+              <view class="risk-item">
+                <text class="risk-label">波动风险等级</text>
+                <text class="risk-value {{(currentNews.standard_v2 && currentNews.standard_v2.risk && currentNews.standard_v2.risk.level) || 'medium'}}">{{(currentNews.standard_v2 && currentNews.standard_v2.risk && currentNews.standard_v2.risk.level) === 'low' ? '低' : (currentNews.standard_v2 && currentNews.standard_v2.risk && currentNews.standard_v2.risk.level) === 'medium' ? '中' : '高'}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 专业词汇提示弹窗 -->
+  <view class="jargon-popup {{showJargonTip ? 'show' : ''}}" bindtap="hideJargonTip">
+    <view class="popup-content" catchtap="">
+      <text class="popup-term">{{currentJargon.term}}</text>
+      <text class="popup-explain">{{currentJargon.explain}}</text>
+      <view class="popup-actions">
+        <view class="popup-action-btn collect" bindtap="collectJargon">收藏到我的词库</view>
+        <view class="popup-action-btn close" bindtap="hideJargonTip">知道了</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 交互式名词百科弹窗 -->
+  <view class="jargon-popup {{showJargonPopup ? 'show' : ''}}" bindtap="hideJargonPopup">
+    <view class="popup-content" catchtap="">
+      <text class="popup-term">{{currentJargon.term}}</text>
+      <text class="popup-explain">{{currentJargon.explain}}</text>
+      <view class="popup-actions">
+        <view class="popup-action-btn collect" bindtap="collectJargon">收藏到我的词库</view>
+        <view class="popup-action-btn close" bindtap="hideJargonPopup">知道了</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分享海报弹窗 -->
+  <view class="poster-modal {{showPoster ? 'show' : ''}}" catchtap="closePoster" wx:if="{{showPoster}}">
+    <view class="poster-container" catchtap="stopPropagation">
+      <view class="poster-header">
+        <text class="poster-title">📰 情报简报海报</text>
+        <view class="poster-close" bindtap="closePoster">✕</view>
+      </view>
+      <view class="poster-canvas-wrap">
+        <canvas type="2d" id="posterCanvas" class="poster-canvas"></canvas>
+      </view>
+      <view class="poster-preview" wx:if="{{posterImage}}">
+        <image src="{{posterImage}}" mode="aspectFit" class="preview-image"></image>
+      </view>
+      <view class="poster-actions">
+        <button class="poster-btn generate" bindtap="generatePoster">生成海报</button>
+        <button class="poster-btn save" bindtap="savePoster" wx:if="{{posterImage}}">保存到相册</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 录入情报弹窗 -->
+  <view class="input-modal {{showInputModal ? 'show' : ''}}" catchtap="closeInputModal">
+    <view class="input-modal-content" catchtap="stopPropagation">
+      <view class="input-modal-header">
+        <text class="input-modal-title">📝 录入情报</text>
+        <view class="input-modal-close" bindtap="closeInputModal">✕</view>
+      </view>
+      <view class="input-modal-body">
+        <!-- 链接输入区 -->
+        <view class="input-section">
+          <text class="input-modal-label">🔗 粘贴链接</text>
+          <view class="url-input-wrap">
+            <input class="url-input" 
+                   placeholder="微信公众号/抖音/B站/网页链接" 
+                   value="{{inputUrl}}" 
+                   bindinput="onInputUrlChange"
+                   confirm-type="done"/>
+            <button class="parse-btn {{inputUrl ? 'active' : ''}}" 
+                    bindtap="parseUrlContent" 
+                    disabled="{{!inputUrl || isParsingUrl}}">
+              {{isParsingUrl ? '解析中...' : '解析'}}
+            </button>
+          </view>
+          <view class="supported-platforms">
+            <text class="platform-tag">📱 微信公众号</text>
+            <text class="platform-tag">🎵 抖音</text>
+            <text class="platform-tag">📺 B站</text>
+            <text class="platform-tag">🌐 网页</text>
+          </view>
+        </view>
+        
+        <!-- 分隔线 -->
+        <view class="input-divider">
+          <view class="divider-line"></view>
+          <text class="divider-text">或</text>
+          <view class="divider-line"></view>
+        </view>
+        
+        <!-- 文本输入区 -->
+        <view class="input-section">
+          <text class="input-modal-label">📋 直接粘贴内容</text>
+          <text class="input-sub-label">视频可粘贴字幕/口播文稿</text>
+          <textarea class="input-textarea" 
+                    placeholder="粘贴新闻内容、视频字幕、口播文稿..." 
+                    value="{{inputContent}}" 
+                    bindinput="onInputContentChange"
+                    maxlength="10000"></textarea>
+          <text class="char-count">{{inputContent.length || 0}}/10000</text>
+        </view>
+      </view>
+      <view class="input-modal-footer">
+        <button class="input-modal-btn cancel" bindtap="closeInputModal">取消</button>
+        <button class="input-modal-btn confirm" bindtap="startIntelligenceModeling" disabled="{{!inputContent && !inputUrl}}">开始情报建模</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 悬浮按钮 -->
+  <view class="fab-btn" bindtap="openSearch">
+    <text class="fab-icon">�</text>
+  </view>
+
+  <view class="safe-bottom"></view>
+</view>

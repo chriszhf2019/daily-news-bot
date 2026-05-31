@@ -1,0 +1,54 @@
+services:
+  # PostgreSQL数据库
+  postgres:
+    image: postgres:15
+    container_name: news-analysis-postgres
+    environment:
+      POSTGRES_DB: news_analysis
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - news-analysis-network
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: news-analysis-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - news-analysis-network
+
+  # Flask应用
+  web:
+    build: .
+    container_name: news-analysis-backend
+    environment:
+      FLASK_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/news_analysis
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-jwt-secret-key-change-in-production}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-your-deepseek-api-key-here}
+      DEEPSEEK_API_ENDPOINT: ${DEEPSEEK_API_ENDPOINT:-https://api.deepseek.com/v1}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - news-analysis-network
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+networks:
+  news-analysis-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

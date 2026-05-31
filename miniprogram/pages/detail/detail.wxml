@@ -1,0 +1,238 @@
+<!--detail.wxml - 深度阅读页面-->
+<view class="detail-page {{themeClass}}">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-bg"></view>
+    <view class="header-content">
+      <view class="header-top">
+        <button class="back-btn" bindtap="goBack">
+          <text class="back-icon">←</text>
+        </button>
+        <view class="header-actions">
+          <button class="action-icon-btn" bindtap="toggleFavorite">
+            <text>{{isFavorited ? '❤️' : '🤍'}}</text>
+          </button>
+          <button class="action-icon-btn" bindtap="shareArticle">
+            <text>📤</text>
+          </button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">正在加载文章...</text>
+  </view>
+
+  <!-- 文章内容 -->
+  <scroll-view class="article-scroll" scroll-y="true" wx:else>
+    <!-- 文章头部信息 -->
+    <view class="article-header">
+      <view class="category-badge {{newsData.category}}">
+        【{{categoryName}}】
+      </view>
+      <text class="article-title">{{newsData.title}}</text>
+      
+      <!-- 元信息 -->
+      <view class="article-meta">
+        <view class="meta-item">
+          <text class="meta-icon">📰</text>
+          <text class="meta-text">{{newsData.source}}</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-icon">📅</text>
+          <text class="meta-text">{{newsData.published_at}}</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-icon">⏱️</text>
+          <text class="meta-text">阅读 {{readTime}} 分钟</text>
+        </view>
+      </view>
+
+      <!-- 统计信息 -->
+      <view class="article-stats">
+        <view class="stat-item">
+          <text class="stat-icon">👁️</text>
+          <text class="stat-value">{{viewCount}}</text>
+          <text class="stat-label">阅读</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-icon">❤️</text>
+          <text class="stat-value">{{favoriteCount}}</text>
+          <text class="stat-label">收藏</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-icon">📤</text>
+          <text class="stat-value">{{shareCount}}</text>
+          <text class="stat-label">分享</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 摘要卡片 -->
+    <view class="summary-card">
+      <view class="summary-header">
+        <text class="summary-icon">📝</text>
+        <text class="summary-title">内容摘要</text>
+      </view>
+      <text class="summary-text">{{newsData.summary}}</text>
+    </view>
+
+    <!-- 正文内容 -->
+    <view class="article-body">
+      <view class="body-section" wx:for="{{contentSections}}" wx:key="id">
+        <text class="section-title" wx:if="{{item.title}}">{{item.title}}</text>
+        <text class="section-content">{{item.content}}</text>
+      </view>
+    </view>
+
+    <!-- AI深度解读 -->
+    <view class="ai-insight-card">
+      <view class="insight-header">
+        <text class="insight-icon">🤖</text>
+        <text class="insight-title">AI 深度解读</text>
+        <text class="ai-persona-badge">{{aiPersonaName}}</text>
+      </view>
+      <view class="insight-content">
+        <text class="insight-text">{{newsData.ai_analysis.interpretation}}</text>
+      </view>
+    </view>
+
+    <!-- 趋势预测 -->
+    <view class="prediction-card">
+      <view class="prediction-header">
+        <text class="prediction-icon">🔮</text>
+        <text class="prediction-title">趋势预测</text>
+      </view>
+      <view class="prediction-content">
+        <text class="prediction-text">{{newsData.ai_analysis.prediction}}</text>
+      </view>
+    </view>
+
+    <!-- 关键要点 -->
+    <view class="keypoints-card" wx:if="{{keyPoints.length > 0}}">
+      <view class="keypoints-header">
+        <text class="keypoints-icon">💡</text>
+        <text class="keypoints-title">关键要点</text>
+      </view>
+      <view class="keypoints-list">
+        <view class="keypoint-item" wx:for="{{keyPoints}}" wx:key="*this">
+          <view class="keypoint-number">{{index + 1}}</view>
+          <text class="keypoint-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 相关标签 -->
+    <view class="tags-section">
+      <view class="tags-header">
+        <text class="tags-icon">🏷️</text>
+        <text class="tags-title">相关标签</text>
+      </view>
+      <view class="tags-list">
+        <view class="tag-item" wx:for="{{newsData.tags}}" wx:key="*this" 
+              bindtap="exploreTag" data-tag="{{item}}">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 关联信息 -->
+    <view class="related-section" wx:if="{{newsData.related && newsData.related.length > 0}}">
+      <view class="related-header">
+        <text class="related-icon">🔗</text>
+        <text class="related-title">关联信息</text>
+      </view>
+      <view class="related-list">
+        <view class="related-item" wx:for="{{newsData.related}}" wx:key="*this" wx:for-item="rel">
+          <text class="related-dot">•</text>
+          <text class="related-text">{{rel}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 相关性分析 -->
+    <view class="relevance-analysis-card">
+      <view class="relevance-header">
+        <text class="relevance-icon">🔍</text>
+        <text class="relevance-title">相关性分析</text>
+      </view>
+      <view class="relevance-content">
+        <text class="relevance-text">{{newsData.ai_analysis && newsData.ai_analysis.relevance ? newsData.ai_analysis.relevance : 'AI正在分析此新闻与您的关联度...'}}</text>
+      </view>
+      
+      <!-- 行动检查单 -->
+      <view class="action-checklist">
+        <view class="checklist-header">
+          <text class="checklist-icon">✅</text>
+          <text class="checklist-title">行动步骤</text>
+        </view>
+        <view class="checklist-items">
+          <view class="checklist-item" wx:for="{{actionChecklist}}" wx:key="*this" wx:for-item="item">
+            <view class="checklist-checkbox {{item.checked ? 'checked' : ''}}" bindtap="toggleChecklistItem" data-index="{{index}}">
+              <text wx:if="{{item.checked}}">✓</text>
+            </view>
+            <text class="checklist-text {{item.checked ? 'checked' : ''}}">{{item.text}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 数据来源 -->
+    <view class="source-card">
+      <view class="source-header">
+        <text class="source-icon">📊</text>
+        <text class="source-title">数据来源</text>
+      </view>
+      <view class="source-content">
+        <view class="source-item">
+          <text class="source-label">主要来源</text>
+          <text class="source-value">{{newsData.source}}</text>
+        </view>
+        <view class="source-item">
+          <text class="source-label">可靠性评级</text>
+          <view class="reliability-badge rating-{{newsData.sourceReliability}}">
+            <text class="rating-stars">{{reliabilityStars}}</text>
+            <text class="rating-text">{{reliabilityText}}</text>
+          </view>
+        </view>
+        <view class="source-item" wx:if="{{newsData.sourceUrl}}">
+          <text class="source-label">原文链接</text>
+          <button class="source-link-btn" bindtap="openSourceUrl">
+            <text class="link-icon">🔗</text>
+            <text class="link-text">查看原文</text>
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 阅读进度提示 -->
+    <view class="reading-progress">
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{readProgress}}%"></view>
+      </view>
+      <text class="progress-text">已阅读 {{readProgress}}%</text>
+    </view>
+
+    <!-- 底部间距 -->
+    <view class="bottom-spacer"></view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <button class="action-btn favorite-btn {{isFavorited ? 'active' : ''}}" bindtap="toggleFavorite">
+      <text class="btn-icon">{{isFavorited ? '❤️' : '🤍'}}</text>
+      <text class="btn-text">{{isFavorited ? '已收藏' : '收藏'}}</text>
+    </button>
+    <button class="action-btn comment-btn" bindtap="openComments">
+      <text class="btn-icon">💬</text>
+      <text class="btn-text">评论</text>
+    </button>
+    <button class="action-btn share-btn" bindtap="shareArticle">
+      <text class="btn-icon">📤</text>
+      <text class="btn-text">分享</text>
+    </button>
+  </view>
+</view>
