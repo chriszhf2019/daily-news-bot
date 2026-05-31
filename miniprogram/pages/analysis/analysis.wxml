@@ -1,36 +1,25 @@
-<!--pages/analysis/analysis.wxml-->
-<!-- AI 情报中心 - 宏观决策看板 -->
+<!-- AI 情报中心 -->
 <view class="intelligence-center">
-  
-  <!-- 加载状态 -->
   <view class="loading-state" wx:if="{{loading}}">
     <view class="loading-spinner"></view>
     <text class="loading-text">加载情报数据中...</text>
   </view>
 
-  <!-- 空状态 -->
   <view class="empty-state" wx:elif="{{!hasData}}">
     <view class="empty-icon">🌐</view>
     <text class="empty-title">暂无情报数据</text>
-    <text class="empty-desc">点击下方按钮，AI将为您生成最新的全球情报分析</text>
+    <text class="empty-desc">点击刷新获取最新全球情报分析</text>
     <button class="refresh-btn-large" bindtap="refreshIntelligenceData" disabled="{{refreshing}}">
-      <text class="btn-icon">{{refreshing ? '⏳' : '🔄'}}</text>
-      <text class="btn-text">{{refreshing ? 'AI生成中...' : '生成情报'}}</text>
+      <text>{{refreshing ? '⏳ 生成中' : '🔄 刷新情报'}}</text>
     </button>
   </view>
 
-  <!-- 有数据时显示内容 -->
   <block wx:else>
-    <!-- 顶部情报图谱 Dashboard -->
     <view class="intelligence-dashboard">
-      <view class="dashboard-bg"></view>
-      
-      <!-- 标题和刷新按钮 -->
       <view class="dashboard-header">
         <view class="header-left">
           <text class="dashboard-title">🌐 全球情报中心</text>
           <text class="dashboard-subtitle">{{currentDate}}</text>
-          <text class="dashboard-subtitle-secondary">宏观决策 · 关联分析 · AI 交互</text>
         </view>
         <view class="header-right">
           <button class="refresh-btn" bindtap="refreshIntelligenceData" disabled="{{refreshing}}">
@@ -39,41 +28,33 @@
           </button>
         </view>
       </view>
-      
-      <!-- 上次刷新时间 -->
       <view class="last-refresh" wx:if="{{lastRefreshTime}}">
         <text class="refresh-time-text">上次更新：{{lastRefreshTime}}</text>
       </view>
-      
-      <!-- 5 大核心指标 -->
+
+      <!-- 3 大核心指标 -->
       <view class="core-metrics">
         <view class="metric-card">
           <text class="metric-icon">📈</text>
           <text class="metric-value">{{dash.optimism.score}}%</text>
           <text class="metric-label">市场乐观度</text>
-          <view class="metric-bar">
-            <view class="metric-fill" style="width: {{dash.optimism.score}}%"></view>
-          </view>
+          <view class="metric-bar"><view class="metric-fill" style="width: {{dash.optimism.score}}%"></view></view>
         </view>
         <view class="metric-card">
           <text class="metric-icon">📜</text>
           <text class="metric-value">{{dash.policy_sensitivity}}%</text>
           <text class="metric-label">政策敏感度</text>
-          <view class="metric-bar">
-            <view class="metric-fill policy" style="width: {{dash.policy_sensitivity}}%"></view>
-          </view>
+          <view class="metric-bar"><view class="metric-fill policy" style="width: {{dash.policy_sensitivity}}%"></view></view>
         </view>
         <view class="metric-card">
           <text class="metric-icon">💥</text>
           <text class="metric-value">{{dash.tech_breakthrough}}%</text>
           <text class="metric-label">技术突破点</text>
-          <view class="metric-bar">
-            <view class="metric-fill tech" style="width: {{dash.tech_breakthrough}}%"></view>
-          </view>
+          <view class="metric-bar"><view class="metric-fill tech" style="width: {{dash.tech_breakthrough}}%"></view></view>
         </view>
       </view>
 
-      <!-- 情绪构成 + 来源分布 -->
+      <!-- 情绪构成 -->
       <view class="sentiment-detail">
         <text class="detail-label">情绪构成</text>
         <view class="sentiment-bars">
@@ -83,9 +64,9 @@
         </view>
       </view>
 
-      <!-- 情报产出密度 — 来源分布 -->
+      <!-- 来源分布 -->
       <view class="density-section">
-        <text class="detail-label">全球情报产出密度 (Top 10 来源)</text>
+        <text class="detail-label">全球情报产出密度</text>
         <view class="source-list">
           <view class="source-item" wx:for="{{dash.source_density}}" wx:key="source">
             <text class="source-name">{{item.source}}</text>
@@ -99,8 +80,7 @@
       <view class="heatmap-section">
         <text class="detail-label">24h AI 情绪热力图</text>
         <view class="heatmap-grid">
-          <view class="heatmap-cell" wx:for="{{dash.heatmap}}" wx:key="hour"
-                style="background: {{item.count > 5 ? '#22C55E' : item.count > 2 ? '#FBBF24' : '#374151'}}; height: {{item.count * 8 + 16}}rpx">
+          <view class="heatmap-cell" wx:for="{{dash.heatmap}}" wx:key="hour" style="background: {{item.count > 5 ? '#22C55E' : item.count > 2 ? '#FBBF24' : '#374151'}}; height: {{item.count * 8 + 16}}rpx">
             <text class="cell-text">{{item.hour}}h</text>
           </view>
         </view>
@@ -110,39 +90,31 @@
     <!-- 明日关注 -->
     <view class="tomorrow-section" wx:if="{{dash.tomorrow_watch.length > 0}}">
       <text class="detail-label">🔔 明日关注</text>
-      <view class="tomorrow-list">
-        <view class="tomorrow-item" wx:for="{{dash.tomorrow_watch}}" wx:key="event">
-          <text class="t-badge">{{item.category || '综合'}}</text>
-          <view class="t-content">
-            <text class="t-event">{{item.event}}</text>
-            <text class="t-reason">{{item.reason}}</text>
-          </view>
+      <view class="tomorrow-item" wx:for="{{dash.tomorrow_watch}}" wx:key="event">
+        <text class="t-badge">{{item.category || '综合'}}</text>
+        <view class="t-content">
+          <text class="t-event">{{item.event}}</text>
+          <text class="t-reason">{{item.reason}}</text>
         </view>
       </view>
     </view>
 
-    <!-- 今日盲区补全 -->
+    <!-- 盲区补全 -->
     <view class="blindspot-section" wx:if="{{dash.blind_spots.length > 0}}">
       <text class="detail-label">🔍 今日盲区补全</text>
       <text class="blindspot-desc">DeepSeek 发现的重要但容易被忽略的新闻</text>
-      <view class="blindspot-list">
-        <view class="blindspot-item" wx:for="{{dash.blind_spots}}" wx:key="title">
-          <view class="bs-header">
-            <text class="bs-icon">💡</text>
-            <text class="bs-title">{{item.title}}</text>
-          </view>
-          <view class="bs-details">
-            <text class="bs-row">🙈 为什么被忽视：{{item.why_blind}}</text>
-            <text class="bs-row">⚠️ 为什么重要：{{item.why_important}}</text>
-            <text class="bs-row">👉 建议关注：{{item.suggestion}}</text>
-          </view>
+      <view class="blindspot-item" wx:for="{{dash.blind_spots}}" wx:key="title">
+        <view class="bs-header">
+          <text class="bs-icon">💡</text>
+          <text class="bs-title">{{item.title}}</text>
+        </view>
+        <view class="bs-details">
+          <text class="bs-row">🙈 {{item.why_blind}}</text>
+          <text class="bs-row">⚠️ {{item.why_important}}</text>
+          <text class="bs-row">👉 {{item.suggestion}}</text>
         </view>
       </view>
     </view>
-
-    <!-- 新闻总数 -->
-    <view class="stats-footer">
-      <text class="stats-text">总计 {{dash.total_news}} 条新闻 · 实时数据</text>
 
     <!-- AI 战略顾问 -->
     <view class="ai-advisor-section">
@@ -150,71 +122,25 @@
         <view class="advisor-header">
           <text class="advisor-icon">🤖</text>
           <text class="advisor-title">AI 战略顾问</text>
-          <text class="advisor-subtitle">基于 {{dash.total_news}} 条真实新闻数据的智能分析</text>
+          <text class="advisor-subtitle">基于 {{dash.total_news}} 条真实数据的智能分析</text>
         </view>
         <view class="advisor-content">
-          <view class="prompt-suggestions">
-            <view class="suggestion-item" wx:for="{{advisorPrompts}}" wx:key="index" bindtap="askAdvisor" data-prompt="{{item}}">
-              <text class="suggestion-icon">💡</text>
-              <text class="suggestion-text">{{item}}</text>
-            </view>
+          <view class="suggestion-item" wx:for="{{advisorPrompts}}" wx:key="index" bindtap="askAdvisor" data-prompt="{{item}}">
+            <text>💡 {{item}}</text>
           </view>
           <view class="advisor-input">
             <input class="input-field" placeholder="输入你的问题..." value="{{advisorInput}}" bindinput="onAdvisorInput" bindconfirm="askAdvisor"/>
-            <button class="send-btn" bindtap="askAdvisor">
-              <text class="send-icon">🚀</text>
-            </button>
+            <button class="send-btn" bindtap="askAdvisor">🚀</button>
           </view>
         </view>
       </view>
     </view>
 
-    <!-- 明天点名 -->
-    <view class="watchlist-section" wx:if="{{insightHub.tomorrow_watch.length > 0}}">
-      <view class="section-header">
-        <text class="section-title">🔮 明天点名</text>
-        <text class="section-subtitle">AI 预测的关键事件</text>
-      </view>
-      <view class="watchlist-cards">
-        <view class="watchlist-card" wx:for="{{insightHub.tomorrow_watch}}" wx:key="event">
-          <view class="watchlist-header">
-            <text class="event-title">{{item.event}}</text>
-            <view class="probability-badge" style="background: {{item.probability > 70 ? '#4ade80' : item.probability > 40 ? '#fbbf24' : '#fb7185'}}">
-              <text class="probability-value">{{item.probability}}%</text>
-            </view>
-          </view>
-          <text class="event-reason">{{item.reason}}</text>
-          <button class="track-btn" bindtap="trackEvent" data-event="{{item.event}}">
-            <text class="track-icon">🔔</text>
-            <text class="track-text">追踪</text>
-          </button>
-        </view>
-      </view>
-    </view>
-
-    <!-- 今日盲区补全 -->
-    <view class="blindspot-section" wx:if="{{insightHub.blind_spot}}">
-      <view class="blindspot-card">
-        <view class="blindspot-header">
-          <text class="blindspot-icon">⚡</text>
-          <text class="blindspot-title">今日盲区补全</text>
-          <text class="blindspot-subtitle">跳出信息茧房</text>
-        </view>
-        <view class="blindspot-content">
-          <text class="blindspot-message">{{insightHub.blind_spot.message}}</text>
-          <view class="blindspot-news" bindtap="openBlindspotNews" data-news-id="{{insightHub.blind_spot.news_id}}">
-            <text class="news-title">{{insightHub.blind_spot.title}}</text>
-            <text class="news-reason">{{insightHub.blind_spot.reason}}</text>
-          </view>
-          <button class="read-btn" bindtap="openBlindspotNews" data-news-id="{{insightHub.blind_spot.news_id}}">
-            <text class="read-icon">📖</text>
-            <text class="read-text">强制阅读</text>
-          </button>
-        </view>
-      </view>
+    <!-- 底部 -->
+    <view class="stats-footer">
+      <text class="stats-text">总计 {{dash.total_news}} 条新闻 · 实时数据</text>
     </view>
   </block>
 
-  <!-- 底部安全区域 -->
   <view class="safe-bottom"></view>
 </view>
