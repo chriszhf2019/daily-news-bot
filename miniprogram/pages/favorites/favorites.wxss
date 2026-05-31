@@ -1588,3 +1588,13 @@ page {
   color: var(--text-secondary);
   font-size: 24rpx;
 }
+
+/* 视图切换 + 知识图谱 */
+.view-toggle { display: flex; gap: 16rpx; margin-left: auto; }
+.toggle-btn { font-size: 36rpx; padding: 8rpx 12rpx; border-radius: 12rpx; opacity: 0.4; }
+.toggle-btn.active { opacity: 1; background: rgba(99,102,241,0.2); }
+.graph-view { margin: 20rpx; background: #0f172a; border-radius: 16rpx; overflow: hidden; }
+.graph-canvas { width: 100%; height: 500rpx; }
+.graph-hint { display: block; text-align: center; font-size: 20rpx; color: rgba(255,255,255,0.3); padding: 12rpx; }
+.graph-empty { text-align: center; padding: 120rpx 0; }
+.empty-text { font-size: 28rpx; color: rgba(255,255,255,0.4); }

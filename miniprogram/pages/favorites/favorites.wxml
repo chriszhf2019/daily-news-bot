@@ -4,8 +4,24 @@
   <view class="page-header">
     <view class="header-content">
       <text class="page-title">收藏</text>
+      <view class="view-toggle">
+        <text class="toggle-btn {{viewMode === 'list' ? 'active' : ''}}" bindtap="switchViewMode" data-mode="list">📋</text>
+        <text class="toggle-btn {{viewMode === 'graph' ? 'active' : ''}}" bindtap="switchViewMode" data-mode="graph">🕸️</text>
+      </view>
     </view>
   </view>
+
+  <!-- 知识图谱视图 -->
+  <view class="graph-view" wx:if="{{viewMode === 'graph'}}" wx:if="{{favorites.length > 0}}">
+    <canvas type="2d" id="graphCanvas" class="graph-canvas" bindtouchstart="onGraphTap"></canvas>
+    <text class="graph-hint">节点连线 = 标签/分类关联 · 点击节点查看详情</text>
+  </view>
+  <view class="graph-empty" wx:elif="{{viewMode === 'graph'}}">
+    <text class="empty-text">收藏至少 2 条新闻后可生成知识图谱</text>
+  </view>
+
+  <!-- 列表视图 -->
+  <block wx:if="{{viewMode === 'list'}}">
 
   <!-- 统计信息 -->
   <view class="stats-section" wx:if="{{favorites.length > 0}}">
@@ -604,5 +620,6 @@
         <text>📋 复制</text>
       </button>
     </view>
-  </view>
+  </block>
+</view>
 </view>

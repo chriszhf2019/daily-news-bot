@@ -42,12 +42,12 @@ Page({
     totalReadingTime: '0分钟',
     userCategories: ['重要', '待读', '工作', '学习', '生活'],
     newCategoryName: '',
+    // 视图切换
+    viewMode: 'list',  // list | graph
+    graphNodes: [],
+    graphEdges: [],
     // AI 相关
     aiAnalyzing: false,
-    aiSummary: '',
-    aiTags: [],
-    aiExtractingPoints: false,
-    aiExtractedPoints: [],
     aiPolishing: false,
     aiMerging: false,
     aiMergeResult: '',
@@ -337,6 +337,106 @@ Page({
   switchViewMode(e) {
     const mode = e.currentTarget.dataset.mode;
     this.setData({ viewMode: mode });
+    if (mode === 'graph') {
+      this.buildGraph();
+    }
+  },
+
+  // 构建知识图谱
+  buildGraph() {
+    const favs = this.data.favorites;
+    if (favs.length < 2) {
+      wx.showToast({ title: '至少2条收藏才能生成图谱', icon: 'none' });
+      return;
+    }
+    const nodes = favs.map((f, i) => ({
+      id: f.id || i,
+      label: (f.title || '').substring(0, 15),
+      x: 0, y: 0,
+      category: f.category || '综合',
+      tags: f.tags || [],
+    }));
+    const edges = [];
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const shareTag = nodes[i].tags.some(t => nodes[j].tags.includes(t));
+        const shareCat = nodes[i].category === nodes[j].category;
+        if (shareTag || shareCat) {
+          edges.push({ from: i, to: j, weight: shareTag ? 2 : 1 });
+        }
+      }
+    }
+    // 力导向布局
+    const w = 350, h = 500, cx = w / 2, cy = h / 2;
+    nodes.forEach((n, i) => {
+      const angle = (2 * Math.PI * i) / nodes.length;
+      const r = Math.min(w, h) * 0.35;
+      n.x = cx + Math.cos(angle) * r;
+      n.y = cy + Math.sin(angle) * r;
+    });
+    // 简单力迭代
+    for (let iter = 0; iter < 50; iter++) {
+      nodes.forEach(n => { n.fx = 0; n.fy = 0; });
+      for (const e of edges) {
+        const dx = nodes[e.to].x - nodes[e.from].x;
+        const dy = nodes[e.to].y - nodes[e.from].y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const force = (dist - 50) * 0.01 * e.weight;
+        nodes[e.from].fx += (dx / dist) * force;
+        nodes[e.from].fy += (dy / dist) * force;
+        nodes[e.to].fx -= (dx / dist) * force;
+        nodes[e.to].fy -= (dy / dist) * force;
+      }
+      nodes.forEach(n => {
+        n.x += n.fx * 0.5;
+        n.y += n.fy * 0.5;
+        n.x = Math.max(20, Math.min(w - 20, n.x));
+        n.y = Math.max(20, Math.min(h - 20, n.y));
+      });
+    }
+    this.setData({ graphNodes: nodes, graphEdges: edges }, () => {
+      setTimeout(() => this.renderGraph(), 300);
+    });
+  },
+
+  // Canvas 渲染图谱
+  renderGraph() {
+    const query = wx.createSelectorQuery();
+    query.select('#graphCanvas').fields({ node: true, size: true }).exec((res) => {
+      if (!res[0]) return;
+      const canvas = res[0].node;
+      const ctx = canvas.getContext('2d');
+      const dpr = wx.getSystemInfoSync().pixelRatio;
+      const w = res[0].width, h = res[0].height;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, w, h);
+      // 画边
+      this.data.graphEdges.forEach(e => {
+        const a = this.data.graphNodes[e.from], b = this.data.graphNodes[e.to];
+        ctx.strokeStyle = `rgba(99,102,241,${0.2 + e.weight * 0.15})`;
+        ctx.lineWidth = e.weight;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      });
+      // 画节点
+      this.data.graphNodes.forEach((n, i) => {
+        ctx.fillStyle = '#6366f1';
+        ctx.beginPath(); ctx.arc(n.x, n.y, 10, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(n.label, n.x, n.y - 16);
+      });
+    });
+  },
+
+  // 图谱节点点击
+  onGraphTap(e) {
+    const x = e.detail.x, y = e.detail.y;
+    const node = this.data.graphNodes.find(n => Math.hypot(n.x - x, n.y - y) < 20);
+    if (node) {
+      wx.navigateTo({ url: `/pages/detail/detail?id=${node.id}` });
+    }
+  },
   },
 
   // 搜索（增强：支持语义搜索和热门推荐）
