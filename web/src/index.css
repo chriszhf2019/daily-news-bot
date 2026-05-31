@@ -1,74 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg-primary: #0F172A;
-  --bg-secondary: #1E293B;
-  --text-primary: #F1F5F9;
-  --text-secondary: #94A3B8;
-  --accent-green: #10B981;
-  --accent-purple: #A855F7;
-  --accent-amber: #F59E0B;
+  --ink: #08080c;
+  --paper: #f5f0e8;
+  --amber: #c4a144;
+  --amber-dim: #3d3218;
+  --mint: #7ec8a0;
+  --mint-dim: #1a3025;
+  --slate: #8b9dc3;
+  --slate-dim: #1a2030;
+  --red: #e05555;
+  --red-dim: #351a1a;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+* { box-sizing: border-box; }
+
+html {
+  background: var(--ink);
+  color: #e8e4dc;
+  font-family: 'Noto Serif SC', 'Playfair Display', serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(196,161,68,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(126,200,160,0.03) 0%, transparent 50%),
+    var(--ink);
   min-height: 100vh;
 }
 
-/* 滚动条样式 */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+body::before {
+  content: '';
+  position: fixed; inset: 0; opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* 动画 */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.animate-pulse {
-  animation: pulse 2s ease-in-out infinite;
-}
-
-/* 卡片悬浮效果 */
-.card-hover {
-  transition: all 0.2s ease;
-}
-
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-}
+h1, h2, h3 { font-family: 'Playfair Display', 'Noto Serif SC', serif; }
+pre, code, .mono { font-family: 'JetBrains Mono', monospace; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }

@@ -54,7 +54,7 @@ export default function AdminPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-[#08080c]">
         <form onSubmit={handleLogin} className="bg-slate-900 p-8 rounded-2xl border border-slate-800 w-full max-w-sm">
           <h1 className="text-xl font-bold text-slate-100 mb-6">管理员登录</h1>
           {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-lg mb-4 text-sm">{error}</div>}
@@ -74,7 +74,7 @@ export default function AdminPage() {
   const pendingCount = users.filter(u => !u.is_approved).length
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-[#08080c]">
       <div className="max-w-6xl mx-auto p-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-slate-100">管理后台</h1>

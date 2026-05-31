@@ -1,86 +1,71 @@
 import { useNavigate } from 'react-router-dom'
-import dayjs from 'dayjs'
 
-const categoryConfig = {
-  AI: { icon: '🤖', color: 'purple', bg: 'bg-purple-500/20', border: 'border-purple-500/30', text: 'text-purple-400' },
-  tech: { icon: '🚀', color: 'blue', bg: 'bg-blue-500/20', border: 'border-blue-500/30', text: 'text-blue-400' },
-  finance: { icon: '💰', color: 'amber', bg: 'bg-amber-500/20', border: 'border-amber-500/30', text: 'text-amber-400' },
-  international: { icon: '🌍', color: 'emerald', bg: 'bg-emerald-500/20', border: 'border-emerald-500/30', text: 'text-emerald-400' },
-  sports: { icon: '⚽', color: 'red', bg: 'bg-red-500/20', border: 'border-red-500/30', text: 'text-red-400' }
-}
-
-export default function NewsCard({ news, onAnalyze }) {
+export default function NewsCard({ news }) {
   const navigate = useNavigate()
-  const config = categoryConfig[news.category] || categoryConfig.AI
-  
-  const handleAnalyze = (type) => {
-    if (type === 'seven') {
-      navigate(`/seven-elements/${news.id}`)
-    } else if (type === 'relevance') {
-      navigate(`/relevance/${news.id}`)
-    } else if (type === 'deep') {
-      navigate(`/deep-exploration/${news.id}`)
-    }
-  }
-  
+  const isSignal = news.is_signal
+  const title = news.title_cn || news.title
+  const summary = news.summary_cn || news.summary || ''
+
   return (
-    <div className={`bg-slate-800/50 rounded-xl border ${config.border} p-5 card-hover animate-fadeIn`}>
-      {/* 头部 */}
-      <div className="flex items-start gap-3 mb-3">
-        <span className={`text-2xl p-2 rounded-lg ${config.bg}`}>{config.icon}</span>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-slate-100 line-clamp-2 leading-snug">
-            {news.title_cn || news.title}
-          </h3>
-          {news.title_cn && (
-            <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{news.title}</p>
-          )}
-          <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-500">
-            <span>{news.source}</span>
-            <span>•</span>
-            <span>{dayjs(news.published_at).format('MM-DD HH:mm')}</span>
-          </div>
-        </div>
+    <div className={`border rounded-r-lg p-5 transition-all duration-300 hover:translate-x-1 cursor-pointer group ${isSignal ? 'border-l-[3px] border-l-[#7ec8a0] border-l-[#7ec8a0]/30' : 'border-l-[3px] border-l-[#c4a144]/20'}`}
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        borderColor: isSignal ? 'rgba(126,200,160,0.2)' : 'rgba(255,255,255,0.06)',
+        borderLeftColor: isSignal ? '#7ec8a0' : 'rgba(196,161,68,0.3)',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+        e.currentTarget.style.borderLeftColor = isSignal ? '#7ec8a0' : '#c4a144'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.background = 'rgba(255,255,255,0.02)'
+        e.currentTarget.style.borderLeftColor = isSignal ? '#7ec8a0' : 'rgba(196,161,68,0.3)'
+      }}
+    >
+      {/* Source + time */}
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-[10px] tracking-[0.1em] uppercase font-mono text-[#8b9dc3]">{news.source || 'NewsBrief'}</span>
+        <span className="text-[10px] opacity-30">-</span>
+        <span className="text-[10px] opacity-30">
+          {news.published_at ? new Date(news.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+        </span>
+        {isSignal && <span className="ml-auto text-[10px] text-[#7ec8a0] tracking-[0.1em] uppercase">Signal</span>}
       </div>
-      
-      {/* 摘要 */}
-      <p className="text-sm text-slate-400 line-clamp-2 mb-3">
-        {news.summary_cn || news.summary}
-      </p>
-      
-      {/* 标签 */}
-      {news.tags && news.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {news.tags.slice(0, 4).map((tag, i) => (
-            <span 
-              key={i} 
-              className={`text-xs px-2 py-0.5 rounded ${config.bg} ${config.text}`}
-            >
-              {tag}
-            </span>
+
+      {/* Title */}
+      <h3 className="text-base font-bold leading-snug mb-2 text-[#e8e4dc] group-hover:text-[#c4a144] transition-colors"
+        style={{ fontFamily: "'Playfair Display', 'Noto Serif SC', serif" }}>
+        {title}
+      </h3>
+
+      {/* English original */}
+      {news.title_cn && news.title !== news.title_cn && (
+        <p className="text-xs mb-2 line-clamp-1" style={{ color: 'rgba(232,228,220,0.3)' }}>{news.title}</p>
+      )}
+
+      {/* Summary */}
+      {summary && <p className="text-xs leading-relaxed line-clamp-2 mb-3" style={{ color: 'rgba(232,228,220,0.5)' }}>{summary}</p>}
+
+      {/* Tags */}
+      {news.tags?.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {news.tags.slice(0, 4).map((t, i) => (
+            <span key={i} className="text-[10px] font-mono px-2 py-0.5 rounded"
+              style={{ background: 'rgba(196,161,68,0.1)', color: '#c4a144' }}>{t}</span>
           ))}
         </div>
       )}
-      
-      {/* 操作按钮 */}
-      <div className="flex gap-2 pt-3 border-t border-slate-700/50">
-        <button
-          onClick={() => handleAnalyze('seven')}
-          className="flex-1 py-2 text-xs font-medium rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors"
-        >
-          🔍 七要素审计
+
+      {/* Actions */}
+      <div className="flex gap-2 pt-3 border-t border-white/[0.04]">
+        <button onClick={() => navigate(`/seven-elements/${news.id}`)} className="text-[10px] tracking-[0.08em] uppercase px-3 py-1.5 rounded border border-white/[0.08] hover:border-[#7ec8a0]/30 hover:text-[#7ec8a0] transition-all" style={{ color: 'rgba(232,228,220,0.5)' }}>
+          Audit
         </button>
-        <button
-          onClick={() => handleAnalyze('relevance')}
-          className="flex-1 py-2 text-xs font-medium rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-colors"
-        >
-          💡 相关性分析
+        <button onClick={() => navigate(`/relevance/${news.id}`)} className="text-[10px] tracking-[0.08em] uppercase px-3 py-1.5 rounded border border-white/[0.08] hover:border-[#8b9dc3]/30 hover:text-[#8b9dc3] transition-all" style={{ color: 'rgba(232,228,220,0.5)' }}>
+          Relevance
         </button>
-        <button
-          onClick={() => handleAnalyze('deep')}
-          className="flex-1 py-2 text-xs font-medium rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors"
-        >
-          🔮 深度探索
+        <button onClick={() => navigate(`/deep-exploration/${news.id}`)} className="text-[10px] tracking-[0.08em] uppercase px-3 py-1.5 rounded border border-white/[0.08] hover:border-[#c4a144]/30 hover:text-[#c4a144] transition-all" style={{ color: 'rgba(232,228,220,0.5)' }}>
+          Explore
         </button>
       </div>
     </div>
