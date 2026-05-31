@@ -1,7 +1,7 @@
 /**
  * 后端 API 服务 — 连接 Flask 后端
  */
-const API_BASE = 'http://localhost:5001/api/v1' // 开发环境，生产需替换为公网地址
+const API_BASE = 'https://news.velolabs.top/api/v1' // 生产环境
 
 let authToken = null
 
