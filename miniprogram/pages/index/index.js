@@ -4091,28 +4091,29 @@ ${titles}
           // AI解读内容
           ctx.fillStyle = 'rgba(255,255,255,0.9)';
           ctx.font = `${width * 0.037}px sans-serif`;
-          const interpretation = news.ai_analysis ? news.ai_analysis.interpretation : '暂无AI解读';
-          const text = interpretation.length > 160 ? interpretation.substring(0, 160) + '...' : interpretation;
-          this.wrapText(ctx, text, width * 0.1, height * 0.588, width * 0.8, height * 0.04);
+          const interpretation = (news.ai_analysis && news.ai_analysis.interpretation)
+            ? news.ai_analysis.interpretation
+            : '正在加载AI解读...';
+          const interpText = interpretation.length > 120 ? interpretation.substring(0, 120) + '...' : interpretation;
+          this.wrapText(ctx, interpText, width * 0.1, height * 0.58, width * 0.8, height * 0.04);
 
-          // 影响力评分圆圈
-          ctx.fillStyle = 'rgba(255,255,255,0.15)';
-          ctx.beginPath();
-          ctx.arc(width * 0.85, height * 0.85, width * 0.083, 0, 2 * Math.PI);
-          ctx.fill();
-          ctx.fillStyle = '#fbbf24';
-          ctx.font = `bold ${width * 0.06}px sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.fillText(String(news.impactScore || '8'), width * 0.85, height * 0.865);
-          ctx.font = `${width * 0.027}px sans-serif`;
-          ctx.fillStyle = 'rgba(255,255,255,0.6)';
-          ctx.fillText('影响力', width * 0.85, height * 0.9);
-          ctx.textAlign = 'left';
-
-          // 底部slogan
-          ctx.fillStyle = 'rgba(255,255,255,0.5)';
+          // 趋势预测
+          ctx.fillStyle = '#a78bfa';
+          ctx.font = `bold ${width * 0.033}px sans-serif`;
+          ctx.fillText('🔮 趋势预测', width * 0.1, height * 0.7);
+          ctx.fillStyle = 'rgba(255,255,255,0.8)';
           ctx.font = `${width * 0.033}px sans-serif`;
-          ctx.fillText('你的私人智库 · AI驱动的深度情报', width * 0.15, height * 0.963);
+          const prediction = (news.ai_analysis && news.ai_analysis.prediction)
+            ? news.ai_analysis.prediction
+            : 'AI正在分析趋势...';
+          this.wrapText(ctx, prediction.length > 60 ? prediction.substring(0, 60) + '...' : prediction,
+            width * 0.1, height * 0.74, width * 0.8, height * 0.04);
+
+          // 底部信息
+          ctx.fillStyle = 'rgba(255,255,255,0.4)';
+          ctx.font = `${width * 0.03}px sans-serif`;
+          ctx.fillText(`来源: ${news.source || 'NewsBrief'}`, width * 0.067, height * 0.88);
+          ctx.fillText('NewsBrief · AI 驱动的智能情报', width * 0.35, height * 0.93);
 
           // 导出图片
           setTimeout(() => {
