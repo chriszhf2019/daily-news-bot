@@ -15,11 +15,11 @@ App({
     if (!wx.getStorageSync('readHistory')) wx.setStorageSync('readHistory', [])
     this.globalData.favorites = wx.getStorageSync('favorites') || []
 
-    // 微信自动登录
-    this.wechatLogin()
-
-    // 从后端加载真实新闻（不再生成模拟数据）
-    this.loadRemoteNews()
+    // 后台异步加载（不阻塞启动，避免超时）
+    setTimeout(() => {
+      this.wechatLogin()
+      this.loadRemoteNews()
+    }, 500)
   },
 
   // 微信登录：wx.login 获取 code → 后端换取 token

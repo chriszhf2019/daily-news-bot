@@ -27,6 +27,7 @@ function request(endpoint, options = {}) {
       method: options.method || 'GET',
       data: options.body ? JSON.parse(options.body) : undefined,
       header: headers,
+      timeout: 15000,  // 15秒超时，避免冷启动长时间等待
       success(res) {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data)
