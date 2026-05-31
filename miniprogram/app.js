@@ -15,11 +15,14 @@ App({
     if (!wx.getStorageSync('readHistory')) wx.setStorageSync('readHistory', [])
     this.globalData.favorites = wx.getStorageSync('favorites') || []
 
-    // 后台异步加载（不阻塞启动，避免超时）
-    setTimeout(() => {
-      this.wechatLogin()
-      this.loadRemoteNews()
-    }, 500)
+    // 加载新闻：优先显示缓存，后台刷新
+    const cached = wx.getStorageSync('newsData')
+    if (cached && cached.length) {
+      this.globalData.newsData = cached
+    }
+    // 异步拉取最新数据
+    this.wechatLogin()
+    this.loadRemoteNews()
   },
 
   // 微信登录：wx.login 获取 code → 后端换取 token
