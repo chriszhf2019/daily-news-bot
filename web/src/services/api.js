@@ -27,6 +27,12 @@ export const authApi = {
     request('/auth/register', { method: 'POST', body: JSON.stringify({ username, password }) }),
   login: (username, password) =>
     request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
+  phoneLogin: (phone, code) =>
+    request('/auth/phone-login', { method: 'POST', body: JSON.stringify({ phone, code }) }),
+  sendCode: (phone) =>
+    request('/auth/send-code', { method: 'POST', body: JSON.stringify({ phone }) }),
+  wechatLogin: (code) =>
+    request('/auth/wechat-login', { method: 'POST', body: JSON.stringify({ code }) }),
   getProfile: () => request('/auth/profile'),
 }
 
@@ -70,4 +76,13 @@ export const analysisApi = {
     request('/analysis/exploration', { method: 'POST', body: JSON.stringify({ news_id: newsId }) }),
   history: () => request('/analysis/history'),
   detail: (id) => request(`/analysis/${id}`),
+}
+
+// Admin
+export const adminApi = {
+  listUsers: () => request('/admin/users'),
+  approveUser: (userId) => request(`/admin/users/${userId}/approve`, { method: 'POST' }),
+  deleteUser: (userId) => request(`/admin/users/${userId}`, { method: 'DELETE' }),
+  dashboard: () => request('/admin/dashboard'),
+  usage: () => request('/admin/usage'),
 }

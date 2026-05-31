@@ -47,6 +47,12 @@ const auth = {
     request('/auth/register', { method: 'POST', body: JSON.stringify({ username, password }) }),
   login: (username, password) =>
     request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
+  wechatLogin: (code) =>
+    request('/auth/wechat-login', { method: 'POST', body: JSON.stringify({ code }) }),
+  phoneLogin: (phone, code) =>
+    request('/auth/phone-login', { method: 'POST', body: JSON.stringify({ phone, code }) }),
+  sendCode: (phone) =>
+    request('/auth/send-code', { method: 'POST', body: JSON.stringify({ phone }) }),
   getProfile: () => request('/auth/profile'),
 }
 

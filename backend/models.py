@@ -24,8 +24,15 @@ class User(Base):
     nickname = Column(String(50))
     avatar = Column(String(500))
     email = Column(String(100))
+    phone = Column(String(20), unique=True, index=True)  # 手机号登录
+    wx_unionid = Column(String(100), unique=True, index=True)  # 微信unionid
     password_hash = Column(String(256))
     preferences = Column(JSON)
+    is_approved = Column(Boolean, default=False)
+    role = Column(String(20), default="user")
+    last_login = Column(DateTime)
+    login_count = Column(Integer, default=0)
+    total_tokens = Column(Integer, default=0)      # 累计 token 消耗
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -33,6 +40,7 @@ class User(Base):
     focus_points = relationship("FocusPoint", back_populates="user")
     news_favorites = relationship("NewsFavorite", back_populates="user")
     read_later = relationship("ReadLater", back_populates="user")
+    api_usages = relationship("ApiUsage", back_populates="user")
 
     def set_password(self, password: str):
         salt = os.urandom(32)
@@ -128,6 +136,24 @@ class ReadLater(Base):
     user = relationship("User", back_populates="read_later")
 
 
+# ---- API 用量追踪 ----
+
+class ApiUsage(Base):
+    __tablename__ = "api_usages"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    endpoint = Column(String(200))
+    method = Column(String(10))
+    response_time_ms = Column(Float)
+    status_code = Column(Integer)
+    tokens_used = Column(Integer, default=0)       # 本次调用消耗 token
+    estimated_cost = Column(Float, default=0.0)    # 估算费用 (元)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="api_usages")
+
+
 # ---- 数据库工具 ----
 
 def init_database(database_url: str):
@@ -165,6 +191,12 @@ class DatabaseManager:
 
     def get_user_by_id(self, user_id):
         return self.session.query(User).filter(User.id == user_id).first()
+
+    def get_user_by_phone(self, phone):
+        return self.session.query(User).filter(User.phone == phone).first()
+
+    def get_user_by_wx_unionid(self, unionid):
+        return self.session.query(User).filter(User.wx_unionid == unionid).first()
 
     # -- 新闻 --
     def get_news_list(self, page=1, per_page=20, category=None):
@@ -310,6 +342,81 @@ class DatabaseManager:
             .order_by(ReadLater.created_at.desc())
             .all()
         )
+
+    # -- 管理员 --
+    def get_pending_users(self):
+        return self.session.query(User).filter(User.is_approved == False).all()
+
+    def get_all_users(self):
+        return self.session.query(User).order_by(User.created_at.desc()).all()
+
+    def approve_user(self, user_id):
+        user = self.get_user_by_id(user_id)
+        if user:
+            user.is_approved = True
+            self.session.commit()
+        return user
+
+    def reject_user(self, user_id):
+        user = self.get_user_by_id(user_id)
+        if user:
+            self.session.delete(user)
+            self.session.commit()
+        return True
+
+    def set_user_role(self, user_id, role):
+        user = self.get_user_by_id(user_id)
+        if user:
+            user.role = role
+            self.session.commit()
+
+    def record_login(self, user_id):
+        user = self.get_user_by_id(user_id)
+        if user:
+            user.last_login = datetime.utcnow()
+            user.login_count = (user.login_count or 0) + 1
+            self.session.commit()
+
+    # -- API 用量 --
+    def log_api_usage(self, user_id, endpoint, method, response_time_ms, status_code, tokens_used=0, estimated_cost=0.0):
+        usage = ApiUsage(
+            user_id=user_id, endpoint=endpoint, method=method,
+            response_time_ms=response_time_ms, status_code=status_code,
+            tokens_used=tokens_used, estimated_cost=estimated_cost,
+        )
+        self.session.add(usage)
+        # 累计用户总 token
+        if tokens_used > 0:
+            user = self.get_user_by_id(user_id)
+            if user:
+                user.total_tokens = (user.total_tokens or 0) + tokens_used
+        self.session.commit()
+
+    def get_user_usage_summary(self):
+        from sqlalchemy import func
+        results = (
+            self.session.query(
+                ApiUsage.user_id,
+                func.count().label("total_calls"),
+                func.sum(ApiUsage.tokens_used).label("total_tokens"),
+                func.sum(ApiUsage.estimated_cost).label("total_cost"),
+                func.avg(ApiUsage.response_time_ms).label("avg_time_ms"),
+                func.max(ApiUsage.created_at).label("last_call"),
+            )
+            .group_by(ApiUsage.user_id)
+            .all()
+        )
+        return [
+            {
+                "user_id": r[0],
+                "total_calls": r[1],
+                "total_tokens": int(r[2] or 0),
+                "total_cost": round(float(r[3] or 0), 4),
+                "avg_time_ms": round(r[4], 1) if r[4] else 0,
+                "last_call": r[5].isoformat() if r[5] else None,
+            }
+            for r in results
+        ]
 
     def close(self):
         self.session.close()

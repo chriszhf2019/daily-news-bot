@@ -15,8 +15,35 @@ App({
     if (!wx.getStorageSync('readHistory')) wx.setStorageSync('readHistory', [])
     this.globalData.favorites = wx.getStorageSync('favorites') || []
 
+    // 微信自动登录
+    this.wechatLogin()
+
     // 从后端加载真实新闻（不再生成模拟数据）
     this.loadRemoteNews()
+  },
+
+  // 微信登录：wx.login 获取 code → 后端换取 token
+  async wechatLogin() {
+    // 已有 token 则跳过
+    if (wx.getStorageSync('authToken')) return
+
+    try {
+      const loginRes = await new Promise((resolve, reject) => {
+        wx.login({ success: resolve, fail: reject })
+      })
+      if (!loginRes.code) return
+
+      const { auth } = require('./utils/api')
+      const res = await auth.wechatLogin(loginRes.code)
+      if (res.success && res.data?.access_token) {
+        const { setToken } = require('./utils/api')
+        setToken(res.data.access_token)
+        this.globalData.userInfo = res.data
+        console.log('微信登录成功:', res.data.username)
+      }
+    } catch (e) {
+      console.log('微信登录失败（游客模式）:', e.message)
+    }
   },
 
   // 从后端加载新闻，同步到 Storage 供页面读取

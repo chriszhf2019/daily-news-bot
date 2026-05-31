@@ -30,7 +30,7 @@ class TestAuth:
         resp = client.post("/api/v1/auth/register", json={"username": "test", "password": "123"})
         assert resp.status_code == 400
 
-    def test_register_and_login(self, client):
+    def test_register_and_login(self, client, app):
         # 注册
         resp = client.post("/api/v1/auth/register", json={
             "username": "testuser", "password": "secure123"
@@ -38,7 +38,13 @@ class TestAuth:
         assert resp.status_code == 201
         data = json.loads(resp.data)
         assert data["success"] is True
-        assert "access_token" in data["data"]
+        user_id = data["data"]["user_id"]
+
+        # 注册后需先审核（直接操作 app 的数据库 session）
+        from models import DatabaseManager, create_session_factory
+        db2 = DatabaseManager(create_session_factory(app.config.get("_engine"))())
+        db2.approve_user(user_id)
+        db2.close()
 
         # 登录
         resp = client.post("/api/v1/auth/login", json={
@@ -49,7 +55,7 @@ class TestAuth:
         assert data["success"] is True
         assert "access_token" in data["data"]
 
-        # 获取个人信息（使用登录返回的新 token）
+        # 获取个人信息
         token = data["data"]["access_token"]
         resp = client.get("/api/v1/auth/profile", headers={
             "Authorization": f"Bearer {token}"

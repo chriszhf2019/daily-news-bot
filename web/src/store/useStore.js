@@ -29,6 +29,28 @@ const useStore = create((set, get) => ({
     set({ user: null, isLoggedIn: false })
   },
 
+  phoneLogin: async (phone, code) => {
+    const res = await authApi.phoneLogin(phone, code)
+    if (res.success && res.data?.access_token) {
+      setAuthToken(res.data.access_token)
+      set({ user: res.data, isLoggedIn: true })
+    }
+    return res
+  },
+
+  sendCode: async (phone) => {
+    return await authApi.sendCode(phone)
+  },
+
+  wechatLogin: async (code) => {
+    const res = await authApi.wechatLogin(code)
+    if (res.success && res.data?.access_token) {
+      setAuthToken(res.data.access_token)
+      set({ user: res.data, isLoggedIn: true })
+    }
+    return res
+  },
+
   // API Config
   apiConfig: {
     deepseekApiKey: '',

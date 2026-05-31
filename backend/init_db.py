@@ -83,8 +83,11 @@ def init_db(database_url: str = None):
             )
         print(f"已插入 {len(SEED_NEWS)} 条种子新闻")
 
-        db.create_user(openid="admin", password="admin123", nickname="管理员")
-        print("已创建管理员账号 (admin / admin123)")
+        admin = db.create_user(openid="admin", password="admin123", nickname="管理员")
+        admin.is_approved = True
+        admin.role = "admin"
+        db.session.commit()
+        print("已创建管理员账号 (admin / admin123，已审核)")
 
     finally:
         db.close()

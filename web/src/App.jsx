@@ -6,11 +6,13 @@ import RelevanceAnalysisPage from './pages/RelevanceAnalysisPage'
 import DeepExplorationPage from './pages/DeepExplorationPage'
 import SettingsPage from './pages/SettingsPage'
 import AdminPage from './pages/AdminPage'
+import LoginPage from './pages/LoginPage'
 
 function App() {
   return (
-    <BrowserRouter basename="/newsbrief">
+    <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="seven-elements/:id" element={<SevenElementsPage />} />
