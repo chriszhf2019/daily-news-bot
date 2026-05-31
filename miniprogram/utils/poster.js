@@ -128,7 +128,8 @@ function generate(news, pageInstance) {
 
     // 如果缺少 AI 分析，先快速生成
     if (!news.ai_analysis?.interpretation && pageInstance) {
-      const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35'
+      const apiKey = wx.getStorageSync('deepseek_api_key')
+      if (!apiKey) { doGenerate(); return }
       wx.request({
         url: 'https://api.deepseek.com/chat/completions',
         method: 'POST',

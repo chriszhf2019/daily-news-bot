@@ -444,7 +444,8 @@ Page({
     const needAI = news.filter(n => !n.ai_analysis || !n.ai_analysis.interpretation)
     if (!needAI.length) return
 
-    const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35'
+    const apiKey = wx.getStorageSync('deepseek_api_key')
+    if (!apiKey) return
     try {
       const titles = needAI.map((n, i) => `${i+1}. ${n.title}`).join('\n')
       const resp = await new Promise((resolve, reject) => {
@@ -1589,7 +1590,7 @@ ${titles}
         })
       })
 
-      const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35'
+      const apiKey = wx.getStorageSync('deepseek_api_key')
       const deepseekResp = await new Promise((resolve, reject) => {
         wx.request({
           url: 'https://api.deepseek.com/chat/completions',

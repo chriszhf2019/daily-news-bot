@@ -213,7 +213,7 @@ Page({
 
   // AI战略顾问 — 真实 DeepSeek 回答
   async getAIAdvisorResponse(prompt) {
-    const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35'
+    const apiKey = wx.getStorageSync('deepseek_api_key') || ''
     const dash = this.data.dash
 
     // 构建真实数据上下文
