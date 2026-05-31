@@ -1,197 +1,139 @@
-// 新用户引导页 - 私人智库初始化
+// 新用户引导 — 3步定制 + 保存全局设置
 Page({
   data: {
     currentStep: 1,
     totalSteps: 4,
-    
-    // 第二步：AI人设选择
+
+    // 步骤2：AI风格（影响新闻解读的语气）
     selectedPersona: '',
     personas: [
-      { id: 'analyst', name: '专业分析师', icon: '📊', desc: '冷峻客观，侧重数据和逻辑' },
-      { id: 'geek', name: '毒舌极客', icon: '🤓', desc: '幽默辛辣，侧重技术吐槽' },
-      { id: 'mentor', name: '耐心导师', icon: '👨‍🏫', desc: '通俗易懂，侧重科普解释' }
+      { id: 'analyst', name: '专业分析师', icon: '📊',
+        desc: '数据驱动，冷静客观，侧重逻辑和趋势',
+        style: '用冷静客观的语气，从数据和逻辑角度分析。' },
+      { id: 'geek', name: '毒舌极客', icon: '🤓',
+        desc: '犀利幽默，直击要害，不拐弯抹角',
+        style: '用犀利幽默的语气，直接指出关键问题，不回避争议。' },
+      { id: 'mentor', name: '耐心导师', icon: '👨‍🏫',
+        desc: '通俗易懂，像老师一样耐心讲解',
+        style: '用通俗易懂的语言解释，像老师教学生一样耐心，多用比喻。' },
     ],
-    
-    // 第三步：兴趣标签
+
+    // 步骤3：兴趣标签（影响新闻推送优先级）
     selectedTags: [],
     interestTags: [
-      { id: 'ai_model', name: '大模型', icon: '🤖', category: 'AI' },
-      { id: 'ai_agent', name: 'AI Agent', icon: '🦾', category: 'AI' },
-      { id: 'chip', name: '半导体/芯片', icon: '💾', category: 'tech' },
-      { id: 'space', name: '商业航天', icon: '🚀', category: 'tech' },
-      { id: 'ev', name: '新能源汽车', icon: '🚗', category: 'tech' },
-      { id: 'biotech', name: '生物医药', icon: '💊', category: 'tech' },
-      { id: 'quantum', name: '量子计算', icon: '⚛️', category: 'tech' },
-      { id: 'xr', name: 'XR/元宇宙', icon: '🥽', category: 'tech' },
-      { id: 'a_stock', name: 'A股市场', icon: '📈', category: 'finance' },
-      { id: 'us_stock', name: '美股动态', icon: '🇺🇸', category: 'finance' },
-      { id: 'crypto', name: '数字货币', icon: '₿', category: 'finance' },
-      { id: 'macro', name: '宏观经济', icon: '🌐', category: 'finance' },
-      { id: 'policy', name: '政策法规', icon: '📜', category: 'international' },
-      { id: 'geopolitics', name: '地缘政治', icon: '🗺️', category: 'international' },
-      { id: 'sports', name: '体育赛事', icon: '⚽', category: 'sports' }
+      { id: 'ai_model', name: '大模型', icon: '🤖', category: 'AI动态' },
+      { id: 'ai_agent', name: 'AI Agent', icon: '🦾', category: 'AI动态' },
+      { id: 'chip', name: '半导体/芯片', icon: '💾', category: '科技前沿' },
+      { id: 'space', name: '商业航天', icon: '🚀', category: '科技前沿' },
+      { id: 'ev', name: '新能源汽车', icon: '🚗', category: '科技前沿' },
+      { id: 'biotech', name: '生物医药', icon: '💊', category: '科技前沿' },
+      { id: 'quantum', name: '量子计算', icon: '⚛️', category: '科技前沿' },
+      { id: 'xr', name: 'XR/元宇宙', icon: '🥽', category: '科技前沿' },
+      { id: 'policy', name: '政策法规', icon: '📜', category: '科技前沿' },
+      { id: 'geopolitics', name: '地缘政治', icon: '🗺️', category: '科技前沿' },
     ],
-    
-    // 第四步：关键词雷达
+
+    // 步骤4：关键词 + AI指令
     radarKeywords: [],
     newKeyword: '',
-    suggestedKeywords: ['华为', '特斯拉', '英伟达', 'OpenAI', '马斯克', '比亚迪', '苹果', '小米'],
-    
-    // AI定制指令
+    suggestedKeywords: ['华为', '特斯拉', '英伟达', 'OpenAI', '马斯克', '比亚迪', '苹果'],
     aiInstruction: '',
-    aiInstructionPlaceholder: '例如：我是一个大厂程序员，关心能提升开发效率的AI工具，以及程序员的职场变动。'
   },
 
   onLoad() {
-    // 检查是否已完成引导
-    const hasOnboarded = wx.getStorageSync('hasOnboarded');
-    if (hasOnboarded) {
-      wx.switchTab({ url: '/pages/index/index' });
+    if (wx.getStorageSync('hasOnboarded')) {
+      wx.switchTab({ url: '/pages/index/index' })
     }
   },
 
-  // 步骤导航
+  // ===== 导航 =====
   nextStep() {
-    console.log('nextStep called, currentStep:', this.data.currentStep)
-    wx.vibrateShort({ type: 'light' })
-    const { currentStep, totalSteps, selectedPersona, selectedTags } = this.data;
-    
-    // 验证当前步骤
+    const { currentStep, totalSteps, selectedPersona, selectedTags } = this.data
     if (currentStep === 2 && !selectedPersona) {
-      wx.showToast({ title: '请选择一个AI人设', icon: 'none' });
-      return;
+      wx.showToast({ title: '请选择一个AI风格', icon: 'none' }); return
     }
     if (currentStep === 3 && selectedTags.length === 0) {
-      wx.showToast({ title: '请至少选择一个兴趣标签', icon: 'none' });
-      return;
+      wx.showToast({ title: '请至少选一个兴趣领域', icon: 'none' }); return
     }
-    
     if (currentStep < totalSteps) {
-      this.setData({ currentStep: currentStep + 1 });
+      this.setData({ currentStep: currentStep + 1 })
+      wx.vibrateShort({ type: 'light' })
     }
   },
 
   prevStep() {
     if (this.data.currentStep > 1) {
-      this.setData({ currentStep: this.data.currentStep - 1 });
+      this.setData({ currentStep: this.data.currentStep - 1 })
     }
   },
 
-  // 选择AI人设
+  // ===== 步骤2：AI风格 =====
   selectPersona(e) {
-    const persona = e.currentTarget.dataset.persona;
-    this.setData({ selectedPersona: persona });
+    this.setData({ selectedPersona: e.currentTarget.dataset.persona })
+    wx.vibrateShort({ type: 'light' })
   },
 
-  // 兴趣标签操作
+  // ===== 步骤3：兴趣标签 =====
   toggleTag(e) {
-    const tagId = e.currentTarget.dataset.tag;
-    let { selectedTags } = this.data;
-    
-    if (selectedTags.includes(tagId)) {
-      selectedTags = selectedTags.filter(t => t !== tagId);
-    } else {
-      selectedTags = [...selectedTags, tagId];
-    }
-    
-    this.setData({ selectedTags });
+    const tagId = e.currentTarget.dataset.tag
+    let tags = [...this.data.selectedTags]
+    const idx = tags.indexOf(tagId)
+    if (idx > -1) tags.splice(idx, 1)
+    else tags.push(tagId)
+    this.setData({ selectedTags: tags })
+    wx.vibrateShort({ type: 'light' })
   },
 
-  selectAllTags() {
-    const allTagIds = this.data.interestTags.map(t => t.id);
-    this.setData({ selectedTags: allTagIds });
-  },
-
-  clearAllTags() {
-    this.setData({ selectedTags: [] });
-  },
-
-  // 关键词雷达操作
-  onKeywordInput(e) {
-    this.setData({ newKeyword: e.detail.value });
-  },
+  // ===== 步骤4：关键词 =====
+  onKeywordInput(e) { this.setData({ newKeyword: e.detail.value }) },
 
   addKeyword() {
-    const { newKeyword, radarKeywords } = this.data;
-    if (!newKeyword.trim()) return;
-    if (radarKeywords.includes(newKeyword.trim())) {
-      wx.showToast({ title: '该关键词已存在', icon: 'none' });
-      return;
+    const kw = this.data.newKeyword.trim()
+    if (!kw) return
+    if (this.data.radarKeywords.includes(kw)) {
+      wx.showToast({ title: '已存在', icon: 'none' }); return
     }
-    
-    this.setData({
-      radarKeywords: [...radarKeywords, newKeyword.trim()],
-      newKeyword: ''
-    });
+    this.setData({ radarKeywords: [...this.data.radarKeywords, kw], newKeyword: '' })
   },
 
-  addSuggestedKeyword(e) {
-    const keyword = e.currentTarget.dataset.keyword;
-    const { radarKeywords } = this.data;
-    
-    if (!radarKeywords.includes(keyword)) {
-      this.setData({ radarKeywords: [...radarKeywords, keyword] });
+  addSuggested(e) {
+    const kw = e.currentTarget.dataset.keyword
+    if (!this.data.radarKeywords.includes(kw)) {
+      this.setData({ radarKeywords: [...this.data.radarKeywords, kw] })
     }
   },
 
   removeKeyword(e) {
-    const keyword = e.currentTarget.dataset.keyword;
-    const radarKeywords = this.data.radarKeywords.filter(k => k !== keyword);
-    this.setData({ radarKeywords });
+    const kw = e.currentTarget.dataset.keyword
+    this.setData({ radarKeywords: this.data.radarKeywords.filter(k => k !== kw) })
   },
 
-  // AI定制指令
-  onAiInstructionInput(e) {
-    this.setData({ aiInstruction: e.detail.value });
-  },
+  onAiInstructionInput(e) { this.setData({ aiInstruction: e.detail.value }) },
 
-  // 完成引导
+  // ===== 完成 =====
   finish() {
-    this.finishOnboarding()
-  },
+    const { selectedPersona, selectedTags, radarKeywords, aiInstruction, interestTags, personas } = this.data
 
-  finishOnboarding() {
-    const { selectedPersona, selectedTags, radarKeywords, aiInstruction, interestTags } = this.data;
-    
-    // 保存所有设置
-    wx.setStorageSync('aiPersona', selectedPersona);
-    wx.setStorageSync('interestTags', selectedTags);
-    wx.setStorageSync('focusKeywords', radarKeywords);
-    wx.setStorageSync('aiInstruction', aiInstruction);
-    wx.setStorageSync('hasOnboarded', true);
-    
+    // 获取选中风格的名字和提示词
+    const persona = personas.find(p => p.id === selectedPersona) || personas[0]
+
+    // 保存全局设置
+    wx.setStorageSync('aiPersona', selectedPersona)
+    wx.setStorageSync('aiPersonaName', persona.name)
+    wx.setStorageSync('aiPersonaStyle', persona.style)
+    wx.setStorageSync('interestTags', selectedTags)
+    wx.setStorageSync('focusKeywords', radarKeywords)
+    wx.setStorageSync('aiInstruction', aiInstruction)
+    wx.setStorageSync('hasOnboarded', true)
+
     // 根据兴趣标签生成分类偏好
-    const tagCategories = selectedTags.map(tagId => {
-      const tag = interestTags.find(t => t.id === tagId);
-      return tag ? tag.category : null;
-    }).filter(Boolean);
-    const uniqueCategories = [...new Set(tagCategories)];
-    wx.setStorageSync('preferredCategories', uniqueCategories);
-    
-    wx.showToast({ 
-      title: '智库初始化完成！', 
-      icon: 'success',
-      duration: 1500
-    });
-    
-    setTimeout(() => {
-      wx.switchTab({ url: '/pages/index/index' });
-    }, 1500);
-  },
+    const cats = [...new Set(selectedTags.map(id => {
+      const tag = interestTags.find(t => t.id === id)
+      return tag ? tag.category : null
+    }).filter(Boolean))]
+    wx.setStorageSync('preferredCategories', cats)
 
-  // 跳过引导
-  skipOnboarding() {
-    wx.showModal({
-      title: '跳过引导',
-      content: '你可以稍后在设置中配置个性化选项',
-      confirmText: '跳过',
-      cancelText: '继续',
-      success: (res) => {
-        if (res.confirm) {
-          wx.setStorageSync('hasOnboarded', true);
-          wx.switchTab({ url: '/pages/index/index' });
-        }
-      }
-    });
-  }
-});
+    wx.showToast({ title: '设置完成！', icon: 'success', duration: 1200 })
+    setTimeout(() => wx.switchTab({ url: '/pages/index/index' }), 1200)
+  },
+})

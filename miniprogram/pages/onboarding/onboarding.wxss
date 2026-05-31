@@ -1,99 +1,62 @@
-/* 新用户引导页 */
 page { background: #0a0a1a; min-height: 100vh; }
-
-.onboarding-container {
-  min-height: 100vh; padding: 60rpx 40rpx;
-  position: relative; overflow: hidden;
-  display: flex; flex-direction: column;
-}
-
-/* 背景装饰 */
-.bg-decoration { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.bg-circle { position: absolute; border-radius: 50%; opacity: 0.12; }
+.onboarding-container { min-height: 100vh; padding: 60rpx 40rpx; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.bg-decoration { position: absolute; inset: 0; pointer-events: none; }
+.bg-circle { position: absolute; border-radius: 50%; opacity: 0.1; }
 .circle-1 { width: 500rpx; height: 500rpx; background: radial-gradient(circle, #6366f1, transparent); top: -120rpx; right: -100rpx; }
 .circle-2 { width: 400rpx; height: 400rpx; background: radial-gradient(circle, #8b5cf6, transparent); bottom: 100rpx; left: -80rpx; }
-.bg-orbs { position: absolute; inset: 0; }
-.orb { position: absolute; border-radius: 50%; }
-.orb-1 { width: 6rpx; height: 6rpx; background: #6366f1; top: 30%; left: 20%; animation: orbFloat 4s ease-in-out infinite; }
-.orb-2 { width: 8rpx; height: 8rpx; background: #8b5cf6; top: 60%; right: 15%; animation: orbFloat 6s ease-in-out infinite reverse; }
-.orb-3 { width: 4rpx; height: 4rpx; background: #a78bfa; top: 20%; right: 30%; animation: orbFloat 5s ease-in-out infinite; }
-@keyframes orbFloat { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20rpx) scale(1.5); } }
 
-/* 步骤圆点 */
-.step-dots { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 60rpx; }
+.step-dots { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 60rpx; position: relative; z-index: 1; }
 .dot { width: 16rpx; height: 16rpx; border-radius: 50%; background: rgba(255,255,255,0.15); transition: all 0.3s; }
 .dot.active { background: #6366f1; box-shadow: 0 0 16rpx rgba(99,102,241,0.5); }
-.dot.done { background: #10b981; box-shadow: 0 0 12rpx rgba(16,185,129,0.3); }
-.dot-line { width: 60rpx; height: 2rpx; background: rgba(255,255,255,0.1); transition: all 0.3s; }
-.dot-line.done { background: #10b981; }
+.dot-line { width: 60rpx; height: 2rpx; background: rgba(255,255,255,0.1); }
 
-/* 步骤内容 */
 .step-content { flex: 1; position: relative; z-index: 1; display: flex; align-items: center; }
 
 /* 欢迎页 */
 .welcome-section { width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 40rpx; }
-.welcome-brand { font-size: 72rpx; font-weight: 800; letter-spacing: -2rpx;
-  background: linear-gradient(135deg, #818cf8, #c084fc); -webkit-background-clip: text; color: transparent; }
-.welcome-tagline { font-size: 28rpx; color: rgba(255,255,255,0.5); margin-top: 12rpx; margin-bottom: 80rpx; letter-spacing: 4rpx; }
-.welcome-cards { width: 100%; display: flex; flex-direction: column; gap: 20rpx; margin-bottom: 60rpx; }
-.feature-card { display: flex; align-items: center; gap: 24rpx; padding: 28rpx 32rpx;
-  background: rgba(255,255,255,0.04); border: 1rpx solid rgba(255,255,255,0.06); border-radius: 20rpx;
-  transition: all 0.3s; }
-.feature-card:active { background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.3); }
+.welcome-brand { font-size: 72rpx; font-weight: 800; letter-spacing: -2rpx; background: linear-gradient(135deg, #818cf8, #c084fc); -webkit-background-clip: text; color: transparent; }
+.welcome-tagline { font-size: 28rpx; color: rgba(255,255,255,0.45); margin: 12rpx 0 80rpx; letter-spacing: 4rpx; }
+.welcome-cards { width: 100%; display: flex; flex-direction: column; gap: 20rpx; }
+.feature-card { display: flex; align-items: center; gap: 24rpx; padding: 28rpx 32rpx; background: rgba(255,255,255,0.04); border: 1rpx solid rgba(255,255,255,0.06); border-radius: 20rpx; }
 .fc-icon { font-size: 44rpx; }
-.fc-text { flex: 1; }
 .fc-title { display: block; font-size: 30rpx; font-weight: 600; color: #e2e8f0; margin-bottom: 6rpx; }
 .fc-desc { display: block; font-size: 24rpx; color: rgba(255,255,255,0.4); }
-.welcome-footer { font-size: 26rpx; color: rgba(255,255,255,0.35); }
 
 /* 步骤头部 */
 .step-header { text-align: center; margin-bottom: 50rpx; width: 100%; }
 .step-title { display: block; font-size: 40rpx; font-weight: 700; color: #f1f5f9; margin-bottom: 12rpx; }
-.step-desc { display: block; font-size: 26rpx; color: rgba(255,255,255,0.45); }
+.step-desc { display: block; font-size: 26rpx; color: rgba(255,255,255,0.4); }
 
-/* AI人设 */
+/* AI风格 */
 .persona-list { width: 100%; display: flex; flex-direction: column; gap: 20rpx; }
-.persona-card { display: flex; align-items: center; padding: 32rpx;
-  background: rgba(255,255,255,0.04); border: 1.5rpx solid rgba(255,255,255,0.08); border-radius: 20rpx;
-  transition: all 0.25s; }
+.persona-card { display: flex; align-items: center; padding: 32rpx; background: rgba(255,255,255,0.04); border: 1.5rpx solid rgba(255,255,255,0.08); border-radius: 20rpx; transition: all 0.25s; }
 .persona-card.selected { background: rgba(99,102,241,0.2); border-color: #6366f1; }
 .persona-icon { font-size: 52rpx; margin-right: 24rpx; }
-.persona-info { flex: 1; }
 .persona-name { display: block; font-size: 32rpx; font-weight: 600; color: #f1f5f9; margin-bottom: 6rpx; }
-.persona-desc { display: block; font-size: 24rpx; color: rgba(255,255,255,0.45); }
-.persona-check { width: 44rpx; height: 44rpx; background: #6366f1; border-radius: 50%; display: flex;
-  align-items: center; justify-content: center; color: #fff; font-size: 24rpx; font-weight: bold; }
+.persona-desc { display: block; font-size: 24rpx; color: rgba(255,255,255,0.4); }
+.persona-check { width: 44rpx; height: 44rpx; background: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 24rpx; font-weight: bold; }
 
-/* 标签 */
+/* 兴趣标签 */
 .tags-grid { display: flex; flex-wrap: wrap; gap: 16rpx; width: 100%; }
-.tag-item { display: flex; flex-direction: column; align-items: center; width: calc(33.33% - 12rpx);
-  padding: 28rpx 12rpx; background: rgba(255,255,255,0.04); border: 1.5rpx solid rgba(255,255,255,0.08);
-  border-radius: 16rpx; transition: all 0.25s; }
+.tag-item { display: flex; flex-direction: column; align-items: center; width: calc(33.33% - 12rpx); padding: 28rpx 12rpx; background: rgba(255,255,255,0.04); border: 1.5rpx solid rgba(255,255,255,0.08); border-radius: 16rpx; transition: all 0.25s; }
 .tag-item.selected { background: rgba(99,102,241,0.2); border-color: #6366f1; }
 .tag-icon { font-size: 40rpx; margin-bottom: 10rpx; }
 .tag-name { font-size: 24rpx; color: #cbd5e1; font-weight: 500; }
 
-/* 完成页 */
-.complete-section { width: 100%; display: flex; flex-direction: column; align-items: center; }
-.complete-icon { font-size: 100rpx; margin-bottom: 24rpx; animation: bounce 1.5s ease-in-out infinite; }
-@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16rpx); } }
-.complete-title { font-size: 44rpx; font-weight: 700; color: #f1f5f9; margin-bottom: 12rpx; }
-.complete-desc { font-size: 26rpx; color: rgba(255,255,255,0.45); margin-bottom: 60rpx; }
-.complete-summary { width: 100%; display: flex; flex-direction: column; gap: 16rpx; }
-.summary-item { display: flex; justify-content: space-between; align-items: center;
-  padding: 24rpx 28rpx; background: rgba(255,255,255,0.04); border-radius: 16rpx; }
-.si-label { font-size: 28rpx; color: rgba(255,255,255,0.5); }
-.si-value { font-size: 28rpx; color: #e2e8f0; font-weight: 600; }
+/* 关键词 */
+.keyword-input-wrap { display: flex; gap: 16rpx; margin-bottom: 20rpx; }
+.keyword-input { flex: 1; height: 80rpx; background: rgba(255,255,255,0.1); border: 2rpx solid rgba(255,255,255,0.2); border-radius: 16rpx; padding: 0 24rpx; font-size: 28rpx; color: #fff; }
+.keyword-add-btn { height: 80rpx; padding: 0 32rpx; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 16rpx; display: flex; align-items: center; justify-content: center; font-size: 28rpx; color: #fff; }
+.added-keywords { display: flex; flex-wrap: wrap; gap: 16rpx; margin-bottom: 24rpx; }
+.keyword-chip { display: flex; align-items: center; gap: 8rpx; padding: 12rpx 20rpx; background: rgba(99,102,241,0.3); border: 1rpx solid rgba(99,102,241,0.5); border-radius: 30rpx; font-size: 26rpx; color: #fff; }
+.chip-remove { font-size: 32rpx; color: rgba(255,255,255,0.6); margin-left: 4rpx; }
+.suggest-label { font-size: 24rpx; color: rgba(255,255,255,0.5); display: block; margin-bottom: 16rpx; }
+.suggest-list { display: flex; flex-wrap: wrap; gap: 16rpx; }
+.suggest-chip { padding: 10rpx 20rpx; background: rgba(255,255,255,0.08); border: 1rpx solid rgba(255,255,255,0.15); border-radius: 24rpx; font-size: 24rpx; color: rgba(255,255,255,0.8); }
+.suggest-chip.added { background: rgba(16,185,129,0.2); border-color: rgba(16,185,129,0.4); color: #10b981; }
 
 /* 底部按钮 */
-.bottom-actions { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; display: flex; gap: 20rpx;
-  padding: 32rpx 40rpx; background: linear-gradient(180deg, transparent, rgba(10,10,26,0.98) 40%);
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom)); }
-.btn-prev { flex: 1; height: 100rpx; display: flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,0.06); border: 1rpx solid rgba(255,255,255,0.1); border-radius: 24rpx;
-  font-size: 30rpx; color: rgba(255,255,255,0.7); }
-.btn-next { flex: 2; height: 100rpx; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 24rpx;
-  font-size: 32rpx; font-weight: 600; color: #fff; box-shadow: 0 8rpx 32rpx rgba(99,102,241,0.35); }
+.bottom-actions { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; display: flex; gap: 20rpx; padding: 32rpx 40rpx; background: linear-gradient(180deg, transparent, rgba(10,10,26,0.98) 40%); padding-bottom: calc(32rpx + env(safe-area-inset-bottom)); }
+.btn-prev { flex: 1; height: 100rpx; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.06); border: 1rpx solid rgba(255,255,255,0.1); border-radius: 24rpx; font-size: 30rpx; color: rgba(255,255,255,0.7); }
+.btn-next { flex: 2; height: 100rpx; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 24rpx; font-size: 32rpx; font-weight: 600; color: #fff; box-shadow: 0 8rpx 32rpx rgba(99,102,241,0.35); }
 .btn-next.finish { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 8rpx 32rpx rgba(16,185,129,0.35); }
-.btn-next:active { opacity: 0.9; transform: scale(0.98); }

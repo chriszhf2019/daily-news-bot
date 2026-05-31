@@ -393,11 +393,12 @@ Page({
     this.setData({ currentDate: dateStr });
   },
 
-  // 加载用户偏好设置
+  // 加载用户偏好设置（从 onboarding 保存的全局设置）
   loadUserPreferences() {
     try {
-      const aiPersona = wx.getStorageSync('aiPersona') || 'analyst';
-      const personaNames = { analyst: '专业分析师', geek: '毒舌极客', mentor: '耐心导师' };
+      const aiPersona = wx.getStorageSync('aiPersona') || 'analyst'
+      const personaNames = { analyst: '专业分析师', geek: '毒舌极客', mentor: '耐心导师' }
+      const personaStyles = wx.getStorageSync('aiPersonaStyle') || ''
       
       const focusKeywords = wx.getStorageSync('focusKeywords') || [];
       const readingDepth = wx.getStorageSync('readingDepth') || 1;

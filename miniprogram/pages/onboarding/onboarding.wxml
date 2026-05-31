@@ -1,69 +1,40 @@
-<!-- 新用户引导页 — 2026 -->
 <view class="onboarding-container">
-  <!-- 背景装饰 -->
   <view class="bg-decoration">
     <view class="bg-circle circle-1"></view>
     <view class="bg-circle circle-2"></view>
-    <view class="bg-orbs">
-      <view class="orb orb-1"></view>
-      <view class="orb orb-2"></view>
-      <view class="orb orb-3"></view>
-    </view>
   </view>
 
-  <!-- 步骤圆点 -->
   <view class="step-dots">
-    <view class="dot {{currentStep >= 1 ? 'active' : ''}} {{currentStep > 1 ? 'done' : ''}}"></view>
-    <view class="dot-line {{currentStep > 1 ? 'done' : ''}}"></view>
-    <view class="dot {{currentStep >= 2 ? 'active' : ''}} {{currentStep > 2 ? 'done' : ''}}"></view>
-    <view class="dot-line {{currentStep > 2 ? 'done' : ''}}"></view>
-    <view class="dot {{currentStep >= 3 ? 'active' : ''}} {{currentStep > 3 ? 'done' : ''}}"></view>
-    <view class="dot-line {{currentStep > 3 ? 'done' : ''}}"></view>
+    <view class="dot {{currentStep >= 1 ? 'active' : ''}}"></view>
+    <view class="dot-line"></view>
+    <view class="dot {{currentStep >= 2 ? 'active' : ''}}"></view>
+    <view class="dot-line"></view>
+    <view class="dot {{currentStep >= 3 ? 'active' : ''}}"></view>
+    <view class="dot-line"></view>
     <view class="dot {{currentStep >= 4 ? 'active' : ''}}"></view>
   </view>
 
-  <!-- 步骤1：欢迎页 -->
+  <!-- 步骤1：欢迎 -->
   <view class="step-content" wx:if="{{currentStep === 1}}">
     <view class="welcome-section">
       <view class="welcome-brand">NewsBrief</view>
       <view class="welcome-tagline">AI 驱动的智能情报助手</view>
       <view class="welcome-cards">
-        <view class="feature-card">
-          <view class="fc-icon">📰</view>
-          <view class="fc-text">
-            <text class="fc-title">16 个权威来源</text>
-            <text class="fc-desc">中英文全覆盖，实时更新</text>
-          </view>
-        </view>
-        <view class="feature-card">
-          <view class="fc-icon">🤖</view>
-          <view class="fc-text">
-            <text class="fc-title">DeepSeek AI 驱动</text>
-            <text class="fc-desc">智能标签、情绪分析、重要信号</text>
-          </view>
-        </view>
-        <view class="feature-card">
-          <view class="fc-icon">🎯</view>
-          <view class="fc-text">
-            <text class="fc-title">个性化定制</text>
-            <text class="fc-desc">只看你关心的，告别信息噪音</text>
-          </view>
-        </view>
+        <view class="feature-card"><view class="fc-icon">📰</view><view class="fc-text"><text class="fc-title">权威新闻源</text><text class="fc-desc">16个中英文权威来源</text></view></view>
+        <view class="feature-card"><view class="fc-icon">🤖</view><view class="fc-text"><text class="fc-title">DeepSeek AI</text><text class="fc-desc">智能标签·情绪分析·重要信号</text></view></view>
+        <view class="feature-card"><view class="fc-icon">🎯</view><view class="fc-text"><text class="fc-title">个性化定制</text><text class="fc-desc">3步定制你的专属情报体验</text></view></view>
       </view>
-      <view class="welcome-footer">3 步定制你的专属情报体验</view>
     </view>
   </view>
 
-  <!-- 步骤2：AI人设选择 -->
+  <!-- 步骤2：AI风格 -->
   <view class="step-content" wx:if="{{currentStep === 2}}">
     <view class="step-header">
       <text class="step-title">选择 AI 风格</text>
       <text class="step-desc">决定新闻解读的语气和角度</text>
     </view>
     <view class="persona-list">
-      <view class="persona-card {{selectedPersona === item.id ? 'selected' : ''}}"
-            wx:for="{{personas}}" wx:key="id"
-            bindtap="selectPersona" data-persona="{{item.id}}">
+      <view class="persona-card {{selectedPersona === item.id ? 'selected' : ''}}" wx:for="{{personas}}" wx:key="id" catchtap="selectPersona" data-persona="{{item.id}}">
         <view class="persona-icon">{{item.icon}}</view>
         <view class="persona-info">
           <text class="persona-name">{{item.name}}</text>
@@ -78,44 +49,43 @@
   <view class="step-content" wx:if="{{currentStep === 3}}">
     <view class="step-header">
       <text class="step-title">选择兴趣领域</text>
-      <text class="step-desc">已选 {{selectedTags.length}} 个 · 优先推送</text>
+      <text class="step-desc">已选 {{selectedTags.length}} 个 · 优先推送相关内容</text>
     </view>
     <view class="tags-grid">
-      <view class="tag-item {{selectedTags.indexOf(item.id) > -1 ? 'selected' : ''}}"
-            wx:for="{{interestTags}}" wx:key="id"
-            bindtap="toggleTag" data-tag="{{item.id}}">
+      <view class="tag-item {{selectedTags.indexOf(item.id) > -1 ? 'selected' : ''}}" wx:for="{{interestTags}}" wx:key="id" catchtap="toggleTag" data-tag="{{item.id}}">
         <text class="tag-icon">{{item.icon}}</text>
         <text class="tag-name">{{item.name}}</text>
       </view>
     </view>
   </view>
 
-  <!-- 步骤4：完成 -->
+  <!-- 步骤4：关键词+完成 -->
   <view class="step-content" wx:if="{{currentStep === 4}}">
-    <view class="complete-section">
-      <view class="complete-icon">🚀</view>
-      <text class="complete-title">一切就绪</text>
-      <text class="complete-desc">你的私人情报系统已配置完成</text>
-      <view class="complete-summary">
-        <view class="summary-item">
-          <text class="si-label">AI 风格</text>
-          <text class="si-value">{{personas[0].name}}</text>
-        </view>
-        <view class="summary-item">
-          <text class="si-label">关注领域</text>
-          <text class="si-value">{{selectedTags.length}} 个标签</text>
-        </view>
-        <view class="summary-item">
-          <text class="si-label">关键词</text>
-          <text class="si-value">{{radarKeywords.length > 0 ? radarKeywords.length + '个' : '未设置'}}</text>
-        </view>
+    <view class="step-header">
+      <text class="step-title">关注关键词</text>
+      <text class="step-desc">设置你关心的关键词，精准推送</text>
+    </view>
+    <view class="keyword-input-wrap">
+      <input class="keyword-input" placeholder="输入关键词" value="{{newKeyword}}" bindinput="onKeywordInput" bindconfirm="addKeyword"/>
+      <view class="keyword-add-btn" catchtap="addKeyword">添加</view>
+    </view>
+    <view class="added-keywords">
+      <view class="keyword-chip" wx:for="{{radarKeywords}}" wx:key="*this">
+        <text>{{item}}</text>
+        <text class="chip-remove" catchtap="removeKeyword" data-keyword="{{item}}">✕</text>
+      </view>
+    </view>
+    <view class="suggested-keywords" wx:if="{{suggestedKeywords.length > 0}}">
+      <text class="suggest-label">推荐关键词</text>
+      <view class="suggest-list">
+        <text class="suggest-chip {{radarKeywords.indexOf(item) > -1 ? 'added' : ''}}" wx:for="{{suggestedKeywords}}" wx:key="*this" catchtap="addSuggested" data-keyword="{{item}}">{{item}}</text>
       </view>
     </view>
   </view>
 
   <!-- 底部按钮 -->
   <view class="bottom-actions">
-    <view class="btn-prev" wx:if="{{currentStep > 1 && currentStep < 4}}" catchtap="prevStep">上一步</view>
+    <view class="btn-prev" wx:if="{{currentStep > 1}}" catchtap="prevStep">上一步</view>
     <view class="btn-next" wx:if="{{currentStep < 4}}" catchtap="nextStep">
       {{currentStep === 1 ? '开始定制' : '下一步'}}
     </view>
