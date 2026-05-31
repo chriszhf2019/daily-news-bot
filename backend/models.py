@@ -71,6 +71,8 @@ class News(Base):
     source_url = Column(String(500))
     image_url = Column(String(500))
     tags = Column(JSON)
+    title_cn = Column(String(500))     # 中文标题（英文新闻翻译）
+    summary_cn = Column(Text)          # 中文摘要（英文新闻翻译）
     published_at = Column(DateTime, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -237,19 +239,19 @@ class DatabaseManager:
         results = query.order_by(News.published_at.desc()).offset((page - 1) * per_page).limit(per_page).all()
         return results, total
 
-    def create_news(self, title, summary="", content="", category=None, source=None, source_url=None, tags=None, published_at=None):
+    def create_news(self, title, summary="", content="", category=None, source=None, source_url=None, tags=None, published_at=None, title_cn=None, summary_cn=None):
         # 去重：按标题检查是否已存在
         existing = self.session.query(News).filter(News.title == title).first()
         if existing:
+            if title_cn and not existing.title_cn:
+                existing.title_cn = title_cn
+                existing.summary_cn = summary_cn
+                self.session.commit()
             return existing
         news = News(
-            title=title,
-            summary=summary,
-            content=content,
-            category=category,
-            source=source,
-            source_url=source_url,
-            tags=tags or [],
+            title=title, summary=summary, content=content,
+            category=category, source=source, source_url=source_url,
+            tags=tags or [], title_cn=title_cn, summary_cn=summary_cn,
             published_at=published_at or datetime.utcnow(),
         )
         self.session.add(news)

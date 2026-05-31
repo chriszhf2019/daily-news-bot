@@ -47,6 +47,42 @@ RSS_SOURCES = [
 USER_AGENT = "NewsBrief/1.0 (RSS Reader)"
 
 
+def _is_english(text: str) -> bool:
+    """检测文本是否为英文（中文占比 < 10%）"""
+    if not text: return False
+    cn = sum(1 for c in text if '一' <= c <= '鿿')
+    return cn < len(text) * 0.1 and any(c.isascii() and c.isalpha() for c in text[:20])
+
+
+def translate_batch(items: list[dict], api_key: str):
+    """用 DeepSeek 批量翻译英文标题和摘要为中文"""
+    from openai import OpenAI
+    client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+
+    for i in range(0, len(items), 15):
+        batch = items[i:i + 15]
+        texts = [f"{j+1}. {it['title']}" for j, it in enumerate(batch)]
+        prompt = f"翻译为中文，返回JSON数组。格式：[{{\"index\":1,\"title_cn\":\"中文标题\",\"summary_cn\":\"中文摘要\"}}]\n\n" + "\n".join(texts)
+
+        try:
+            resp = client.chat.completions.create(
+                model="deepseek-chat",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=2000, temperature=0.2,
+            )
+            text = resp.choices[0].message.content.strip()
+            if text.startswith("```"): text = text.split("```")[1].replace("json", "", 1)
+            results = json.loads(text)
+            for r in results:
+                idx = r.get("index", 0) - 1
+                if 0 <= idx < len(batch):
+                    batch[idx]["title_cn"] = r.get("title_cn", "")
+                    batch[idx]["summary_cn"] = r.get("summary_cn", "")
+            logger.info(f"  翻译批次 {i//15 + 1}: {len(batch)} 条完成")
+        except Exception as e:
+            logger.warning(f"  翻译批次失败: {e}")
+
+
 def strip_html(text: str) -> str:
     """去除 HTML 标签"""
     text = re.sub(r"<[^>]+>", "", text or "")
@@ -182,6 +218,8 @@ def store_news(db_url: str, items: list[dict]) -> int:
                     source=item.get("source", "RSS"),
                     source_url=item.get("source_url", ""),
                     tags=item.get("tags", []),
+                    title_cn=item.get("title_cn"),
+                    summary_cn=item.get("summary_cn"),
                     published_at=datetime.utcnow(),
                 )
                 count += 1
@@ -210,6 +248,14 @@ def run():
 
     unique = deduplicate(all_news)
     logger.info(f"去重: {len(all_news)} → {len(unique)} 条")
+
+    # 英文新闻 → 中文翻译
+    deepseek_key = os.getenv("DEEPSEEK_API_KEY", "")
+    if deepseek_key and unique:
+        en_news = [n for n in unique if _is_english(n["title"])]
+        if en_news:
+            logger.info(f"英文新闻翻译中 ({len(en_news)} 条)...")
+            translate_batch(en_news, deepseek_key)
 
     # DeepSeek AI 增强标签和摘要
     deepseek_key = os.getenv("DEEPSEEK_API_KEY", "")

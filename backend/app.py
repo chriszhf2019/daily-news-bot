@@ -102,7 +102,9 @@ def news_to_dict(news):
     return {
         "id": news.id,
         "title": news.title,
+        "title_cn": news.title_cn or "",
         "summary": news.summary,
+        "summary_cn": news.summary_cn or "",
         "category": news.category,
         "source": news.source,
         "source_url": news.source_url,
