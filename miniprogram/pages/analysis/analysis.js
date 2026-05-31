@@ -13,6 +13,7 @@ Page({
       heatmap: [],
       total_news: 0,
       tomorrow_watch: [],
+      blind_spots: [],
     },
     advisorPrompts: [
       '帮我复盘今天最重要的 3 件事',
@@ -46,6 +47,7 @@ Page({
             heatmap: d.heatmap || [],
             total_news: d.total_news || 0,
             tomorrow_watch: d.tomorrow_watch || [],
+            blind_spots: d.blind_spots || [],
           },
           loading: false,
           lastRefreshTime: `${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`,

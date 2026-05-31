@@ -121,6 +121,25 @@
       </view>
     </view>
 
+    <!-- 今日盲区补全 -->
+    <view class="blindspot-section" wx:if="{{dash.blind_spots.length > 0}}">
+      <text class="detail-label">🔍 今日盲区补全</text>
+      <text class="blindspot-desc">DeepSeek 发现的重要但容易被忽略的新闻</text>
+      <view class="blindspot-list">
+        <view class="blindspot-item" wx:for="{{dash.blind_spots}}" wx:key="title">
+          <view class="bs-header">
+            <text class="bs-icon">💡</text>
+            <text class="bs-title">{{item.title}}</text>
+          </view>
+          <view class="bs-details">
+            <text class="bs-row">🙈 为什么被忽视：{{item.why_blind}}</text>
+            <text class="bs-row">⚠️ 为什么重要：{{item.why_important}}</text>
+            <text class="bs-row">👉 建议关注：{{item.suggestion}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
     <!-- 新闻总数 -->
     <view class="stats-footer">
       <text class="stats-text">总计 {{dash.total_news}} 条新闻 · 实时数据</text>

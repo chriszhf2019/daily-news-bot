@@ -763,6 +763,24 @@ def intelligence_dashboard():
             except Exception as e:
                 logger.warning(f"明日关注生成失败: {e}")
 
+        # 7. 今日盲区补全 — DeepSeek 发现被忽略的重要话题
+        blind_spots = []
+        if DEEPSEEK_API_KEY and all_news:
+            try:
+                titles_sample = [f"{n.source}:{n.title}" for n in all_news[:80]]
+                prompt = f"""分析以下新闻列表，找出3条被主流报道忽略但实际很重要的"盲区新闻"。盲区新闻指：话题重要但报道量少、或角度独特值得关注、或涉及新兴趋势容易被忽视。
+
+返回JSON数组：[{{"title":"盲区新闻标题","why_blind":"为什么被忽视","why_important":"为什么值得关注","suggestion":"建议关注什么角度"}}]
+
+新闻列表：
+{chr(10).join(titles_sample[:80])}
+
+只输出JSON。"""
+                result = _call_deepseek(prompt, max_tokens=600)
+                blind_spots = result if isinstance(result, list) else []
+            except Exception as e:
+                logger.warning(f"盲区补全生成失败: {e}")
+
         return jsonify({"success": True, "data": {
             "optimism": sentiment_detail,
             "policy_sensitivity": policy_sensitivity,
@@ -771,6 +789,7 @@ def intelligence_dashboard():
             "heatmap": heatmap,
             "total_news": total,
             "tomorrow_watch": tomorrow_watch,
+            "blind_spots": blind_spots,
         }})
 
 

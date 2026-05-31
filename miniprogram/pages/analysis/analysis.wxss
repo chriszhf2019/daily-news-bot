@@ -1166,3 +1166,14 @@
 .t-content { flex: 1; }
 .t-event { font-size: 26rpx; color: #e2e8f0; display: block; font-weight: 500; }
 .t-reason { font-size: 22rpx; color: rgba(255,255,255,0.45); display: block; margin-top: 4rpx; }
+
+/* 盲区补全 */
+.blindspot-section { margin: 24rpx; padding: 24rpx; background: rgba(239,68,68,0.06); border-radius: 16rpx; border: 1rpx solid rgba(239,68,68,0.12); }
+.blindspot-desc { font-size: 22rpx; color: rgba(255,255,255,0.35); display: block; margin-bottom: 16rpx; }
+.blindspot-list { display: flex; flex-direction: column; gap: 20rpx; }
+.blindspot-item { padding: 16rpx; background: rgba(255,255,255,0.03); border-radius: 12rpx; }
+.bs-header { display: flex; align-items: center; gap: 8rpx; margin-bottom: 10rpx; }
+.bs-icon { font-size: 28rpx; }
+.bs-title { font-size: 28rpx; color: #fca5a5; font-weight: 500; flex: 1; }
+.bs-details { display: flex; flex-direction: column; gap: 6rpx; padding-left: 36rpx; }
+.bs-row { font-size: 22rpx; color: rgba(255,255,255,0.5); line-height: 1.5; }
