@@ -80,10 +80,12 @@ const useStore = create((set, get) => ({
     }
   },
 
+  setNewsData: (data) => set({ newsData: data }),
+
   fetchNews: async (category) => {
     set({ loading: true })
     try {
-      const params = category && category !== 'all' ? { category } : {}
+      const params = category && category !== 'all' ? { category, per_page: 50 } : { per_page: 50 }
       const res = await newsApi.getList(params)
       const news = res.data?.news || []
       set({ newsData: news, loading: false })

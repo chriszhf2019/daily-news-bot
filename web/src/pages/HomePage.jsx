@@ -14,19 +14,33 @@ export default function HomePage() {
     getFilteredNews,
     initUser,
     fetchNews,
-    refreshNews
+    refreshNews,
+    setNewsData
   } = useStore()
   
   const [showInputModal, setShowInputModal] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   
-  // 初始化
+  const [showAll, setShowAll] = useState(false)
+
+  // 初始化 — 只加载 Top 10
   useEffect(() => {
     initUser()
-    if (newsData.length === 0) {
-      fetchNews()
-    }
+    fetch('https://news.velolabs.top/api/v1/news/top')
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.data?.news) {
+          setNewsData(d.data.news)
+        }
+      })
+      .catch(() => fetchNews())
   }, [])
+
+  // 加载全部新闻
+  const loadAllNews = async () => {
+    setShowAll(true)
+    await fetchNews()
+  }
   
   // 刷新新闻
   const handleRefresh = async () => {
@@ -58,6 +72,18 @@ export default function HomePage() {
   const [dailyStats, setDailyStats] = useState(null)
   const [signals, setSignals] = useState([])
   const [showSignals, setShowSignals] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const handleSearch = async () => {
+    const kw = searchText.trim()
+    if (!kw) return
+    setLoading(true)
+    try {
+      const r = await fetch(`https://news.velolabs.top/api/v1/news/search?keyword=${encodeURIComponent(kw)}&per_page=20`)
+      const d = await r.json()
+      if (d.success) { setNewsData(d.data.results); setShowAll(true) }
+    } catch (e) {}
+    setLoading(false)
+  }
 
   useEffect(() => {
     fetch('https://news.velolabs.top/api/v1/news/daily-stats')
@@ -184,6 +210,34 @@ export default function HomePage() {
       
       {/* 新闻列表 */}
       <div className="max-w-7xl mx-auto px-6 py-6">
+        {/* 搜索栏 — 突出 */}
+        <div className="mb-6">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={searchText || ''}
+              onChange={(e) => setSearchText(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              placeholder="搜索你关心的关键词..."
+              className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-5 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500 text-sm"
+            />
+            <button onClick={handleSearch} className="px-5 py-3 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-xl text-sm font-medium hover:bg-purple-500/30">
+              🔍 搜索
+            </button>
+          </div>
+        </div>
+
+        {/* 加载更多按钮 */}
+        {!showAll && newsData.length > 0 && (
+          <div className="flex flex-col items-center gap-3 py-8 mb-4 bg-slate-800/20 rounded-xl border border-slate-700/30">
+            <p className="text-slate-400 text-sm">以上为今日 Top 10 精选</p>
+            <button onClick={loadAllNews} className="px-6 py-3 bg-slate-700/50 text-slate-200 border border-slate-600 rounded-xl text-sm hover:bg-slate-700 transition-colors">
+              查看更多新闻 →
+            </button>
+            <p className="text-slate-600 text-xs">去 设置 配置你关注的领域，只看你关心的</p>
+          </div>
+        )}
+
         {loading && newsData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>

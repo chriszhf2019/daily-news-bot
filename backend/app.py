@@ -694,6 +694,47 @@ def get_analysis_detail(analysis_id):
         })
 
 
+# ---- Top 10 精选新闻 ----
+
+@app.route("/api/v1/news/top", methods=["GET"])
+@cache_control(max_age=300)
+def top_news():
+    """返回当日最重要的 10 条新闻（信号新闻优先 + 最新补充）"""
+    with get_db() as db:
+        from sqlalchemy import func
+        # 先取最新的信号新闻
+        summary = db.session.query(DailySummary).order_by(
+            DailySummary.created_at.desc()
+        ).first()
+        signal_ids = set()
+        result = []
+
+        if summary and summary.signal_news:
+            for s in summary.signal_news:
+                title = s.get("title", "")
+                if title:
+                    found = db.session.query(News).filter(News.title.ilike(f"%{title[:40]}%")).first()
+                    if found:
+                        signal_ids.add(found.id)
+                        item = news_to_dict(found)
+                        item["is_signal"] = True
+                        item["signal_reason"] = s.get("reason", "")
+                        item["importance"] = s.get("importance", 0)
+                        result.append(item)
+
+        # 补充最新新闻凑满 10 条
+        if len(result) < 10:
+            latest = db.session.query(News).filter(
+                ~News.id.in_(signal_ids) if signal_ids else True
+            ).order_by(News.published_at.desc()).limit(10 - len(result)).all()
+            for n in latest:
+                item = news_to_dict(n)
+                item["is_signal"] = False
+                result.append(item)
+
+        return jsonify({"success": True, "data": {"news": result[:10], "total": len(result)}})
+
+
 # ---- 每日情绪 + 重要信号（DeepSeek AI 分析）----
 
 @app.route("/api/v1/news/daily-stats", methods=["GET"])
