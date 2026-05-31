@@ -56,8 +56,6 @@ Page({
     aiReport: '',
     aiReportCategories: [],
     searchKeyword: '',
-    // 视图模式
-    viewMode: 'list',
     timelineData: [],
     // 智能分类
     smartCategories: [
@@ -436,7 +434,6 @@ Page({
     if (node) {
       wx.navigateTo({ url: `/pages/detail/detail?id=${node.id}` });
     }
-  },
   },
 
   // 搜索（增强：支持语义搜索和热门推荐）
