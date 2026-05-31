@@ -24,21 +24,16 @@ export default function DeepExplorationPage() {
   }, [id, newsData])
   
   const startAnalysis = async () => {
-    if (!apiConfig.deepseekApiKey) {
-      setError('请先在设置页面配置 DeepSeek API Key')
-      return
-    }
-    
     setExpanded(true)
     setLoading(true)
-    
     try {
-      const result = await analyzeDeepExploration(
-        apiConfig.deepseekApiKey,
-        apiConfig.deepseekEndpoint,
-        news
-      )
-      setAnalysis(result)
+      const r = await fetch('https://news.velolabs.top/api/v1/analysis/exploration', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({title: news.title, summary: news.summary})
+      })
+      const d = await r.json()
+      if (d.success) setAnalysis(d.data.result)
+      else setError(d.message)
     } catch (e) {
       setError('分析失败: ' + e.message)
     } finally {

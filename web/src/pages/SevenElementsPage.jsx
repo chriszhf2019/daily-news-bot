@@ -27,19 +27,14 @@ export default function SevenElementsPage() {
   
   // 开始分析
   const startAnalysis = async (newsItem) => {
-    if (!apiConfig.deepseekApiKey) {
-      setError('请先在设置页面配置 DeepSeek API Key')
-      setLoading(false)
-      return
-    }
-    
     try {
-      const result = await analyzeSevenElements(
-        apiConfig.deepseekApiKey,
-        apiConfig.deepseekEndpoint,
-        newsItem
-      )
-      setAnalysis(result)
+      const r = await fetch('https://news.velolabs.top/api/v1/analysis/audit', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({title: newsItem.title, summary: newsItem.summary})
+      })
+      const d = await r.json()
+      if (d.success) setAnalysis(d.data.result)
+      else setError(d.message)
     } catch (e) {
       setError('分析失败: ' + e.message)
     } finally {

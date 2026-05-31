@@ -535,163 +535,125 @@ def remove_focus_point(focus_id):
         raise APIError("关注点不存在", 404)
 
 
-# ---- Analysis (with real DeepSeek integration) ----
+# ---- 三大核心分析（DeepSeek 驱动，公开访问）----
+
+def _call_deepseek(prompt: str, max_tokens=1500) -> dict:
+    """统一 DeepSeek 调用"""
+    from openai import OpenAI
+    client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url="https://api.deepseek.com")
+    resp = client.chat.completions.create(
+        model="deepseek-chat", messages=[{"role": "user", "content": prompt}],
+        max_tokens=max_tokens, temperature=0.4,
+    )
+    text = resp.choices[0].message.content.strip()
+    if text.startswith("```"): text = text.split("```")[1].replace("json", "", 1)
+    return json.loads(text)
+
 
 @app.route("/api/v1/analysis/audit", methods=["POST"])
 @limit(max_requests=20, per_seconds=60)
-@jwt_required()
-@validate_json("news_id", news_id=validate_news_id)
 def seven_elements_analysis():
-    identity = get_jwt_identity()
+    """七要素分析（公开）"""
     data = request.get_json()
-    news_id = data["news_id"]
+    news_id = data.get("news_id") if data else None
+    title = (data or {}).get("title", "")
+    summary = (data or {}).get("summary", "")
 
-    with get_db() as db:
-        news = db.get_news_by_id(int(news_id))
-        if not news:
-            raise APIError("新闻不存在", 404)
+    if news_id:
+        with get_db() as db:
+            news = db.get_news_by_id(int(news_id))
+            if not news: raise APIError("新闻不存在", 404)
+            title = news.title_cn or news.title
+            summary = news.summary_cn or news.summary or ""
 
-        if DEEPSEEK_API_KEY:
-            from services.deepseek_client import DeepSeekClient
-            client = DeepSeekClient(DEEPSEEK_API_KEY, DEEPSEEK_API_ENDPOINT)
-            try:
-                result = client.generate_audit_analysis({
-                    "id": news.id, "title": news.title,
-                    "summary": news.summary or "", "content": news.content or "",
-                })
-            except Exception as e:
-                logger.warning(f"DeepSeek 分析失败，使用基础分析: {e}")
-                result = _basic_audit_result(news)
-        else:
-            result = _basic_audit_result(news)
+    if not title: raise APIError("请提供新闻标题")
 
-        analysis = db.create_analysis_result(int(identity), news.id, "audit", result)
-        return jsonify({"success": True, "data": {"analysis_id": analysis.id, "result": result}})
+    prompt = f"""对以下新闻进行七要素事实分析，返回JSON：
+{{
+  "trust_score": 0-100可信度评分,
+  "sources": [{{"name":"信源","reliability":0-100,"type":"official/media/social"}}],
+  "verified_facts": ["已证实的事实"],
+  "disputed_points": ["存疑或争议点"],
+  "logic_chain": "事件逻辑链分析(50字)",
+  "warnings": ["需要警惕的风险点"],
+  "key_timeline": [{{"time":"时间","event":"关键节点"}}],
+  "verdict": "最终判词(50字)"
+}}
 
+新闻：{title}
+{summary[:300] if summary else ''}
+只输出JSON。"""
 
-def _basic_audit_result(news):
-    return {
-        "sources": [{"name": "新闻来源", "reliability": 70}],
-        "consensus": news.title,
-        "conflicts": "暂未发现争议点",
-        "facts": [{"fact": news.title, "status": "verified"}],
-        "logic": "待进一步分析",
-        "warnings": [],
-        "trust_score": 70,
-        "timeline": [],
-    }
+    try: result = _call_deepseek(prompt)
+    except Exception as e:
+        logger.warning(f"七要素分析失败: {e}")
+        result = {"trust_score": 70, "sources": [], "verified_facts": [title], "disputed_points": [], "logic_chain": "待分析", "warnings": [], "key_timeline": [], "verdict": "信息不足"}
+
+    return jsonify({"success": True, "data": {"result": result}})
 
 
 @app.route("/api/v1/analysis/relevance", methods=["POST"])
-@jwt_required()
 def relevance_analysis():
-    identity = get_jwt_identity()
+    """相关性分析 — 从不同角色视角分析新闻影响（公开）"""
     data = request.get_json()
-    news_id = data.get("news_id")
-    if not news_id:
-        raise APIError("新闻ID不能为空")
+    title = (data or {}).get("title", "")
+    summary = (data or {}).get("summary", "")
+    persona = (data or {}).get("persona", "投资者")
+    if not title: raise APIError("请提供新闻标题")
 
-    with get_db() as db:
-        news = db.get_news_by_id(int(news_id))
-        if not news:
-            raise APIError("新闻不存在", 404)
+    prompt = f"""以{persona}的视角，分析这条新闻的相关性和影响，返回JSON：
+{{
+  "persona": "{persona}",
+  "relevance_score": 0-100,
+  "key_impacts": ["直接影响1","直接影响2"],
+  "ripple_effects": ["上游影响","下游影响","竞争影响"],
+  "action_items": ["建议行动1","建议行动2"],
+  "risk_level": "high/medium/low",
+  "time_window": "影响时间窗口",
+  "gold_quote": "一句话认知金句"
+}}
 
-        focus_points = db.get_focus_points(int(identity))
-        if DEEPSEEK_API_KEY and focus_points:
-            from services.deepseek_client import DeepSeekClient
-            client = DeepSeekClient(DEEPSEEK_API_KEY, DEEPSEEK_API_ENDPOINT)
-            try:
-                result = client.generate_relevance_analysis(
-                    {"title": news.title, "summary": news.summary or ""},
-                    [{"keyword": fp.keyword} for fp in focus_points],
-                )
-            except Exception as e:
-                logger.warning(f"相关性分析失败: {e}")
-                result = _basic_relevance_result(news, focus_points)
-        else:
-            result = _basic_relevance_result(news, focus_points)
+新闻：{title}
+{summary[:200] if summary else ''}
+只输出JSON。"""
 
-        analysis = db.create_analysis_result(int(identity), news.id, "relevance", result)
-        return jsonify({"success": True, "data": {"analysis_id": analysis.id, "result": result}})
+    try: result = _call_deepseek(prompt)
+    except Exception as e:
+        logger.warning(f"相关性分析失败: {e}")
+        result = {"persona": persona, "relevance_score": 50, "key_impacts": [], "ripple_effects": [], "action_items": [], "risk_level": "medium", "time_window": "待评估", "gold_quote": ""}
 
-
-def _basic_relevance_result(news, focus_points):
-    return {
-        "focus_points": [{"keyword": fp.keyword, "score": 50, "level": "medium"} for fp in focus_points],
-        "overall_score": 50,
-    }
+    return jsonify({"success": True, "data": {"result": result}})
 
 
 @app.route("/api/v1/analysis/exploration", methods=["POST"])
-@jwt_required()
 def deep_exploration():
-    identity = get_jwt_identity()
+    """深度探索 — 因果溯源 + 多维分析（公开）"""
     data = request.get_json()
-    news_id = data.get("news_id")
-    if not news_id:
-        raise APIError("新闻ID不能为空")
+    title = (data or {}).get("title", "")
+    summary = (data or {}).get("summary", "")
+    if not title: raise APIError("请提供新闻标题")
 
-    with get_db() as db:
-        news = db.get_news_by_id(int(news_id))
-        if not news:
-            raise APIError("新闻不存在", 404)
+    prompt = f"""对这条新闻进行深度因果溯源和多维分析，返回JSON：
+{{
+  "core_insight": "核心洞察(50字)",
+  "causal_chain": ["因→果推理步骤"],
+  "historical_parallel": {{"event":"历史相似事件","lesson":"历史教训"}},
+  "stakeholder_map": [{{"party":"利益方","interest":"利益诉求","action":"可能行动"}}],
+  "scenarios": [{{"scenario":"可能场景","probability":"high/medium/low","timeframe":"时间范围"}}],
+  "black_swan": {{"trigger":"黑天鹅触发条件","impact":"影响程度"}},
+  "strategic_outlook": "战略终局预判(50字)"
+}}
 
-        if DEEPSEEK_API_KEY:
-            from services.deepseek_client import DeepSeekClient
-            client = DeepSeekClient(DEEPSEEK_API_KEY, DEEPSEEK_API_ENDPOINT)
-            try:
-                result = client.generate_deep_exploration({
-                    "title": news.title, "summary": news.summary or "", "content": news.content or "",
-                })
-            except Exception as e:
-                logger.warning(f"深度探索失败: {e}")
-                result = _basic_exploration_result(news)
-        else:
-            result = _basic_exploration_result(news)
+新闻：{title}
+{summary[:300] if summary else ''}
+只输出JSON。"""
 
-        analysis = db.create_analysis_result(int(identity), news.id, "exploration", result)
-        return jsonify({"success": True, "data": {"analysis_id": analysis.id, "result": result}})
+    try: result = _call_deepseek(prompt, max_tokens=2000)
+    except Exception as e:
+        logger.warning(f"深度探索失败: {e}")
+        result = {"core_insight": "", "causal_chain": [], "historical_parallel": {}, "stakeholder_map": [], "scenarios": [], "black_swan": {}, "strategic_outlook": ""}
 
-
-def _basic_exploration_result(news):
-    return {
-        "semantic_analysis": news.summary or news.title,
-        "related_events": [],
-        "impact_prediction": {"short_term": "待分析", "long_term": "待分析"},
-        "multi_dimension": {"technical": "", "market": "", "policy": "", "social": ""},
-    }
-
-
-@app.route("/api/v1/analysis/history", methods=["GET"])
-@jwt_required()
-def get_analysis_history():
-    identity = get_jwt_identity()
-    with get_db() as db:
-        history = db.get_analysis_history(int(identity))
-        return jsonify({
-            "success": True,
-            "data": {
-                "analyses": [
-                    {"id": a.id, "type": a.analysis_type, "news_id": a.news_id,
-                     "result": a.result, "created_at": a.created_at.isoformat()}
-                    for a in history
-                ],
-            },
-        })
-
-
-@app.route("/api/v1/analysis/<int:analysis_id>", methods=["GET"])
-@jwt_required()
-def get_analysis_detail(analysis_id):
-    with get_db() as db:
-        a = db.get_analysis_by_id(analysis_id)
-        if not a:
-            raise APIError("分析记录不存在", 404)
-        return jsonify({
-            "success": True,
-            "data": {"id": a.id, "type": a.analysis_type, "result": a.result,
-                     "created_at": a.created_at.isoformat()},
-        })
+    return jsonify({"success": True, "data": {"result": result}})
 
 
 # ---- Top 10 精选新闻 ----
