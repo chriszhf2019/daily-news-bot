@@ -154,35 +154,10 @@
       <!-- 左侧分类导航 -->
       <scroll-view scroll-x="true" class="category-scroll" enhanced="true" show-scrollbar="false">
         <view class="category-list">
-          <view class="category-item {{currentCategory === 'all' ? 'active' : ''}}" 
-                bindtap="selectCategory" data-category="all">
-            <text class="cat-icon">📋</text>
-            <text class="cat-name">全部</text>
-          </view>
-          <view class="category-item {{currentCategory === 'AI' ? 'active' : ''}}" 
-                bindtap="selectCategory" data-category="AI">
-            <text class="cat-icon">🤖</text>
-            <text class="cat-name">AI动态</text>
-          </view>
-          <view class="category-item {{currentCategory === 'tech' ? 'active' : ''}}" 
-                bindtap="selectCategory" data-category="tech">
-            <text class="cat-icon">🚀</text>
-            <text class="cat-name">科技前沿</text>
-          </view>
-          <view class="category-item {{currentCategory === 'finance' ? 'active' : ''}}" 
-                bindtap="selectCategory" data-category="finance">
-            <text class="cat-icon">💰</text>
-            <text class="cat-name">商业财经</text>
-          </view>
-          <view class="category-item {{currentCategory === 'international' ? 'active' : ''}}" 
-                bindtap="selectCategory" data-category="international">
-            <text class="cat-icon">🌍</text>
-            <text class="cat-name">国际要闻</text>
-          </view>
-          <view class="category-item {{currentCategory === 'sports' ? 'active' : ''}}" 
-                bindtap="selectCategory" data-category="sports">
-            <text class="cat-icon">⚽</text>
-            <text class="cat-name">体育竞技</text>
+          <view wx:for="{{categories}}" wx:key="id" class="category-item {{currentCategory === item.id ? 'active' : ''}}"
+                bindtap="selectCategory" data-category="{{item.id}}">
+            <text class="cat-icon">{{item.icon}}</text>
+            <text class="cat-name">{{item.name}}</text>
           </view>
           <!-- 快捷筛选入口 -->
           <view class="category-item filter-btn" bindtap="openQuickFilter">

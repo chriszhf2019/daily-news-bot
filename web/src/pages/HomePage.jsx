@@ -4,16 +4,10 @@ import useStore from '../store/useStore'
 import NewsCard from '../components/NewsCard'
 import InputModal from '../components/InputModal'
 
-const categories = [
-  { id: 'all', name: '全部', icon: '📊' },
-  { id: 'AI', name: 'AI', icon: '🤖' },
-  { id: 'tech', name: '科技', icon: '🚀' },
-  { id: 'finance', name: '财经', icon: '💰' },
-  { id: 'international', name: '国际', icon: '🌍' }
-]
+const CATEGORY_ICONS = { 'AI动态': '🤖', '科技前沿': '🚀', '综合': '📰', '自动驾驶': '🚗', '量子计算': '⚛️', 'VR/AR': '🥽' }
 
 export default function HomePage() {
-  const { 
+  const {
     newsData, 
     loading, setLoading,
     currentCategory, setCurrentCategory,
@@ -49,8 +43,21 @@ export default function HomePage() {
   
   const filteredNews = getFilteredNews()
   
+  // 从真实数据动态生成分类列表
+  const realCategories = [{ id: 'all', name: '全部', icon: '📊' }]
+  const seenCats = new Set()
+  newsData.forEach(n => {
+    const cat = n.category || '综合'
+    if (!seenCats.has(cat)) {
+      seenCats.add(cat)
+      realCategories.push({ id: cat, name: cat, icon: CATEGORY_ICONS[cat] || '📰' })
+    }
+  })
+  const categories = realCategories
+
   const [dailyStats, setDailyStats] = useState(null)
   const [signals, setSignals] = useState([])
+  const [showSignals, setShowSignals] = useState(false)
 
   useEffect(() => {
     fetch('https://news.velolabs.top/api/v1/news/daily-stats')
@@ -110,32 +117,37 @@ export default function HomePage() {
           </div>
           
           {/* 统计卡片 */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-3 gap-4 mt-4">
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-              <div className="text-2xl font-bold text-emerald-400 font-mono">{stats.total}</div>
-              <div className="text-xs text-slate-500 mt-1">新闻总数</div>
-            </div>
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-              <div className="text-2xl font-bold text-amber-400 font-mono">{stats.today}</div>
+              <div className="text-2xl font-bold text-emerald-400 font-mono">{stats.today}</div>
               <div className="text-xs text-slate-500 mt-1">今日更新</div>
             </div>
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-              <div className="text-2xl font-bold text-sky-400 font-mono">{stats.sources}</div>
-              <div className="text-xs text-slate-500 mt-1">新闻来源</div>
-            </div>
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 col-span-2">
-              <div className="flex items-center gap-3">
-                <span className={`text-2xl font-bold font-mono ${(dailyStats?.sentiment_score || 50) >= 60 ? 'text-emerald-400' : (dailyStats?.sentiment_score || 50) <= 40 ? 'text-red-400' : 'text-amber-400'}`}>
-                  {dailyStats?.sentiment_score || '--'}
-                </span>
-                <span className="text-xs text-slate-400">市场情绪指数</span>
-                <span className="text-xs text-slate-600 ml-auto">
-                  😊{dailyStats?.positive_count || 0} 😐{dailyStats?.neutral_count || 0} 😟{dailyStats?.negative_count || 0}
-                </span>
+            <button onClick={() => setShowSignals(!showSignals)} className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 hover:border-amber-500/30 transition-colors relative group text-left w-full">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-2xl font-bold text-amber-400 font-mono">{signals.length}</div>
+                  <div className="text-xs text-slate-500 mt-1">重要信号 {showSignals ? '▲' : '▼'}</div>
+                </div>
+              </div>
+              {/* Tooltip */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-800 border border-slate-600 rounded-lg p-3 text-xs text-slate-300 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                <div className="font-medium text-amber-400 mb-1">⚡ 重要信号</div>
+                DeepSeek AI 从最近 100 条新闻中自动识别 3-5 条最具有影响力的重要新闻。点击卡片展开查看详情。
+              </div>
+            </button>
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 relative group cursor-help">
+              <div className={`text-2xl font-bold font-mono ${(dailyStats?.sentiment_score || 50) >= 60 ? 'text-emerald-400' : (dailyStats?.sentiment_score || 50) <= 40 ? 'text-red-400' : 'text-amber-400'}`}>
+                {dailyStats?.sentiment_score || '--'}
+              </div>
+              <div className="text-xs text-slate-500 mt-1">市场情绪指数</div>
+              {/* Tooltip */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-800 border border-slate-600 rounded-lg p-3 text-xs text-slate-300 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                <div className="font-medium text-purple-400 mb-1">📊 市场情绪指数</div>
+                DeepSeek AI 分析最近 100 条新闻标题的情绪倾向。0-100 分，50 为中性，越高越积极，越低越消极。当前分析中 😊{dailyStats?.positive_count || 0} 条积极、😐{dailyStats?.neutral_count || 0} 条中性、😟{dailyStats?.negative_count || 0} 条消极。
               </div>
             </div>
           </div>
-          {signals.length > 0 && (
+          {showSignals && signals.length > 0 && (
             <div className="mt-3 bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
               <div className="text-xs text-amber-400 font-medium mb-2">⚡ 重要信号</div>
               {signals.map((s, i) => (

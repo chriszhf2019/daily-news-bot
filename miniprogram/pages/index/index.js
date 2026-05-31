@@ -8,6 +8,7 @@ Page({
   data: {
     currentDate: '',
     currentCategory: 'all',
+    categories: [],  // 动态生成
     newsData: [],
     filteredNews: [],
     displayedNews: [],  // 当前显示的新闻
@@ -245,6 +246,7 @@ Page({
       wx.setStorageSync('newsData', newsWithAnalysis);
       
       // 应用兴趣标签过滤、关注词匹配和AI人设风格
+      this.updateCategories();
       this.applyInterestTagsFilter();
       this.applyFocusKeywords();
       this.applyAiPersonaStyle();
@@ -374,6 +376,7 @@ Page({
     this.loadUserPreferences();
     // 应用关注词、兴趣标签过滤和AI人设
     if (this.data.newsData.length > 0) {
+      this.updateCategories();
       this.applyInterestTagsFilter();
       this.applyFocusKeywords();
       this.applyAiPersonaStyle();
@@ -434,6 +437,22 @@ Page({
   },
 
   // 应用关注词匹配
+  // 从真实新闻数据中动态生成分类列表
+  updateCategories() {
+    const data = this.data.newsData || []
+    const seen = new Set()
+    const cats = [{ id: 'all', name: '全部', icon: '📋' }]
+    const iconMap = { 'AI动态': '🤖', '科技前沿': '🚀', '综合': '📰', '自动驾驶': '🚗', 'VR/AR': '🥽' }
+    data.forEach(n => {
+      const cat = n.category || '综合'
+      if (!seen.has(cat)) {
+        seen.add(cat)
+        cats.push({ id: cat, name: cat, icon: iconMap[cat] || '📰' })
+      }
+    })
+    this.setData({ categories: cats })
+  },
+
   applyFocusKeywords() {
     const { filteredNews, focusKeywords } = this.data;
     if (!filteredNews.length) return;
@@ -1529,6 +1548,7 @@ Page({
           focusNewsCount: 0,
         });
 
+        this.updateCategories();
         this.applyFocusKeywords();
         this.updateDisplayedNews();
         this.loadFavorites();
@@ -1792,6 +1812,7 @@ Page({
       wx.setStorageSync('newsData', newsWithAnalysis);
       
       // 应用兴趣标签过滤、关注词匹配和AI人设风格
+      this.updateCategories();
       this.applyInterestTagsFilter();
       this.applyFocusKeywords();
       this.applyAiPersonaStyle();
