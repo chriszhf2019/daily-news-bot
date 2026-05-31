@@ -1,162 +1,66 @@
-// AI 情报中心 - 模块化 Dashboard 版本
-// 支持宏观决策、关联分析、AI 交互功能
-// 数据全部由AI生成，首次加载使用缓存，刷新时获取最新数据
-
+// AI 情报中心 — 真实数据版
 const app = getApp();
-const deepseek = require('../../utils/deepseek.js');
 
 Page({
   data: {
     currentDate: '',
-    
-    // 情报中心核心数据
     insightHub: {
-      market_sentiment: 0,
-      policy_sensitivity: 0,
-      tech_breakthroughs: 0,
-      daily_density: [],
-      top_themes: [],
-      tomorrow_watch: [],
-      blind_spot: null
+      market_sentiment: 50, total_news: 0, total_users: 0,
+      hot_themes: [], daily_signals: [],
     },
-    
-    // 24小时情绪数据
-    hourlySentiment: [],
-    
-    // 密度曲线路径
-    densityPath: '',
-    maxDensity: 0,
-    
-    // AI战略顾问
     advisorPrompts: [
-      '帮我复盘今天最利空的 3 件事',
+      '帮我复盘今天最重要的 3 件事',
       '如果我是投资者，今天哪个专题最值得看？',
       '分析一下明天可能影响市场的关键事件'
     ],
     advisorInput: '',
-    
-    // 加载状态
-    loading: true,
-    refreshing: false,
-    hasData: false,
-    lastRefreshTime: ''
+    loading: true, refreshing: false, hasData: true, lastRefreshTime: ''
   },
 
   onLoad() {
     this.initCurrentDate();
-    this.loadCachedData();
+    this.loadRealData();
   },
 
-  // 从缓存加载数据
-  loadCachedData() {
+  async loadRealData() {
     this.setData({ loading: true });
-    
     try {
-      // 尝试从缓存获取上次的数据
-      const cachedData = wx.getStorageSync('intelligence_data');
-      const lastRefreshTime = wx.getStorageSync('intelligence_refresh_time') || '';
-      
-      if (cachedData && cachedData.market_sentiment) {
-        console.log('使用缓存的情报数据');
-        
-        // 为热点主题添加ID和图片URL
-        const enhancedData = this.enhanceIntelligenceData(cachedData);
-        
-        this.setData({
-          insightHub: enhancedData,
-          loading: false,
-          hasData: true,
-          lastRefreshTime: lastRefreshTime
-        });
-        
-        this.initHourlySentiment(enhancedData);
-        this.initDensityPath(enhancedData.daily_density);
-      } else {
-        console.log('没有缓存数据，显示空状态');
-        this.setData({
-          loading: false,
-          hasData: false
-        });
-      }
-    } catch (error) {
-      console.error('加载缓存数据失败:', error);
-      this.setData({
-        loading: false,
-        hasData: false
-      });
-    }
-  },
+      // 并行获取：情绪数据 + 统计数据
+      const [sentimentRes, statsRes] = await Promise.all([
+        new Promise((resolve) => wx.request({ url: 'https://news.velolabs.top/api/v1/news/daily-stats', success: resolve, fail: resolve })),
+        new Promise((resolve) => wx.request({ url: 'https://news.velolabs.top/api/v1/stats', success: resolve, fail: resolve })),
+      ]);
 
-  // 增强情报数据（添加ID和图片URL）
-  enhanceIntelligenceData(data) {
-    return {
-      ...data,
-      top_themes: (data.top_themes || []).map((theme, index) => ({
-        ...theme,
-        id: `t${index + 1}`,
-        news_ids: theme.news_ids || [1, 4, 7, 12, 15],
-        image_url: theme.image_url || `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(theme.title)}&image_size=landscape_16_9`
-      })),
-      blind_spot: data.blind_spot ? {
-        ...data.blind_spot,
-        news_id: data.blind_spot.news_id || 105
-      } : null
-    };
-  },
+      const sentiment = (sentimentRes.data && sentimentRes.data.success) ? sentimentRes.data.data : null;
+      const stats = (statsRes.data && statsRes.data.success) ? statsRes.data.data : null;
 
-  // 刷新情报数据（使用AI生成）
-  async refreshIntelligenceData() {
-    // 检查API密钥
-    const apiKey = wx.getStorageSync('deepseek_api_key');
-    if (!apiKey) {
-      wx.showModal({
-        title: '未配置API',
-        content: '请先在设置页面配置DeepSeek API密钥',
-        confirmText: '去设置',
-        success: (res) => {
-          if (res.confirm) {
-            wx.navigateTo({ url: '/pages/settings/settings' });
-          }
-        }
-      });
-      return;
-    }
-    
-    this.setData({ refreshing: true });
-    
-    wx.showLoading({
-      title: 'AI生成中...',
-      mask: true
-    });
-    
-    try {
-      // 从DeepSeek API获取真实的情报数据
-      const intelligenceData = await deepseek.getIntelligenceData();
-      
-      // 增强数据
-      const enhancedData = this.enhanceIntelligenceData(intelligenceData);
-      
-      // 保存到缓存
       const now = new Date();
       const refreshTime = `${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-      wx.setStorageSync('intelligence_data', intelligenceData);
-      wx.setStorageSync('intelligence_refresh_time', refreshTime);
-      
+
       this.setData({
-        insightHub: enhancedData,
-        refreshing: false,
-        hasData: true,
-        lastRefreshTime: refreshTime
+        insightHub: {
+          market_sentiment: sentiment?.sentiment_score || 50,
+          positive_count: sentiment?.positive_count || 0,
+          neutral_count: sentiment?.neutral_count || 0,
+          negative_count: sentiment?.negative_count || 0,
+          total_news: stats?.news_count || 0,
+          total_users: stats?.user_count || 0,
+          daily_signals: sentiment?.signal_news || [],
+        },
+        loading: false, hasData: true, lastRefreshTime: refreshTime,
       });
-      
-      this.initHourlySentiment(enhancedData);
-      this.initDensityPath(enhancedData.daily_density);
-      
-      wx.hideLoading();
-      wx.showToast({
-        title: '情报已更新',
-        icon: 'success'
-      });
+    } catch (e) {
+      console.error('情报数据加载失败:', e);
+      this.setData({ loading: false });
+    }
+  },
+
+  async refreshIntelligenceData() {
+    this.setData({ refreshing: true });
+    wx.showLoading({ title: '刷新中...', mask: true });
+    await this.loadRealData();
+    wx.hideLoading();
+    wx.showToast({ title: '情报已更新', icon: 'success' });
     } catch (error) {
       console.error('获取情报数据失败:', error);
       wx.hideLoading();
@@ -306,18 +210,23 @@ Page({
     }
   },
 
-  // 获取AI战略顾问的真实回答
+  // AI战略顾问 — 真实 DeepSeek 回答
   async getAIAdvisorResponse(prompt) {
-    const { insightHub } = this.data;
-    
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // 基于当前情报数据生成回答
-    const topThemes = insightHub.top_themes.map(theme => theme.title).join('、');
-    const watchEvents = insightHub.tomorrow_watch.map(event => event.event).join('、');
-    
-    return `基于当前情报分析，${prompt}的结果如下：\n\n1. 市场热点：${topThemes}\n2. 关注事件：${watchEvents}\n3. 市场情绪：${insightHub.market_sentiment}%，${insightHub.market_sentiment > 70 ? '积极乐观' : insightHub.market_sentiment > 50 ? '温和中立' : '谨慎观望'}\n\n建议：关注科技领域的最新动态，特别是AI和半导体行业的发展趋势，同时留意全球宏观经济政策的变化。`;
+    const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35'
+    const resp = await new Promise((resolve, reject) => {
+      wx.request({
+        url: 'https://api.deepseek.com/chat/completions',
+        method: 'POST',
+        header: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        data: { model: 'deepseek-chat', max_tokens: 600, temperature: 0.5,
+          messages: [
+            { role: 'system', content: '你是一个专业的AI战略顾问，基于新闻情报提供分析建议。回答简洁有力，分点作答。' },
+            { role: 'user', content: prompt }
+          ]},
+        success: resolve, fail: reject
+      })
+    })
+    return resp.data.choices[0].message.content
   },
 
   // 追踪事件
