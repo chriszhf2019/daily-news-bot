@@ -1128,3 +1128,32 @@
 .blindspot-section {
   animation-delay: 0.8s;
 }
+
+/* 新增：情绪构成 */
+.sentiment-detail { margin: 24rpx; padding: 24rpx; background: rgba(255,255,255,0.04); border-radius: 16rpx; }
+.detail-label { font-size: 26rpx; color: rgba(255,255,255,0.6); display: block; margin-bottom: 16rpx; }
+.sentiment-bars { display: flex; flex-direction: column; gap: 12rpx; }
+.s-bar { display: flex; align-items: center; gap: 12rpx; font-size: 24rpx; color: rgba(255,255,255,0.8); }
+.s-fill { height: 16rpx; border-radius: 8rpx; min-width: 8rpx; }
+.s-fill.positive { background: #22C55E; }
+.s-fill.neutral { background: #FBBF24; }
+.s-fill.negative { background: #EF4444; }
+
+/* 来源分布 */
+.density-section { margin: 24rpx; padding: 24rpx; background: rgba(255,255,255,0.04); border-radius: 16rpx; }
+.source-list { display: flex; flex-direction: column; gap: 10rpx; }
+.source-item { display: flex; align-items: center; gap: 12rpx; }
+.source-name { width: 160rpx; font-size: 22rpx; color: rgba(255,255,255,0.7); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.source-bar-wrap { flex: 1; height: 12rpx; background: rgba(255,255,255,0.08); border-radius: 6rpx; overflow: hidden; }
+.source-bar { height: 100%; background: linear-gradient(90deg, #6366f1, #818cf8); border-radius: 6rpx; min-width: 4rpx; }
+.source-count { width: 60rpx; font-size: 20rpx; color: rgba(255,255,255,0.5); }
+
+/* 热力图 */
+.heatmap-section { margin: 24rpx; padding: 24rpx; background: rgba(255,255,255,0.04); border-radius: 16rpx; }
+.heatmap-grid { display: flex; align-items: flex-end; gap: 4rpx; }
+.heatmap-cell { flex: 1; border-radius: 4rpx; display: flex; align-items: flex-end; justify-content: center; min-height: 24rpx; }
+.cell-text { font-size: 16rpx; color: rgba(255,255,255,0.7); }
+
+/* 底部统计 */
+.stats-footer { text-align: center; padding: 24rpx; }
+.stats-text { font-size: 22rpx; color: rgba(255,255,255,0.35); }

@@ -45,86 +45,72 @@
         <text class="refresh-time-text">上次更新：{{lastRefreshTime}}</text>
       </view>
       
-      <!-- 核心指标 -->
+      <!-- 5 大核心指标 -->
       <view class="core-metrics">
         <view class="metric-card">
           <text class="metric-icon">📈</text>
-          <text class="metric-value">{{insightHub.market_sentiment}}%</text>
+          <text class="metric-value">{{dash.optimism.score}}%</text>
           <text class="metric-label">市场乐观度</text>
           <view class="metric-bar">
-            <view class="metric-fill" style="width: {{insightHub.market_sentiment}}%"></view>
+            <view class="metric-fill" style="width: {{dash.optimism.score}}%"></view>
           </view>
         </view>
         <view class="metric-card">
           <text class="metric-icon">📜</text>
-          <text class="metric-value">{{insightHub.policy_sensitivity}}%</text>
+          <text class="metric-value">{{dash.policy_sensitivity}}%</text>
           <text class="metric-label">政策敏感度</text>
           <view class="metric-bar">
-            <view class="metric-fill policy" style="width: {{insightHub.policy_sensitivity}}%"></view>
+            <view class="metric-fill policy" style="width: {{dash.policy_sensitivity}}%"></view>
           </view>
         </view>
         <view class="metric-card">
           <text class="metric-icon">💥</text>
-          <text class="metric-value">{{insightHub.tech_breakthroughs}}</text>
+          <text class="metric-value">{{dash.tech_breakthrough}}%</text>
           <text class="metric-label">技术突破点</text>
           <view class="metric-bar">
-            <view class="metric-fill tech" style="width: {{(insightHub.tech_breakthroughs / 10) * 100}}%"></view>
+            <view class="metric-fill tech" style="width: {{dash.tech_breakthrough}}%"></view>
           </view>
         </view>
       </view>
-      
-      <!-- 情绪热力图和情报密度 -->
-      <view class="charts-section">
-        <!-- AI 情绪热力图 -->
-        <view class="chart-card sentiment-chart">
-          <view class="chart-header">
-            <text class="chart-title">AI 情绪热力图</text>
-            <text class="chart-subtitle">24小时市场情绪变化</text>
-          </view>
-          <view class="sentiment-heatmap">
-            <view class="heatmap-grid">
-              <view class="heatmap-cell" wx:for="{{hourlySentiment}}" wx:key="hour"
-                    style="background: {{item.color}}; opacity: {{item.intensity}}">
-                <text class="cell-hour">{{item.hour}}:00</text>
-                <text class="cell-value">{{item.value}}%</text>
-              </view>
-            </view>
+
+      <!-- 情绪构成 + 来源分布 -->
+      <view class="sentiment-detail">
+        <text class="detail-label">情绪构成</text>
+        <view class="sentiment-bars">
+          <view class="s-bar"><view class="s-fill positive" style="width:{{dash.optimism.positive*2}}rpx"></view><text>😊 {{dash.optimism.positive}}</text></view>
+          <view class="s-bar"><view class="s-fill neutral" style="width:{{dash.optimism.neutral*2}}rpx"></view><text>😐 {{dash.optimism.neutral}}</text></view>
+          <view class="s-bar"><view class="s-fill negative" style="width:{{dash.optimism.negative*2}}rpx"></view><text>😟 {{dash.optimism.negative}}</text></view>
+        </view>
+      </view>
+
+      <!-- 情报产出密度 — 来源分布 -->
+      <view class="density-section">
+        <text class="detail-label">全球情报产出密度 (Top 10 来源)</text>
+        <view class="source-list">
+          <view class="source-item" wx:for="{{dash.source_density}}" wx:key="source">
+            <text class="source-name">{{item.source}}</text>
+            <view class="source-bar-wrap"><view class="source-bar" style="width:{{item.count * 2}}rpx"></view></view>
+            <text class="source-count">{{item.count}}</text>
           </view>
         </view>
-        
-        <!-- 情报产出密度曲线 -->
-        <view class="chart-card density-chart">
-          <view class="chart-header">
-            <text class="chart-title">全球情报产出密度</text>
-            <text class="chart-subtitle">每小时情报数量</text>
-          </view>
-          <view class="density-chart-container">
-            <view class="density-line" style="clip-path: polygon({{densityPath}})"></view>
-            <view class="density-points">
-              <view class="density-point" wx:for="{{insightHub.daily_density}}" wx:key="index"
-                    style="left: {{index * 4.166}}%; bottom: {{(item / maxDensity) * 100}}%">
-                <view class="point-dot"></view>
-                <view class="point-value">{{item}}</view>
-              </view>
-            </view>
+      </view>
+
+      <!-- 24h 热力图 -->
+      <view class="heatmap-section">
+        <text class="detail-label">24h AI 情绪热力图</text>
+        <view class="heatmap-grid">
+          <view class="heatmap-cell" wx:for="{{dash.heatmap}}" wx:key="hour"
+                style="background: {{item.count > 5 ? '#22C55E' : item.count > 2 ? '#FBBF24' : '#374151'}}; height: {{item.count * 8 + 16}}rpx">
+            <text class="cell-text">{{item.hour}}h</text>
           </view>
         </view>
       </view>
     </view>
 
-    <!-- 深度专题聚合 -->
-    <view class="topics-section" wx:if="{{insightHub.top_themes.length > 0}}">
-      <view class="section-header">
-        <text class="section-title">📊 深度专题聚合</text>
-        <text class="section-subtitle">由 AI 自动聚合的宏观话题</text>
-      </view>
-      <view class="topics-grid">
-        <view class="topic-card" wx:for="{{insightHub.top_themes}}" wx:key="id" bindtap="openTopicDetail" data-topic-id="{{item.id}}">
-          <view class="topic-header">
-            <view class="topic-bg" style="background: linear-gradient(135deg, {{item.color}}40, {{item.color}}20)"></view>
-            <text class="topic-title">{{item.title}}</text>
-            <view class="topic-image">
-              <image src="{{item.image_url}}" mode="aspectFill"></image>
+    <!-- 新闻总数 -->
+    <view class="stats-footer">
+      <text class="stats-text">总计 {{dash.total_news}} 条新闻 · 实时数据</text>
+    </view>
             </view>
           </view>
           <view class="topic-content">

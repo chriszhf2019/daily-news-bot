@@ -4,9 +4,14 @@ const app = getApp();
 Page({
   data: {
     currentDate: '',
-    insightHub: {
-      market_sentiment: 50, total_news: 0, total_users: 0,
-      hot_themes: [], daily_signals: [],
+    // 5 大核心指标
+    dash: {
+      optimism: { score: 50, positive: 0, neutral: 0, negative: 0 },
+      policy_sensitivity: 0,
+      tech_breakthrough: 0,
+      source_density: [],
+      heatmap: [],
+      total_news: 0,
     },
     advisorPrompts: [
       '帮我复盘今天最重要的 3 件事',
@@ -14,7 +19,7 @@ Page({
       '分析一下明天可能影响市场的关键事件'
     ],
     advisorInput: '',
-    loading: true, refreshing: false, hasData: true, lastRefreshTime: ''
+    loading: true, refreshing: false, lastRefreshTime: ''
   },
 
   onLoad() {
@@ -25,30 +30,27 @@ Page({
   async loadRealData() {
     this.setData({ loading: true });
     try {
-      // 并行获取：情绪数据 + 统计数据
-      const [sentimentRes, statsRes] = await Promise.all([
-        new Promise((resolve) => wx.request({ url: 'https://news.velolabs.top/api/v1/news/daily-stats', success: resolve, fail: resolve })),
-        new Promise((resolve) => wx.request({ url: 'https://news.velolabs.top/api/v1/stats', success: resolve, fail: resolve })),
-      ]);
-
-      const sentiment = (sentimentRes.data && sentimentRes.data.success) ? sentimentRes.data.data : null;
-      const stats = (statsRes.data && statsRes.data.success) ? statsRes.data.data : null;
-
-      const now = new Date();
-      const refreshTime = `${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-      this.setData({
-        insightHub: {
-          market_sentiment: sentiment?.sentiment_score || 50,
-          positive_count: sentiment?.positive_count || 0,
-          neutral_count: sentiment?.neutral_count || 0,
-          negative_count: sentiment?.negative_count || 0,
-          total_news: stats?.news_count || 0,
-          total_users: stats?.user_count || 0,
-          daily_signals: sentiment?.signal_news || [],
-        },
-        loading: false, hasData: true, lastRefreshTime: refreshTime,
-      });
+      const res = await new Promise((resolve) =>
+        wx.request({ url: 'https://news.velolabs.top/api/v1/news/dashboard', success: resolve, fail: resolve })
+      );
+      if (res.data && res.data.success) {
+        const d = res.data.data;
+        const now = new Date();
+        this.setData({
+          dash: {
+            optimism: d.optimism || { score: 50, positive: 0, neutral: 0, negative: 0 },
+            policy_sensitivity: d.policy_sensitivity || 0,
+            tech_breakthrough: d.tech_breakthrough || 0,
+            source_density: d.source_density || [],
+            heatmap: d.heatmap || [],
+            total_news: d.total_news || 0,
+          },
+          loading: false,
+          lastRefreshTime: `${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`,
+        });
+      } else {
+        this.setData({ loading: false });
+      }
     } catch (e) {
       console.error('情报数据加载失败:', e);
       this.setData({ loading: false });

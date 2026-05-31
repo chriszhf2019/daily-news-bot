@@ -7,7 +7,7 @@ import re
 import json
 import logging
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 
 import requests
@@ -695,6 +695,71 @@ def top_news():
                 result.append(item)
 
         return jsonify({"success": True, "data": {"news": result[:10], "total": len(result)}})
+
+
+# ---- 情报中心 Dashboard（5 大核心指标）----
+
+@app.route("/api/v1/news/dashboard", methods=["GET"])
+@cache_control(max_age=300)
+def intelligence_dashboard():
+    """返回情报中心 5 个核心指标：市场乐观度、政策敏感度、技术突破点、情绪热力图、产出密度"""
+    with get_db() as db:
+        from sqlalchemy import func
+
+        total = db.session.query(func.count(News.id)).scalar() or 0
+        all_news = db.session.query(News).order_by(News.published_at.desc()).limit(200).all()
+
+        # 1. 市场乐观度
+        summary = db.session.query(DailySummary).order_by(DailySummary.created_at.desc()).first()
+        optimism = summary.sentiment_score if summary else 50
+        sentiment_detail = {
+            "positive": summary.positive_count if summary else 0,
+            "neutral": summary.neutral_count if summary else 0,
+            "negative": summary.negative_count if summary else 0,
+            "score": optimism,
+        }
+
+        # 2. 政策敏感度（统计含政策标签的新闻占比）
+        policy_kw = ["政策", "监管", "法规", "立法", "政府", "法院", "DOJ", "regulation", "law", "ban"]
+        policy_count = 0
+        tech_count = 0
+        for n in all_news:
+            text = f"{n.title or ''} {' '.join(n.tags or [])}"
+            if any(k in text for k in policy_kw):
+                policy_count += 1
+            if any(k in text for k in ["突破", "发布", "创新", "launch", "breakthrough", "芯片", "量子", "AI模型"]):
+                tech_count += 1
+
+        policy_sensitivity = min(100, int((policy_count / max(total, 1)) * 100 * 3))
+
+        # 3. 技术突破点
+        tech_breakthrough = min(100, int((tech_count / max(total, 1)) * 100 * 3))
+
+        # 4. 全球情报产出密度（来源分布）
+        from sqlalchemy import func as fn
+        sources = db.session.query(News.source, fn.count(News.id)).group_by(News.source).order_by(
+            fn.count(News.id).desc()
+        ).limit(10).all()
+        density = [{"source": s[0], "count": s[1]} for s in sources]
+
+        # 5. AI 情绪热力图（最近 24h 按小时）
+        recent = db.session.query(News).filter(
+            News.published_at >= datetime.utcnow() - timedelta(hours=24)
+        ).all()
+        hourly = {}
+        for n in recent:
+            h = n.published_at.hour if n.published_at else 0
+            hourly[h] = hourly.get(h, 0) + 1
+        heatmap = [{"hour": h, "count": hourly.get(h, 0)} for h in range(24)]
+
+        return jsonify({"success": True, "data": {
+            "optimism": sentiment_detail,
+            "policy_sensitivity": policy_sensitivity,
+            "tech_breakthrough": tech_breakthrough,
+            "source_density": density,
+            "heatmap": heatmap,
+            "total_news": total,
+        }})
 
 
 # ---- 每日情绪 + 重要信号（DeepSeek AI 分析）----
