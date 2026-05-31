@@ -122,9 +122,8 @@ Page({
     // 获取可靠性信息
     const { reliabilityStars, reliabilityText } = this.getReliabilityInfo(newsData.sourceReliability);
 
-    // 模拟统计数据
-    const viewCount = Math.floor(Math.random() * 10000) + 100;
-    const favoriteCount = Math.floor(viewCount * 0.1);
+    const viewCount = 0;
+    const favoriteCount = 0;
     const shareCount = Math.floor(viewCount * 0.05);
 
     // 检查是否已收藏

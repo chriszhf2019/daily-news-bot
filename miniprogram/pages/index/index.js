@@ -14,8 +14,9 @@ Page({
     displayedNews: [],  // 当前显示的新闻
     loading: true,
     newsCount: 0,
-    marketSentiment: 0,
+    marketSentiment: 50,
     signalCount: 0,
+    dailySignals: [],  // 真实重要信号列表
     readMode: 'standard',
     blindSpotNews: null,
     showPoster: false,
@@ -437,6 +438,32 @@ Page({
   },
 
   // 应用关注词匹配
+  // 从后端 API 获取市场情绪和重要信号
+  async loadDailyStats() {
+    try {
+      const { news: newsApi } = require('../../utils/api')
+      const res = await new Promise((resolve, reject) => {
+        wx.request({
+          url: 'https://news.velolabs.top/api/v1/news/daily-stats',
+          method: 'GET', success: resolve, fail: reject
+        })
+      })
+      if (res.data && res.data.success) {
+        const d = res.data.data
+        this.setData({
+          marketSentiment: d.sentiment_score || 50,
+          signalCount: (d.signal_news || []).length,
+          dailySignals: d.signal_news || [],
+          sentimentPositive: d.positive_count || 0,
+          sentimentNeutral: d.neutral_count || 0,
+          sentimentNegative: d.negative_count || 0,
+        })
+      }
+    } catch (e) {
+      console.log('情绪数据加载失败:', e.message)
+    }
+  },
+
   // 从真实新闻数据中动态生成分类列表
   updateCategories() {
     const data = this.data.newsData || []
@@ -1406,25 +1433,19 @@ Page({
 
   onStatSignalTap() {
     wx.vibrateShort({ type: 'light' });
-    const { isSignalFilter, newsData } = this.data;
-    
-    if (isSignalFilter) {
-      this.setData({ 
-        filteredNews: newsData,
-        isSignalFilter: false,
-        currentCategory: 'all'
-      });
-      this.applyFocusKeywords();
-      wx.showToast({ title: '显示全部情报', icon: 'none' });
-    } else {
-      const signalNews = newsData.filter(n => n.impactScore >= 8);
-      this.setData({ 
-        filteredNews: signalNews,
-        isSignalFilter: true,
-        currentCategory: 'all'
-      });
-      wx.showToast({ title: `筛选出${signalNews.length}条重要信号`, icon: 'none' });
+    const { dailySignals, showSignals } = this.data;
+    if (!dailySignals || dailySignals.length === 0) {
+      wx.showToast({ title: '暂无重要信号', icon: 'none' });
+      return;
     }
+    // 构建信号详情弹窗
+    const items = dailySignals.map(s => `${s.importance || '?'}分 · ${s.title}\n${s.reason}`).join('\n\n');
+    wx.showModal({
+      title: `⚡ 重要信号 (${dailySignals.length}条)`,
+      content: items.substring(0, 1500),
+      showCancel: false,
+      confirmText: '知道了',
+    });
   },
 
   stopPropagation() {},
@@ -1552,6 +1573,7 @@ Page({
         this.applyFocusKeywords();
         this.updateDisplayedNews();
         this.loadFavorites();
+        this.loadDailyStats();
         return;
       }
     } catch (e) {

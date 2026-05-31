@@ -48,10 +48,10 @@ Page({
       readLaterList = readLaterList.map((item, index) => ({
         ...item,
         addedAt: this.getRelativeTime(index),
-        readingTime: `${Math.floor(Math.random() * 5) + 2}分钟`,
+        readingTime: '3分钟',
         read: false,
         selected: false,
-        estimatedTime: Math.floor(Math.random() * 5) + 2
+        estimatedTime: 3
       }));
       
       // 提取分类

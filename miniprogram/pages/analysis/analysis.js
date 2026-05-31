@@ -187,7 +187,7 @@ Page({
     
     for (let hour = 0; hour < 24; hour++) {
       // 基于真实的市场情绪数据生成每小时情绪
-      const baseValue = baseSentiment + Math.sin(hour / 4) * 10 + Math.random() * 5;
+      const baseValue = baseSentiment + Math.sin(hour / 4) * 10;
       const value = Math.max(30, Math.min(90, Math.round(baseValue)));
       
       // 根据情绪值生成颜色

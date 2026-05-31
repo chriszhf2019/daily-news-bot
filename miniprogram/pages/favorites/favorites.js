@@ -122,8 +122,8 @@ Page({
       favorites = favorites.map((item, index) => ({
         ...item,
         bookmarkedAt: this.getRelativeTime(index),
-        readingTime: `${Math.floor(Math.random() * 5) + 2}分钟`,
-        readStatus: Math.random() > 0.7 ? '已内化' : (Math.random() > 0.5 ? '读过' : '未读'),
+        readingTime: '3分钟',
+        readStatus: '未读',
         note: index === 0 ? '这条新闻很重要，需要持续关注后续发展。' : '',
         selected: false,
         userCategory: index === 0 ? '重要' : (index === 1 ? '待读' : ''),
