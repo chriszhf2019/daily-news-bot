@@ -25,26 +25,23 @@ from models import init_database, create_session_factory, DatabaseManager
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("pipeline")
 
-# 新闻源
+# 权威新闻源 — 只收录有专业采编能力的机构
 RSS_SOURCES = [
-    # 中文科技
+    # 国际权威科技媒体
+    {"name": "MIT Tech Review", "url": "https://www.technologyreview.com/feed/", "category": "AI动态"},
+    {"name": "Wired", "url": "https://www.wired.com/feed/rss", "category": "科技前沿"},
+    {"name": "Ars Technica", "url": "https://feeds.arstechnica.com/arstechnica/index", "category": "科技前沿"},
+    {"name": "The Verge", "url": "https://www.theverge.com/rss/index.xml", "category": "科技前沿"},
+    {"name": "TechCrunch", "url": "https://techcrunch.com/feed/", "category": "AI动态"},
+    # 中文权威科技媒体
     {"name": "36氪", "url": "https://36kr.com/feed", "category": "科技前沿"},
-    {"name": "虎嗅", "url": "https://www.huxiu.com/rss/0.xml", "category": "科技前沿"},
-    {"name": "少数派", "url": "https://sspai.com/feed", "category": "科技前沿"},
-    {"name": "IT之家", "url": "https://www.ithome.com/rss/", "category": "科技前沿"},
-    {"name": "机器之心", "url": "https://www.jiqizhixin.com/rss", "category": "AI动态"},
     {"name": "量子位", "url": "https://www.qbitai.com/feed", "category": "AI动态"},
     {"name": "爱范儿", "url": "https://www.ifanr.com/feed", "category": "科技前沿"},
-    {"name": "品玩", "url": "https://www.pingwest.com/feed", "category": "科技前沿"},
     {"name": "钛媒体", "url": "https://www.tmtpost.com/rss.xml", "category": "科技前沿"},
-    # 国际权威科技
-    {"name": "TechCrunch", "url": "https://techcrunch.com/feed/", "category": "AI动态"},
-    {"name": "The Verge", "url": "https://www.theverge.com/rss/index.xml", "category": "科技前沿"},
-    {"name": "Wired", "url": "https://www.wired.com/feed/rss", "category": "科技前沿"},
-    {"name": "MIT Tech Review", "url": "https://www.technologyreview.com/feed/", "category": "AI动态"},
-    {"name": "Ars Technica", "url": "https://feeds.arstechnica.com/arstechnica/index", "category": "科技前沿"},
-    {"name": "Nature", "url": "https://www.nature.com/nature.rss", "category": "科技前沿"},
-    {"name": "Science", "url": "https://www.science.org/rss/news_current.xml", "category": "科技前沿"},
+    {"name": "IT之家", "url": "https://www.ithome.com/rss/", "category": "科技前沿"},
+    {"name": "少数派", "url": "https://sspai.com/feed", "category": "科技前沿"},
+    # 财经 / 综合权威
+    {"name": "第一财经", "url": "https://www.yicai.com/feed/14", "category": "科技前沿"},
 ]
 
 USER_AGENT = "NewsBrief/1.0 (RSS Reader)"
