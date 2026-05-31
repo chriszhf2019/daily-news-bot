@@ -143,27 +143,6 @@
     <!-- 新闻总数 -->
     <view class="stats-footer">
       <text class="stats-text">总计 {{dash.total_news}} 条新闻 · 实时数据</text>
-    </view>
-            </view>
-          </view>
-          <view class="topic-content">
-            <text class="topic-insight">{{item.insight}}</text>
-            <view class="topic-stats">
-              <text class="stat-item">📰 含 {{item.news_ids.length}} 篇关联情报</text>
-            </view>
-            <view class="topic-logic">
-              <text class="logic-label">核心逻辑链：</text>
-              <view class="logic-steps">
-                <view class="logic-step" wx:for="{{item.logic_chain}}" wx:key="index">
-                  <text class="step-arrow" wx:if="{{index > 0}}">→</text>
-                  <text class="step-text">{{item}}</text>
-                </view>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
-    </view>
 
     <!-- AI 战略顾问 -->
     <view class="ai-advisor-section">
