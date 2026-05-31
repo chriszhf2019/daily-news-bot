@@ -524,13 +524,8 @@ ${titles}
     })
 
     this.setData({ newsData: allNews, displayedNews: displayed })
-    // 刷新 Storage
-    const updated = allNews.map(n => ({
-      id: n.id, title: n.title, summary: n.summary, category: n.category,
-      source: n.source, published_at: n.published_at, tags: n.tags,
-      isTracked: n.isTracked, isNextDayMatch: n.isNextDayMatch,
-    }))
-    wx.setStorageSync('newsData', updated)
+    // 刷新 Storage，保留所有 AI 分析等富数据字段
+    wx.setStorageSync('newsData', allNews.map(n => ({ ...n, isTracked: n.isTracked || false, isNextDayMatch: n.isNextDayMatch || false })))
   },
 
   // 从后端 API 获取市场情绪和重要信号
@@ -4051,143 +4046,6 @@ ${titles}
     })
   },
     
-    console.log('开始生成海报，新闻数据:', news);
-    wx.showLoading({ title: '生成中...' });
-
-    // 延迟执行，确保DOM已经渲染
-    setTimeout(() => {
-      const query = wx.createSelectorQuery();
-      query.select('#posterCanvas')
-        .fields({ node: true, size: true })
-        .exec((res) => {
-          if (!res || !res[0]) {
-            console.error('Canvas未找到，res:', res);
-            wx.hideLoading();
-            wx.showToast({ title: 'Canvas未找到', icon: 'none' });
-            return;
-          }
-          
-          const canvas = res[0].node;
-          const ctx = canvas.getContext('2d');
-          
-          console.log('Canvas节点获取成功，尺寸:', res[0].size);
-          
-          // 设置画布尺寸（使用设备像素比保证清晰度）
-          const dpr = wx.getSystemInfoSync().pixelRatio || 2;
-          const screenWidth = wx.getSystemInfoSync().screenWidth;
-          const rpxToPx = screenWidth / 750;
-          const width = 600 * rpxToPx;
-          const height = 800 * rpxToPx;
-          
-          console.log('画布尺寸计算: width=' + width + ', height=' + height + ', dpr=' + dpr);
-          
-          canvas.width = width * dpr;
-          canvas.height = height * dpr;
-          ctx.scale(dpr, dpr);
-
-        try {
-          // 绘制背景渐变
-          const grd = ctx.createLinearGradient(0, 0, 0, height);
-          grd.addColorStop(0, '#1e3a8a');
-          grd.addColorStop(1, '#3730a3');
-          ctx.fillStyle = grd;
-          ctx.fillRect(0, 0, width, height);
-
-          // 装饰圆
-          ctx.fillStyle = 'rgba(255,255,255,0.08)';
-          ctx.beginPath();
-          ctx.arc(width * 0.833, height * 0.125, width * 0.267, 0, 2 * Math.PI);
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(width * 0.167, height * 0.875, width * 0.2, 0, 2 * Math.PI);
-          ctx.fill();
-
-          // Logo和日期
-          ctx.fillStyle = '#fff';
-          ctx.font = `bold ${width * 0.053}px sans-serif`;
-          ctx.fillText('📰 新闻简报', width * 0.067, height * 0.088);
-          ctx.font = `${width * 0.037}px sans-serif`;
-          ctx.fillStyle = 'rgba(255,255,255,0.7)';
-          ctx.fillText(this.data.currentDate, width * 0.067, height * 0.138);
-
-          // 分类标签背景
-          ctx.fillStyle = 'rgba(255,255,255,0.2)';
-          this.roundRect(ctx, width * 0.067, height * 0.17, width * 0.267, height * 0.06, width * 0.013);
-          ctx.fill();
-          ctx.fillStyle = '#fff';
-          ctx.font = `${width * 0.033}px sans-serif`;
-          ctx.fillText(this.getCategoryName(news.category), width * 0.1, height * 0.213);
-
-          // 新闻标题
-          ctx.fillStyle = '#fff';
-          ctx.font = `bold ${width * 0.05}px sans-serif`;
-          this.wrapText(ctx, news.title, width * 0.067, height * 0.3, width * 0.867, height * 0.055);
-
-          // AI解读区域背景
-          ctx.fillStyle = 'rgba(255,255,255,0.12)';
-          this.roundRect(ctx, width * 0.067, height * 0.475, width * 0.867, height * 0.3, width * 0.027);
-          ctx.fill();
-          
-          // AI解读标题
-          ctx.fillStyle = '#fbbf24';
-          ctx.font = `bold ${width * 0.04}px sans-serif`;
-          ctx.fillText('✨ AI 核心解读', width * 0.1, height * 0.53);
-          
-          // AI解读内容
-          ctx.fillStyle = 'rgba(255,255,255,0.9)';
-          ctx.font = `${width * 0.037}px sans-serif`;
-          const interpretation = (news.ai_analysis && news.ai_analysis.interpretation)
-            ? news.ai_analysis.interpretation
-            : '正在加载AI解读...';
-          const interpText = interpretation.length > 120 ? interpretation.substring(0, 120) + '...' : interpretation;
-          this.wrapText(ctx, interpText, width * 0.1, height * 0.58, width * 0.8, height * 0.04);
-
-          // 趋势预测
-          ctx.fillStyle = '#a78bfa';
-          ctx.font = `bold ${width * 0.033}px sans-serif`;
-          ctx.fillText('🔮 趋势预测', width * 0.1, height * 0.7);
-          ctx.fillStyle = 'rgba(255,255,255,0.8)';
-          ctx.font = `${width * 0.033}px sans-serif`;
-          const prediction = (news.ai_analysis && news.ai_analysis.prediction)
-            ? news.ai_analysis.prediction
-            : 'AI正在分析趋势...';
-          this.wrapText(ctx, prediction.length > 60 ? prediction.substring(0, 60) + '...' : prediction,
-            width * 0.1, height * 0.74, width * 0.8, height * 0.04);
-
-          // 底部信息
-          ctx.fillStyle = 'rgba(255,255,255,0.4)';
-          ctx.font = `${width * 0.03}px sans-serif`;
-          ctx.fillText(`来源: ${news.source || 'NewsBrief'}`, width * 0.067, height * 0.88);
-          ctx.fillText('NewsBrief · AI 驱动的智能情报', width * 0.35, height * 0.93);
-
-          // 导出图片
-          setTimeout(() => {
-            wx.canvasToTempFilePath({
-              canvas: canvas,
-              width: width,
-              height: height,
-              destWidth: width * dpr,
-              destHeight: height * dpr,
-              success: (res) => {
-                this.setData({ posterImage: res.tempFilePath });
-                wx.hideLoading();
-                wx.showToast({ title: '生成成功', icon: 'success' });
-              },
-              fail: (err) => {
-                console.error('生成海报失败:', err);
-                wx.hideLoading();
-                wx.showToast({ title: '生成失败: ' + (err.errMsg || '未知错误'), icon: 'none' });
-              }
-            });
-          }, 500);
-        } catch (error) {
-          console.error('绘制海报失败:', error);
-          wx.hideLoading();
-          wx.showToast({ title: '绘制失败', icon: 'none' });
-        }
-      });
-    }, 300);
-  },
 
   // 绘制圆角矩形
   roundRect(ctx, x, y, width, height, radius) {

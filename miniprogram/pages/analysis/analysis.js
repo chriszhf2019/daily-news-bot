@@ -21,7 +21,7 @@ Page({
       '分析一下明天可能影响市场的关键事件'
     ],
     advisorInput: '',
-    loading: true, refreshing: false, lastRefreshTime: ''
+    loading: true, refreshing: false, hasData: false, lastRefreshTime: ''
   },
 
   onLoad() {
@@ -50,6 +50,7 @@ Page({
             blind_spots: d.blind_spots || [],
           },
           loading: false,
+          hasData: true,
           lastRefreshTime: `${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`,
         });
       } else {
