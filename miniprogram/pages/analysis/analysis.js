@@ -64,19 +64,14 @@ Page({
   async refreshIntelligenceData() {
     this.setData({ refreshing: true });
     wx.showLoading({ title: '刷新中...', mask: true });
-    await this.loadRealData();
-    wx.hideLoading();
-    wx.showToast({ title: '情报已更新', icon: 'success' });
+    try {
+      await this.loadRealData();
+      wx.hideLoading();
+      wx.showToast({ title: '情报已更新', icon: 'success' });
     } catch (error) {
-      console.error('获取情报数据失败:', error);
       wx.hideLoading();
       this.setData({ refreshing: false });
-      
-      wx.showModal({
-        title: 'AI生成失败',
-        content: error.message || '请检查网络连接和API配置',
-        showCancel: false
-      });
+      wx.showToast({ title: '刷新失败', icon: 'none' });
     }
   },
 
