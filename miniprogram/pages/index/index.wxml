@@ -795,25 +795,8 @@
     </view>
   </view>
 
-  <!-- 分享海报弹窗 -->
-  <view class="poster-modal {{showPoster ? 'show' : ''}}" catchtap="closePoster" wx:if="{{showPoster}}">
-    <view class="poster-container" catchtap="stopPropagation">
-      <view class="poster-header">
-        <text class="poster-title">📰 情报简报海报</text>
-        <view class="poster-close" bindtap="closePoster">✕</view>
-      </view>
-      <view class="poster-canvas-wrap">
-        <canvas type="2d" id="posterCanvas" class="poster-canvas"></canvas>
-      </view>
-      <view class="poster-preview" wx:if="{{posterImage}}">
-        <image src="{{posterImage}}" mode="aspectFit" class="preview-image"></image>
-      </view>
-      <view class="poster-actions">
-        <button class="poster-btn generate" bindtap="generatePoster">生成海报</button>
-        <button class="poster-btn save" bindtap="savePoster" wx:if="{{posterImage}}">保存到相册</button>
-      </view>
-    </view>
-  </view>
+  <!-- 分享海报（隐藏canvas，点击分享直接生成保存） -->
+  <canvas type="2d" id="posterCanvas" style="position:fixed;left:-9999px;width:600rpx;height:850rpx"></canvas>
 
   <!-- 录入情报弹窗 -->
   <view class="input-modal {{showInputModal ? 'show' : ''}}" catchtap="closeInputModal">

@@ -235,4 +235,5 @@
       <text class="btn-text">分享</text>
     </button>
   </view>
+  <canvas type="2d" id="posterCanvas" style="position:fixed;left:-9999px;width:600rpx;height:850rpx"></canvas>
 </view>

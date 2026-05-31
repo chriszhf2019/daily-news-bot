@@ -3990,21 +3990,14 @@ ${titles}
 
   showSharePoster(e) {
     const news = e.currentTarget.dataset.news;
-    this.setData({ showPoster: true, posterNews: news, posterImage: '' });
+    if (!news) return
+    const poster = require('../../utils/poster.js')
+    poster.generate(news, this).then(path => {
+      poster.saveToAlbum(path)
+    }).catch(err => {
+      wx.showToast({ title: err.message || '生成失败', icon: 'none' })
+    })
   },
-
-  closePoster() {
-    this.setData({ showPoster: false, posterNews: null, posterImage: '' });
-  },
-
-  stopPropagation() {},
-
-  generatePoster() {
-    const news = this.data.posterNews;
-    if (!news) {
-      wx.showToast({ title: '新闻数据错误', icon: 'none' });
-      return;
-    }
     
     console.log('开始生成海报，新闻数据:', news);
     wx.showLoading({ title: '生成中...' });

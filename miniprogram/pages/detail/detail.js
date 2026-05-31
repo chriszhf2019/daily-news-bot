@@ -398,19 +398,12 @@ Page({
   },
 
   shareArticle() {
-    wx.showShareMenu({
-      withShareTicket: true,
-      menus: ['shareAppMessage', 'shareTimeline']
-    });
-
-    this.setData({
-      shareCount: this.data.shareCount + 1
-    });
-
-    wx.showToast({
-      title: '分享成功',
-      icon: 'success'
-    });
+    const poster = require('../../utils/poster.js')
+    poster.generate(this.data.newsData, this).then(path => {
+      poster.saveToAlbum(path)
+    }).catch(err => {
+      wx.showToast({ title: err.message || '生成失败', icon: 'none' })
+    })
   },
 
   openComments() {
