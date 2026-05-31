@@ -482,6 +482,56 @@ ${titles}
     }
   },
 
+  // 追踪功能
+  onTrackNews(e) {
+    const news = e.currentTarget.dataset.news
+    if (!news) return
+    const tracked = wx.getStorageSync('tracked_news') || []
+    const idx = tracked.findIndex(t => t.id === news.id)
+
+    if (idx > -1) {
+      tracked.splice(idx, 1)
+      wx.showToast({ title: '已取消追踪', icon: 'none' })
+    } else {
+      // 提取关键词用于第二天匹配
+      const keywords = (news.tags || []).slice(0, 3)
+      if (!keywords.length) keywords.push(news.title.substring(0, 20))
+      tracked.push({ id: news.id, title: news.title.substring(0, 50), keywords, trackedAt: new Date().toISOString() })
+      wx.showToast({ title: '已追踪,明天见', icon: 'success' })
+    }
+    wx.setStorageSync('tracked_news', tracked)
+    this.applyTrackedStatus()
+  },
+
+  applyTrackedStatus() {
+    const tracked = wx.getStorageSync('tracked_news') || []
+    const trackedIds = new Set(tracked.map(t => t.id))
+    const trackedKw = tracked.flatMap(t => t.keywords || [])
+
+    const allNews = this.data.newsData.map(n => {
+      const isTracked = trackedIds.has(n.id)
+      // 第二天匹配：检查是否命中追踪关键词
+      const isNextDayMatch = !isTracked && trackedKw.some(kw =>
+        (n.title || '').includes(kw) || (n.tags || []).some(t => t.includes(kw))
+      )
+      return { ...n, isTracked, isNextDayMatch }
+    })
+
+    const displayed = this.data.displayedNews.map(n => {
+      const found = allNews.find(a => a.id === n.id)
+      return found || { ...n, isTracked: trackedIds.has(n.id), isNextDayMatch: false }
+    })
+
+    this.setData({ newsData: allNews, displayedNews: displayed })
+    // 刷新 Storage
+    const updated = allNews.map(n => ({
+      id: n.id, title: n.title, summary: n.summary, category: n.category,
+      source: n.source, published_at: n.published_at, tags: n.tags,
+      isTracked: n.isTracked, isNextDayMatch: n.isNextDayMatch,
+    }))
+    wx.setStorageSync('newsData', updated)
+  },
+
   // 从后端 API 获取市场情绪和重要信号
   async loadDailyStats() {
     try {
@@ -1706,6 +1756,7 @@ ${titles}
 
         this.updateCategories();
         this.applyFocusKeywords();
+        this.applyTrackedStatus();
         this.updateDisplayedNews();
         this.loadFavorites();
         this.loadDailyStats();

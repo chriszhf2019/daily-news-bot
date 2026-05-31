@@ -262,6 +262,8 @@
             </view>
             <view class="card-title-wrap">
               <text class="card-title">{{news.title_cn || news.title}}</text>
+              <text class="tracked-badge" wx:if="{{news.isTracked}}">🔔 追踪中</text>
+              <text class="nextday-badge" wx:if="{{news.isNextDayMatch && !news.isTracked}}">🟡 昨日追踪相关</text>
               <view class="card-meta">
                 <text class="card-source">{{news.source}}</text>
                 <text class="card-time">{{news.published_at}}</text>
@@ -340,6 +342,10 @@
               <text class="btn-icon {{news.isFavorited ? 'favorited' : ''}}">{{news.isFavorited ? '❤️' : '🤍'}}</text>
               <text>{{news.isFavorited ? '已收藏' : '收藏'}}</text>
             </view>
+            <view class="action-btn {{news.isTracked ? 'tracked' : ''}}" bindtap="onTrackNews" data-news="{{news}}">
+              <text class="btn-icon">{{news.isTracked ? '🔔' : '🔖'}}</text>
+              <text>{{news.isTracked ? '已追踪' : '追踪'}}</text>
+            </view>
             <view class="action-btn" bindtap="onShare" data-id="{{news.id}}">
               <text class="btn-icon">📤</text>
               <text>分享</text>
@@ -415,6 +421,10 @@
             <view class="action-btn" bindtap="onFavorite" data-id="{{news.id}}">
               <text class="btn-icon {{news.isFavorited ? 'favorited' : ''}}">{{news.isFavorited ? '❤️' : '🤍'}}</text>
               <text>{{news.isFavorited ? '已收藏' : '收藏'}}</text>
+            </view>
+            <view class="action-btn {{news.isTracked ? 'tracked' : ''}}" bindtap="onTrackNews" data-news="{{news}}">
+              <text class="btn-icon">{{news.isTracked ? '🔔' : '🔖'}}</text>
+              <text>{{news.isTracked ? '已追踪' : '追踪'}}</text>
             </view>
             <view class="action-btn" bindtap="onShare" data-id="{{news.id}}">
               <text class="btn-icon">📤</text>
