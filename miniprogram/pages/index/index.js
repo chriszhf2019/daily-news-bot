@@ -438,6 +438,50 @@ Page({
   },
 
   // 应用关注词匹配
+  // 后台生成 AI 深度解读 + 趋势预测（前10条）
+  async generateAIAnalysis() {
+    const news = this.data.newsData.slice(0, 10)
+    const needAI = news.filter(n => !n.ai_analysis || !n.ai_analysis.interpretation)
+    if (!needAI.length) return
+
+    const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35'
+    try {
+      const titles = needAI.map((n, i) => `${i+1}. ${n.title}`).join('\n')
+      const resp = await new Promise((resolve, reject) => {
+        wx.request({
+          url: 'https://api.deepseek.com/chat/completions',
+          method: 'POST',
+          header: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+          data: {
+            model: 'deepseek-chat', temperature: 0.5, max_tokens: 2500,
+            messages: [{ role: 'user', content: `分析以下新闻，每条生成：interpretation(30字深度解读)和prediction(20字趋势预测)。返回JSON数组。
+
+${titles}
+
+格式：[{"index":1,"interpretation":"...","prediction":"..."}]` }]
+          },
+          success: resolve, fail: reject
+        })
+      })
+      let text = resp.data.choices[0].message.content
+      if (text.startsWith('```')) text = text.split('```')[1].replace('json', '')
+      const results = JSON.parse(text)
+
+      const enriched = this.data.newsData.map(n => {
+        const r = results?.find(x => x.index === (needAI.findIndex(x => x.id === n.id) + 1) || x.index === (news.indexOf(n) + 1))
+        if (r && !n.ai_analysis?.interpretation) {
+          n.ai_analysis = { ...n.ai_analysis, interpretation: r.interpretation, prediction: r.prediction }
+        }
+        return n
+      })
+      wx.setStorageSync('newsData', enriched)
+      this.setData({ newsData: enriched })
+      this.updateDisplayedNews()
+    } catch (e) {
+      console.log('AI解读生成跳过:', e.message)
+    }
+  },
+
   // 从后端 API 获取市场情绪和重要信号
   async loadDailyStats() {
     try {
@@ -1665,6 +1709,7 @@ ${titles}
         this.updateDisplayedNews();
         this.loadFavorites();
         this.loadDailyStats();
+        this.generateAIAnalysis();  // 后台生成AI解读
         return;
       }
     } catch (e) {
