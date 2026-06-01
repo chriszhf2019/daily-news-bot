@@ -3198,43 +3198,6 @@ ${titles}
     };
   },
 
-  // 生成AI解读和预测
-  generateAIAnalysis(news, sentimentResult, impactResult) {
-    const category = news.category || 'AI';
-    const title = news.title || '';
-    const summary = news.summary || '';
-    
-    // 根据分类生成不同风格的解读
-    const categoryTemplates = {
-      'AI': {
-        interpretation: `这条AI领域的新闻反映了人工智能技术的最新进展。${sentimentResult.sentiment === 'positive' ? '整体趋势积极，' : sentimentResult.sentiment === 'negative' ? '需要关注潜在风险，' : ''}影响力评分${impactResult.score}分，${impactResult.label}。`,
-        prediction: `预计这一发展将对AI行业产生${impactResult.level === 'high' ? '重大' : impactResult.level === 'medium' ? '一定' : '有限'}影响，相关企业和从业者需要密切关注后续动态。`
-      },
-      'tech': {
-        interpretation: `科技领域的这一动态值得关注。${sentimentResult.sentiment === 'positive' ? '市场反应积极，' : sentimentResult.sentiment === 'negative' ? '存在一定不确定性，' : ''}影响力评分${impactResult.score}分。`,
-        prediction: `这一技术进展可能在未来${impactResult.level === 'high' ? '3-6个月' : '6-12个月'}内产生实质性影响，建议持续跟踪。`
-      },
-      'finance': {
-        interpretation: `财经市场的这一消息${sentimentResult.sentiment === 'positive' ? '释放积极信号' : sentimentResult.sentiment === 'negative' ? '需要谨慎对待' : '影响中性'}。影响力评分${impactResult.score}分，${impactResult.label}。`,
-        prediction: `从市场角度看，这一事件可能对相关板块产生${impactResult.level === 'high' ? '显著' : '一定程度的'}波动，投资者需注意风险。`
-      },
-      'international': {
-        interpretation: `国际局势的这一变化${sentimentResult.sentiment === 'positive' ? '有利于全球稳定' : sentimentResult.sentiment === 'negative' ? '增加了不确定性' : '影响有待观察'}。影响力评分${impactResult.score}分。`,
-        prediction: `预计这一事件将在国际关系和全球市场层面产生${impactResult.level === 'high' ? '深远' : '一定'}影响。`
-      },
-      'sports': {
-        interpretation: `体育领域的这一消息${sentimentResult.sentiment === 'positive' ? '令人振奋' : sentimentResult.sentiment === 'negative' ? '引发关注' : '值得关注'}。影响力评分${impactResult.score}分。`,
-        prediction: `这一事件可能对相关体育产业和粉丝群体产生${impactResult.level === 'high' ? '重大' : '一定'}影响。`
-      }
-    };
-    
-    const template = categoryTemplates[category] || categoryTemplates['AI'];
-    
-    return {
-      interpretation: template.interpretation,
-      prediction: template.prediction
-    };
-  },
 
   generateNewsData() {
     const today = new Date();
