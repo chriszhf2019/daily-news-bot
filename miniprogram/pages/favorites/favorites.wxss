@@ -1,7 +1,7 @@
 /* 收藏页面样式 - 深色主题 */
 page {
   --primary-blue: #1e3a8a;
-  --primary-light: #667eea;
+  --primary-light: #c4a144;
   --accent-green: #2ed573;
   --accent-red: #ff4757;
   --bg-dark: #0f0c29;
@@ -61,8 +61,8 @@ page {
 .persona-badge {
   display: inline-block;
   padding: 6rpx 16rpx;
-  background: rgba(102, 126, 234, 0.3);
-  border: 1rpx solid rgba(102, 126, 234, 0.5);
+  background: rgba(196, 161, 68, 0.3);
+  border: 1rpx solid rgba(196, 161, 68, 0.5);
   border-radius: 20rpx;
   font-size: 20rpx;
   color: #a8b4ff;
@@ -117,7 +117,7 @@ page {
 }
 
 .ai-summary-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f64f59 100%);
+  background: linear-gradient(135deg, #c4a144 0%, #764ba2 50%, #f64f59 100%);
   border-radius: 20rpx;
   padding: 24rpx;
   position: relative;
@@ -263,7 +263,7 @@ page {
 .ai-analyze-btn .btn-text {
   font-size: 28rpx;
   font-weight: 600;
-  color: #667eea;
+  color: #c4a144;
 }
 
 .ai-analyze-btn.analyzing {
@@ -278,12 +278,12 @@ page {
 .glow-button {
   position: relative;
   overflow: hidden;
-  box-shadow: 0 0 20rpx rgba(118, 75, 162, 0.6), 0 0 40rpx rgba(102, 126, 234, 0.4);
+  box-shadow: 0 0 20rpx rgba(118, 75, 162, 0.6), 0 0 40rpx rgba(196, 161, 68, 0.4);
   transition: all 0.3s ease;
 }
 
 .glow-button:active {
-  box-shadow: 0 0 30rpx rgba(118, 75, 162, 0.8), 0 0 60rpx rgba(102, 126, 234, 0.6);
+  box-shadow: 0 0 30rpx rgba(118, 75, 162, 0.8), 0 0 60rpx rgba(196, 161, 68, 0.6);
   transform: scale(0.98);
 }
 
@@ -294,7 +294,7 @@ page {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+  background: linear-gradient(45deg, transparent, rgba(196, 161, 68, 0.2), transparent);
   transform: rotate(45deg);
   animation: glow-animation 3s ease-in-out infinite;
 }
@@ -366,7 +366,7 @@ page {
 }
 
 .toggle-item.active {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #c4a144, #764ba2);
   border-color: transparent;
   color: #fff;
 }
@@ -439,8 +439,8 @@ page {
 }
 
 .chip.active {
-  background: rgba(102, 126, 234, 0.3);
-  border-color: rgba(102, 126, 234, 0.5);
+  background: rgba(196, 161, 68, 0.3);
+  border-color: rgba(196, 161, 68, 0.5);
   color: #fff;
 }
 
@@ -507,12 +507,12 @@ page {
   flex-direction: column;
   gap: 12rpx;
   padding: 16rpx 20rpx;
-  background: rgba(102, 126, 234, 0.15);
+  background: rgba(196, 161, 68, 0.15);
   backdrop-filter: blur(10rpx);
   -webkit-backdrop-filter: blur(10rpx);
   margin: 0 20rpx 16rpx;
   border-radius: 16rpx;
-  border: 1rpx solid rgba(102, 126, 234, 0.3);
+  border: 1rpx solid rgba(196, 161, 68, 0.3);
 }
 
 .batch-info { 
@@ -544,7 +544,7 @@ page {
 .batch-btn .btn-icon { font-size: 22rpx; }
 
 .batch-btn.ai-merge-btn { 
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #c4a144, #764ba2);
 }
 .batch-btn.export-btn { background: rgba(46, 213, 115, 0.3); }
 .batch-btn.email-btn { background: rgba(52, 152, 219, 0.3); }
@@ -556,8 +556,8 @@ page {
   align-items: center;
   gap: 4rpx;
   padding: 4rpx 12rpx;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
-  border: 1rpx solid rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, rgba(196, 161, 68, 0.3), rgba(118, 75, 162, 0.3));
+  border: 1rpx solid rgba(196, 161, 68, 0.4);
   border-radius: 10rpx;
   font-size: 20rpx;
   color: #a8b4ff;
@@ -671,12 +671,12 @@ page {
 .user-category-tag {
   display: inline-block;
   padding: 6rpx 16rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #c4a144 0%, #764ba2 100%);
   border-radius: 14rpx;
   font-size: 22rpx;
   font-weight: 600;
   color: #fff;
-  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4rpx 12rpx rgba(196, 161, 68, 0.4);
 }
 
 /* 标题行布局 */
@@ -751,7 +751,7 @@ page {
 }
 
 .read-status-text.internalized {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #c4a144, #764ba2);
   color: #fff;
 }
 
@@ -782,8 +782,8 @@ page {
 
 /* 高亮摘要 */
 .highlighted-summary {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-  border: 1rpx solid rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, rgba(196, 161, 68, 0.1), rgba(118, 75, 162, 0.1));
+  border: 1rpx solid rgba(196, 161, 68, 0.3);
   border-radius: 12rpx;
   padding: 16rpx;
   margin: 12rpx 0;
@@ -953,7 +953,7 @@ page {
 }
 
 .category-option.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #c4a144 0%, #764ba2 100%);
 }
 
 .category-option.active .category-option-text {
@@ -986,7 +986,7 @@ page {
   padding: 0 32rpx;
   height: 72rpx;
   line-height: 72rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #c4a144 0%, #764ba2 100%);
   color: #fff;
   border-radius: 12rpx;
   font-size: 26rpx;
@@ -1116,9 +1116,9 @@ page {
   top: 8rpx;
   width: 16rpx;
   height: 16rpx;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #c4a144, #764ba2);
   border-radius: 50%;
-  box-shadow: 0 0 12rpx rgba(102, 126, 234, 0.5);
+  box-shadow: 0 0 12rpx rgba(196, 161, 68, 0.5);
 }
 
 .timeline-line {
@@ -1127,7 +1127,7 @@ page {
   top: 28rpx;
   bottom: 0;
   width: 2rpx;
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(196, 161, 68, 0.3);
 }
 
 .timeline-item:last-child .timeline-line {
@@ -1167,7 +1167,7 @@ page {
 
 .timeline-category {
   padding: 2rpx 10rpx;
-  background: rgba(102, 126, 234, 0.2);
+  background: rgba(196, 161, 68, 0.2);
   border-radius: 8rpx;
   font-size: 20rpx;
   color: #a8b4ff;
@@ -1184,10 +1184,10 @@ page {
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #c4a144 0%, #764ba2 100%);
   padding: 16rpx 20rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
-  box-shadow: 0 -4rpx 20rpx rgba(102, 126, 234, 0.3);
+  box-shadow: 0 -4rpx 20rpx rgba(196, 161, 68, 0.3);
   backdrop-filter: blur(10rpx);
   -webkit-backdrop-filter: blur(10rpx);
 }
@@ -1393,7 +1393,7 @@ page {
 
 .ai-polish-btn {
   padding: 8rpx 20rpx;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #c4a144, #764ba2);
   border-radius: 16rpx;
   font-size: 22rpx;
   color: #fff;
@@ -1409,8 +1409,8 @@ page {
 
 /* AI 辅助区域 */
 .ai-assist-section {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-  border: 1rpx solid rgba(102, 126, 234, 0.2);
+  background: linear-gradient(135deg, rgba(196, 161, 68, 0.1), rgba(118, 75, 162, 0.1));
+  border: 1rpx solid rgba(196, 161, 68, 0.2);
   border-radius: 12rpx;
   padding: 16rpx;
   margin-bottom: 16rpx;
@@ -1426,12 +1426,12 @@ page {
 .ai-assist-title {
   font-size: 24rpx;
   font-weight: 600;
-  color: #667eea;
+  color: #c4a144;
 }
 
 .ai-extract-btn {
   padding: 8rpx 16rpx;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #c4a144, #764ba2);
   border-radius: 14rpx;
   font-size: 22rpx;
   color: #fff;
@@ -1467,7 +1467,7 @@ page {
 .point-bullet {
   width: 32rpx;
   height: 32rpx;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #c4a144, #764ba2);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1485,7 +1485,7 @@ page {
 }
 
 .point-add {
-  color: #667eea;
+  color: #c4a144;
   font-size: 28rpx;
   font-weight: bold;
 }
@@ -1501,7 +1501,7 @@ page {
   background: #f0f4ff;
   border-radius: 12rpx;
   font-size: 26rpx;
-  color: #667eea;
+  color: #c4a144;
   margin-bottom: 20rpx;
 }
 
@@ -1511,15 +1511,15 @@ page {
   align-items: center;
   padding: 40rpx;
   gap: 16rpx;
-  color: #667eea;
+  color: #c4a144;
   font-size: 26rpx;
 }
 
 .merge-spinner {
   width: 60rpx;
   height: 60rpx;
-  border: 4rpx solid rgba(102, 126, 234, 0.2);
-  border-top-color: #667eea;
+  border: 4rpx solid rgba(196, 161, 68, 0.2);
+  border-top-color: #c4a144;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

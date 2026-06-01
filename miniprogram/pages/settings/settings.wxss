@@ -1,6 +1,6 @@
 page {
   --primary-blue: #1e3a8a;
-  --primary-light: #667eea;
+  --primary-light: #c4a144;
   --accent-green: #2ed573;
   --bg-dark: #0f0c29;
   --text-primary: #ffffff;
@@ -43,7 +43,7 @@ page {
   width: 80rpx;
   height: 80rpx;
   border: 8rpx solid rgba(255, 255, 255, 0.1);
-  border-top: 8rpx solid #667eea;
+  border-top: 8rpx solid #c4a144;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 24rpx;
@@ -207,7 +207,7 @@ page {
 }
 
 .module-item:active .module-tip-icon {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(196, 161, 68, 0.3);
   color: #fff;
 }
 
@@ -234,7 +234,7 @@ page {
 
 .section-badge {
   padding: 3rpx 10rpx;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #c4a144, #764ba2);
   border-radius: 10rpx;
   font-size: 16rpx;
   color: #fff;
@@ -254,8 +254,8 @@ page {
 }
 
 .ai-persona-section {
-  border: 2rpx solid rgba(102, 126, 234, 0.3);
-  box-shadow: 0 0 30rpx rgba(102, 126, 234, 0.1);
+  border: 2rpx solid rgba(196, 161, 68, 0.3);
+  box-shadow: 0 0 30rpx rgba(196, 161, 68, 0.1);
 }
 
 .persona-selector {
@@ -284,9 +284,9 @@ page {
 }
 
 .persona-card.active {
-  background: rgba(102, 126, 234, 0.2);
-  border-color: rgba(102, 126, 234, 0.5);
-  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.2);
+  background: rgba(196, 161, 68, 0.2);
+  border-color: rgba(196, 161, 68, 0.5);
+  box-shadow: 0 4rpx 16rpx rgba(196, 161, 68, 0.2);
 }
 
 .persona-icon {
@@ -322,7 +322,7 @@ page {
   right: 8rpx;
   width: 24rpx;
   height: 24rpx;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #c4a144, #764ba2);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -340,7 +340,7 @@ page {
 
 .persona-preview {
   padding: 16rpx 18rpx;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(196, 161, 68, 0.1);
   border-top: 1rpx solid rgba(255, 255, 255, 0.1);
 }
 
@@ -384,8 +384,8 @@ page {
 
 .theme-card.active {
   border-color: var(--primary-light);
-  background: rgba(102, 126, 234, 0.1);
-  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.2);
+  background: rgba(196, 161, 68, 0.1);
+  box-shadow: 0 4rpx 16rpx rgba(196, 161, 68, 0.2);
 }
 
 .theme-preview {
@@ -398,7 +398,7 @@ page {
 
 .theme-card.active .theme-preview {
   border-color: var(--primary-light);
-  box-shadow: 0 0 20rpx rgba(102, 126, 234, 0.4);
+  box-shadow: 0 0 20rpx rgba(196, 161, 68, 0.4);
 }
 
 .deep-blue-preview {
@@ -446,7 +446,7 @@ page {
   text-align: center;
   margin-top: 12rpx;
   padding: 12rpx;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(196, 161, 68, 0.1);
   border-radius: 8rpx;
   transition: all 0.3s ease;
 }
@@ -497,7 +497,7 @@ page {
   padding: 0 24rpx;
   height: 64rpx;
   line-height: 64rpx;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #c4a144, #764ba2);
   color: #fff;
   border-radius: 8rpx;
   font-size: 22rpx;
@@ -505,7 +505,7 @@ page {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4rpx 12rpx rgba(196, 161, 68, 0.3);
   min-width: 100rpx;
   flex-shrink: 0;
 }
@@ -531,7 +531,7 @@ page {
 .add-focus-btn:active {
   transform: scale(0.95);
   opacity: 0.8;
-  box-shadow: 0 2rpx 6rpx rgba(102, 126, 234, 0.2);
+  box-shadow: 0 2rpx 6rpx rgba(196, 161, 68, 0.2);
 }
 
 .add-focus-btn::after { display: none; }
@@ -595,8 +595,8 @@ page {
 }
 
 .preset-tag.added {
-  background: rgba(102, 126, 234, 0.2);
-  border-color: rgba(102, 126, 234, 0.4);
+  background: rgba(196, 161, 68, 0.2);
+  border-color: rgba(196, 161, 68, 0.4);
   color: var(--primary-light);
 }
 
@@ -656,7 +656,7 @@ page {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(196, 161, 68, 0.1), transparent);
   transition: left 0.6s ease;
 }
 
@@ -665,7 +665,7 @@ page {
 }
 
 .setting-item:active {
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(196, 161, 68, 0.1);
   transform: scale(0.98);
 }
 
@@ -785,7 +785,7 @@ page {
   max-width: 600rpx;
   background: linear-gradient(180deg, #1a1a2e, #16213e);
   border-radius: 16rpx;
-  border: 1rpx solid rgba(102, 126, 234, 0.3);
+  border: 1rpx solid rgba(196, 161, 68, 0.3);
   overflow: hidden;
   animation: slideUp 0.3s ease;
 }
@@ -858,9 +858,9 @@ page {
 }
 
 .category-chip.selected {
-  background: rgba(102, 126, 234, 0.2);
+  background: rgba(196, 161, 68, 0.2);
   color: var(--primary-light);
-  border-color: rgba(102, 126, 234, 0.5);
+  border-color: rgba(196, 161, 68, 0.5);
 }
 
 .keyword-input-wrap {
@@ -883,7 +883,7 @@ page {
 .add-keyword-btn {
   width: 56rpx;
   height: 56rpx;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #c4a144, #764ba2);
   color: #fff;
   border-radius: 8rpx;
   display: flex;
@@ -949,8 +949,8 @@ page {
 
 .interest-tag-mini {
   padding: 4rpx 10rpx;
-  background: rgba(102, 126, 234, 0.15);
-  border: 1rpx solid rgba(102, 126, 234, 0.3);
+  background: rgba(196, 161, 68, 0.15);
+  border: 1rpx solid rgba(196, 161, 68, 0.3);
   border-radius: 12rpx;
   font-size: 18rpx;
   color: var(--primary-light);
@@ -988,8 +988,8 @@ page {
 
 /* AI API配置样式 */
 .api-config-section {
-  border: 2rpx solid rgba(102, 126, 234, 0.3);
-  box-shadow: 0 0 30rpx rgba(102, 126, 234, 0.15);
+  border: 2rpx solid rgba(196, 161, 68, 0.3);
+  box-shadow: 0 0 30rpx rgba(196, 161, 68, 0.15);
 }
 
 .api-config-content {
@@ -1050,7 +1050,7 @@ page {
 .config-input:focus {
   border-color: var(--primary-light);
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 12rpx rgba(102, 126, 234, 0.25);
+  box-shadow: 0 0 12rpx rgba(196, 161, 68, 0.25);
 }
 
 .config-input::placeholder {
@@ -1143,8 +1143,8 @@ page {
 
 .model-option.active {
   border-color: var(--primary-light);
-  background: rgba(102, 126, 234, 0.2);
-  box-shadow: 0 4rpx 20rpx rgba(102, 126, 234, 0.3);
+  background: rgba(196, 161, 68, 0.2);
+  box-shadow: 0 4rpx 20rpx rgba(196, 161, 68, 0.3);
 }
 
 .model-option:active {
@@ -1212,11 +1212,11 @@ page {
 
 .save-btn {
   border-color: var(--primary-light);
-  background: rgba(102, 126, 234, 0.2);
+  background: rgba(196, 161, 68, 0.2);
 }
 
 .save-btn:active {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(196, 161, 68, 0.3);
 }
 
 .secondary-btn {
@@ -1288,7 +1288,7 @@ page {
   align-items: flex-start;
   gap: 12rpx;
   padding: 16rpx 20rpx;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(196, 161, 68, 0.1);
   border-left: 4rpx solid var(--primary-light);
   border-radius: 8rpx;
   margin-top: 8rpx;
@@ -1387,8 +1387,8 @@ page {
 .interest-action-btn {
   flex: 1;
   padding: 14rpx;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1rpx solid rgba(102, 126, 234, 0.3);
+  background: rgba(196, 161, 68, 0.2);
+  border: 1rpx solid rgba(196, 161, 68, 0.3);
   border-radius: 10rpx;
   font-size: 22rpx;
   color: var(--primary-light);
@@ -1441,8 +1441,8 @@ page {
 }
 
 .interest-tag-item.selected {
-  background: rgba(102, 126, 234, 0.25);
-  border-color: rgba(102, 126, 234, 0.5);
+  background: rgba(196, 161, 68, 0.25);
+  border-color: rgba(196, 161, 68, 0.5);
 }
 
 .tag-icon {
@@ -1464,7 +1464,7 @@ page {
   text-align: center;
   padding: 14rpx;
   margin-top: 14rpx;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(196, 161, 68, 0.1);
   border-radius: 10rpx;
   font-size: 22rpx;
   color: var(--primary-light);
@@ -1542,8 +1542,8 @@ page {
 
 .template-item:active {
   transform: scale(0.98);
-  background: rgba(102, 126, 234, 0.1);
-  border-color: rgba(102, 126, 234, 0.3);
+  background: rgba(196, 161, 68, 0.1);
+  border-color: rgba(196, 161, 68, 0.3);
 }
 
 .instruction-actions {

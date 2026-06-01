@@ -47,8 +47,8 @@ page {
 }
 
 .toggle-tab.active {
-  background: rgba(102, 126, 234, 0.2);
-  border: 1rpx solid rgba(102, 126, 234, 0.4);
+  background: rgba(196, 161, 68, 0.2);
+  border: 1rpx solid rgba(196, 161, 68, 0.4);
 }
 
 .tab-icon {
@@ -63,7 +63,7 @@ page {
 }
 
 .toggle-tab.active .tab-text {
-  color: #667eea;
+  color: #c4a144;
 }
 
 /* 信源纯净度滑块 */
@@ -88,7 +88,7 @@ page {
 
 .slider-value {
   font-size: 22rpx;
-  color: #667eea;
+  color: #c4a144;
   font-weight: 500;
 }
 
@@ -113,7 +113,7 @@ page {
   top: 0;
   left: 0;
   height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, #c4a144, #764ba2);
   border-radius: 2rpx;
   transition: width 0.3s;
 }
@@ -131,9 +131,9 @@ page {
   width: 20rpx;
   height: 20rpx;
   border-radius: 50%;
-  background: #667eea;
+  background: #c4a144;
   border: 4rpx solid rgba(15, 23, 42, 0.8);
-  box-shadow: 0 0 12rpx rgba(102, 126, 234, 0.6);
+  box-shadow: 0 0 12rpx rgba(196, 161, 68, 0.6);
   transition: all 0.3s;
 }
 
@@ -171,8 +171,8 @@ page {
 
 .status-step.active {
   opacity: 1;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1rpx solid rgba(102, 126, 234, 0.4);
+  background: rgba(196, 161, 68, 0.2);
+  border: 1rpx solid rgba(196, 161, 68, 0.4);
 }
 
 .step-icon {
@@ -186,7 +186,7 @@ page {
 }
 
 .status-step.active .step-text {
-  color: #667eea;
+  color: #c4a144;
 }
 
 .search-input-wrap {
@@ -228,17 +228,17 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1rpx solid rgba(102, 126, 234, 0.4);
+  background: rgba(196, 161, 68, 0.2);
+  border: 1rpx solid rgba(196, 161, 68, 0.4);
   border-radius: 50%;
   font-size: 24rpx;
-  color: #667eea;
+  color: #c4a144;
   margin-left: 8rpx;
   transition: all 0.3s;
 }
 
 .voice-icon:active {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(196, 161, 68, 0.3);
   transform: scale(0.95);
 }
 
@@ -260,7 +260,7 @@ page {
 
 .cancel-btn {
   font-size: 28rpx;
-  color: #667eea;
+  color: #c4a144;
 }
 
 /* 搜索历史 */
@@ -402,7 +402,7 @@ page {
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
-  border: 1rpx solid rgba(102, 126, 234, 0.3);
+  border: 1rpx solid rgba(196, 161, 68, 0.3);
   border-radius: 20rpx;
 }
 
@@ -427,7 +427,7 @@ page {
   top: 0;
   bottom: 0;
   width: 2rpx;
-  background: linear-gradient(180deg, #667eea, #764ba2);
+  background: linear-gradient(180deg, #c4a144, #764ba2);
 }
 
 .timeline-items {
@@ -448,16 +448,16 @@ page {
   width: 20rpx;
   height: 20rpx;
   border-radius: 50%;
-  background: #667eea;
+  background: #c4a144;
   border: 4rpx solid rgba(15, 23, 42, 0.8);
-  box-shadow: 0 0 12rpx rgba(102, 126, 234, 0.6);
+  box-shadow: 0 0 12rpx rgba(196, 161, 68, 0.6);
 }
 
 .timeline-content {
   background: rgba(255, 255, 255, 0.05);
   padding: 16rpx;
   border-radius: 12rpx;
-  border-left: 4rpx solid #667eea;
+  border-left: 4rpx solid #c4a144;
 }
 
 .timeline-date {
@@ -486,7 +486,7 @@ page {
   width: 60rpx;
   height: 60rpx;
   border: 4rpx solid rgba(255, 255, 255, 0.2);
-  border-top-color: #667eea;
+  border-top-color: #c4a144;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -527,7 +527,7 @@ page {
   left: 0;
   right: 0;
   height: 2rpx;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, #c4a144, #764ba2);
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
@@ -632,8 +632,8 @@ page {
 
 .tag-chip {
   padding: 6rpx 12rpx;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1rpx solid rgba(102, 126, 234, 0.3);
+  background: rgba(196, 161, 68, 0.2);
+  border: 1rpx solid rgba(196, 161, 68, 0.3);
   border-radius: 12rpx;
   font-size: 20rpx;
   color: #a8b4ff;
@@ -672,9 +672,9 @@ page {
 }
 
 .analysis-badge:nth-child(1) {
-  background: rgba(168, 85, 247, 0.2);
+  background: rgba(196, 161, 68, 0.2);
   color: #d8b4fe;
-  border: 1rpx solid rgba(168, 85, 247, 0.3);
+  border: 1rpx solid rgba(196, 161, 68, 0.3);
 }
 
 .analysis-badge:nth-child(2) {
@@ -705,14 +705,14 @@ page {
   align-items: center;
   gap: 8rpx;
   padding: 10rpx 20rpx;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1rpx solid rgba(102, 126, 234, 0.4);
+  background: rgba(196, 161, 68, 0.2);
+  border: 1rpx solid rgba(196, 161, 68, 0.4);
   border-radius: 20rpx;
   transition: all 0.3s;
 }
 
 .action-button:active {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(196, 161, 68, 0.3);
   transform: scale(0.95);
 }
 
