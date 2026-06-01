@@ -443,35 +443,40 @@ Page({
   async generateAIAnalysis() {
     const news = this.data.newsData.slice(0, 10)
     const needAI = news.filter(n => !n.ai_analysis || !n.ai_analysis.interpretation)
-    if (!needAI.length) return
+    if (!needAI.length) { console.log('no news needs AI'); return }
 
-    try {
-      const { ai } = require('../../utils/api')
-      const titles = needAI.map((n, i) => `${i+1}. [${n.id}] ${n.title}`).join('\n')
-      const res = await ai.ask(
-        `分析以下新闻，每条生成：interpretation(30字深度解读)和prediction(20字趋势预测)。返回JSON数组。\n\n${titles}\n\n格式：[{"id":"新闻ID","interpretation":"...","prediction":"..."}]`,
-        '你是专业新闻分析师。只输出JSON。',
-        { max_tokens: 2500, temperature: 0.5 }
-      )
-      let text = res.data?.content || ''
-      if (text.startsWith('```')) text = text.split('```')[1].replace('json', '')
-      const results = JSON.parse(text)
-      if (!Array.isArray(results)) return
-
-      const enriched = this.data.newsData.map(n => {
-        const r = results.find(x => String(x.id) === String(n.id) || String(x.index) === String(news.indexOf(n) + 1))
-        if (r && (!n.ai_analysis || !n.ai_analysis.interpretation)) {
-          n.ai_analysis = { ...(n.ai_analysis || {}), interpretation: r.interpretation, prediction: r.prediction }
-        }
-        return n
-      })
-      wx.setStorageSync('newsData', enriched)
-      this.setData({ newsData: enriched })
-      this.updateDisplayedNews()
-      console.log('AI解读已生成:', results.length, '条')
-    } catch (e) {
-      console.log('AI解读生成跳过:', e.message)
-    }
+    const titles = needAI.map((n, i) => `${i+1}. ${n.title}`).join('\n')
+    const self = this
+    wx.request({
+      url: 'https://news.velolabs.top/api/v1/ai/ask',
+      method: 'POST',
+      timeout: 30000,
+      header: { 'Content-Type': 'application/json' },
+      data: {
+        prompt: `分析以下新闻标题，每条生成30字解读和20字预测。返回纯JSON数组：[{"index":1,"interpretation":"解读","prediction":"预测"}]。\n\n${titles}`,
+        system: '你是专业新闻分析师。只输出JSON数组。',
+        max_tokens: 2500, temperature: 0.5
+      },
+      success(res) {
+        try {
+          let text = (res.data && res.data.data && res.data.data.content) || ''
+          if (text.startsWith('```')) text = text.split('```')[1].replace('json','')
+          const results = JSON.parse(text)
+          if (!Array.isArray(results)) return
+          const allNews = self.data.newsData.map(n => {
+            const idx = needAI.findIndex(x => String(x.id) === String(n.id))
+            const r = idx >= 0 ? results[idx] : null
+            if (r) n.ai_analysis = { interpretation: r.interpretation, prediction: r.prediction }
+            return n
+          })
+          wx.setStorageSync('newsData', allNews)
+          self.setData({ newsData: allNews })
+          self.updateDisplayedNews()
+          console.log('AI解读完成:', results.length, '条')
+        } catch(e) { console.log('AI parse error:', e.message) }
+      },
+      fail(err) { console.log('AI req failed:', err.errMsg) }
+    })
   },
 
   // 追踪功能
