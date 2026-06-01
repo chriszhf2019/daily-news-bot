@@ -1764,6 +1764,7 @@ ${titles}
       this.applyFocusKeywords();
       this.updateDisplayedNews();
       this.loadFavorites();
+      this.generateAIAnalysis();
     } else {
       this.setData({
         newsData: [],
