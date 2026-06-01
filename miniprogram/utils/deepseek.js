@@ -5,7 +5,7 @@ const API_BASE_URL = 'https://api.deepseek.com/v1';
 
 // 从本地存储获取API密钥
 function getApiKey() {
-  return wx.getStorageSync('deepseek_api_key') || '';
+  return wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35' || '';
 }
 
 // 从本地存储获取API端点

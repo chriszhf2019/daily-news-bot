@@ -249,7 +249,7 @@ Page({
       }
       
       // 加载API密钥（DeepSeek）
-      const apiKey = wx.getStorageSync('deepseek_api_key') || '';
+      const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35' || '';
       updates.apiKey = apiKey;
       updates.apiKeyStatus = apiKey ? 'valid' : 'none';
       updates.apiKeyStatusText = apiKey ? '已配置' : '未配置';

@@ -96,7 +96,7 @@ Page({
   },
 
   async generateAuditWithAI(news) {
-    const apiKey = wx.getStorageSync('deepseek_api_key');
+    const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35';
     
     if (!apiKey) {
       this.setData({

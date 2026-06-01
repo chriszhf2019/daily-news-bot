@@ -125,7 +125,7 @@ Page({
     
     // 设置新的定时器（每小时刷新一次，但只有配置了API密钥才刷新）
     const timer = setInterval(() => {
-      const apiKey = wx.getStorageSync('deepseek_api_key');
+      const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35';
       if (apiKey) {
         this.refreshWithAI();
       } else {
@@ -842,7 +842,7 @@ Page({
     wx.vibrateShort({ type: 'light' });
     
     try {
-      const apiKey = wx.getStorageSync('deepseek_api_key');
+      const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35';
       if (!apiKey) {
         wx.showToast({ title: '请先配置 DeepSeek API', icon: 'none' });
         this.setData({ isParsingUrl: false });
@@ -935,7 +935,7 @@ Page({
   
   // 获取并解析链接内容
   async fetchAndParseUrl(url, platformInfo = {}) {
-    const apiKey = wx.getStorageSync('deepseek_api_key');
+    const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35';
     const apiEndpoint = wx.getStorageSync('deepseek_api_endpoint') || 'https://api.deepseek.com/v1';
     
     const platformName = platformInfo.platform || '网页';
@@ -1557,7 +1557,7 @@ Page({
         })
       })
 
-      const apiKey = wx.getStorageSync('deepseek_api_key')
+      const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35'
       const deepseekResp = await new Promise((resolve, reject) => {
         wx.request({
           url: 'https://api.deepseek.com/chat/completions',
@@ -1611,7 +1611,7 @@ ${titles}
     wx.showLoading({ title: 'AI提炼要点...' })
     this.setData({ loading: true })
 
-    const apiKey = wx.getStorageSync('deepseek_api_key')
+    const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35'
     if (!apiKey) {
       wx.hideLoading()
       // 降级：简单分组
@@ -1778,7 +1778,7 @@ ${titles}
   
   // 刷新新闻数据（使用AI）
   async refreshWithAI() {
-    const apiKey = wx.getStorageSync('deepseek_api_key');
+    const apiKey = wx.getStorageSync('deepseek_api_key') || 'sk-70dae237a40e444385e0856079829d35';
     
     if (!apiKey) {
       wx.showModal({
