@@ -164,10 +164,9 @@
             <text class="cat-icon">🎯</text>
             <text class="cat-name">筛选</text>
           </view>
-          <!-- 搜索入口 -->
+          <!-- 搜索入口（点击跳转搜索页） -->
           <view class="category-item search-btn" bindtap="openSearch">
             <text class="cat-icon">🔍</text>
-            <text class="cat-name">搜索</text>
           </view>
         </view>
       </scroll-view>
@@ -816,59 +815,20 @@
         <view class="input-modal-close" bindtap="closeInputModal">✕</view>
       </view>
       <view class="input-modal-body">
-        <!-- 链接输入区 -->
-        <view class="input-section">
-          <text class="input-modal-label">🔗 粘贴链接</text>
-          <view class="url-input-wrap">
-            <input class="url-input" 
-                   placeholder="微信公众号/抖音/B站/网页链接" 
-                   value="{{inputUrl}}" 
-                   bindinput="onInputUrlChange"
-                   confirm-type="done"/>
-            <button class="parse-btn {{inputUrl ? 'active' : ''}}" 
-                    bindtap="parseUrlContent" 
-                    disabled="{{!inputUrl || isParsingUrl}}">
-              {{isParsingUrl ? '解析中...' : '解析'}}
-            </button>
-          </view>
-          <view class="supported-platforms">
-            <text class="platform-tag">📱 微信公众号</text>
-            <text class="platform-tag">🎵 抖音</text>
-            <text class="platform-tag">📺 B站</text>
-            <text class="platform-tag">🌐 网页</text>
-          </view>
-        </view>
-        
-        <!-- 分隔线 -->
-        <view class="input-divider">
-          <view class="divider-line"></view>
-          <text class="divider-text">或</text>
-          <view class="divider-line"></view>
-        </view>
-        
-        <!-- 文本输入区 -->
-        <view class="input-section">
-          <text class="input-modal-label">📋 直接粘贴内容</text>
-          <text class="input-sub-label">视频可粘贴字幕/口播文稿</text>
-          <textarea class="input-textarea" 
-                    placeholder="粘贴新闻内容、视频字幕、口播文稿..." 
-                    value="{{inputContent}}" 
-                    bindinput="onInputContentChange"
-                    maxlength="10000"></textarea>
-          <text class="char-count">{{inputContent.length || 0}}/10000</text>
-        </view>
+        <textarea class="input-textarea"
+                  placeholder="粘贴新闻标题或内容，AI将自动分析..."
+                  value="{{inputContent}}"
+                  bindinput="onInputContentChange"
+                  maxlength="5000"
+                  auto-height/>
       </view>
       <view class="input-modal-footer">
         <button class="input-modal-btn cancel" bindtap="closeInputModal">取消</button>
-        <button class="input-modal-btn confirm" bindtap="startIntelligenceModeling" disabled="{{!inputContent && !inputUrl}}">开始情报建模</button>
+        <button class="input-modal-btn confirm" bindtap="startIntelligenceModeling" disabled="{{!inputContent}}">AI 分析</button>
       </view>
     </view>
   </view>
 
-  <!-- 悬浮按钮 -->
-  <view class="fab-btn" bindtap="openSearch">
-    <text class="fab-icon">�</text>
-  </view>
 
   <view class="safe-bottom"></view>
 </view>

@@ -447,26 +447,28 @@ Page({
 
     try {
       const { ai } = require('../../utils/api')
-      const titles = needAI.map((n, i) => `${i+1}. ${n.title}`).join('\n')
+      const titles = needAI.map((n, i) => `${i+1}. [${n.id}] ${n.title}`).join('\n')
       const res = await ai.ask(
-        `分析以下新闻，每条生成：interpretation(30字深度解读)和prediction(20字趋势预测)。返回JSON数组。\n\n${titles}\n\n格式：[{"index":1,"interpretation":"...","prediction":"..."}]`,
+        `分析以下新闻，每条生成：interpretation(30字深度解读)和prediction(20字趋势预测)。返回JSON数组。\n\n${titles}\n\n格式：[{"id":"新闻ID","interpretation":"...","prediction":"..."}]`,
         '你是专业新闻分析师。只输出JSON。',
         { max_tokens: 2500, temperature: 0.5 }
       )
       let text = res.data?.content || ''
       if (text.startsWith('```')) text = text.split('```')[1].replace('json', '')
       const results = JSON.parse(text)
+      if (!Array.isArray(results)) return
 
       const enriched = this.data.newsData.map(n => {
-        const r = results?.find(x => x.index === (needAI.findIndex(x => x.id === n.id) + 1) || x.index === (news.indexOf(n) + 1))
-        if (r && !n.ai_analysis?.interpretation) {
-          n.ai_analysis = { ...n.ai_analysis, interpretation: r.interpretation, prediction: r.prediction }
+        const r = results.find(x => String(x.id) === String(n.id) || String(x.index) === String(news.indexOf(n) + 1))
+        if (r && (!n.ai_analysis || !n.ai_analysis.interpretation)) {
+          n.ai_analysis = { ...(n.ai_analysis || {}), interpretation: r.interpretation, prediction: r.prediction }
         }
         return n
       })
       wx.setStorageSync('newsData', enriched)
       this.setData({ newsData: enriched })
       this.updateDisplayedNews()
+      console.log('AI解读已生成:', results.length, '条')
     } catch (e) {
       console.log('AI解读生成跳过:', e.message)
     }
@@ -1017,63 +1019,44 @@ Page({
   },
 
   // 开始情报建模
-  startIntelligenceModeling() {
-    const { inputContent, inputUrl } = this.data;
-    
-    if (!inputContent.trim() && !inputUrl.trim()) {
-      wx.showToast({
-        title: '请输入内容或链接',
-        icon: 'none',
-        duration: 2000
-      });
-      return;
+  async startIntelligenceModeling() {
+    const content = (this.data.inputContent || '').trim()
+    if (!content) { wx.showToast({ title: '请输入内容', icon: 'none' }); return }
+
+    wx.showLoading({ title: 'AI 分析中...', mask: true })
+    try {
+      const { ai } = require('../../utils/api')
+      const res = await ai.ask(
+        `分析以下内容并返回JSON：{"title":"15字内标题","summary":"50字摘要","interpretation":"30字深度解读","prediction":"20字趋势预测","category":"科技前沿/AI动态/综合"}\n\n${content.substring(0, 2000)}`,
+        '你是专业新闻分析师。只输出JSON。',
+        { max_tokens: 500 }
+      )
+      let text = res.data?.content || ''
+      if (text.startsWith('```')) text = text.split('```')[1].replace('json','')
+      const r = JSON.parse(text)
+      wx.hideLoading()
+
+      // 创建临时新闻卡片展示结果
+      const tempNews = {
+        id: `custom-${Date.now()}`,
+        title: r.title || content.substring(0, 30),
+        summary: r.summary || content.substring(0, 100),
+        category: r.category || '综合',
+        source: '用户录入',
+        published_at: new Date().toISOString(),
+        tags: ['录入'],
+        ai_analysis: { interpretation: r.interpretation || '', prediction: r.prediction || '' },
+      }
+
+      // 追加到列表顶部
+      const allNews = [tempNews, ...this.data.newsData]
+      this.setData({ newsData: allNews, showInputModal: false, inputContent: '' })
+      this.updateDisplayedNews()
+      wx.showToast({ title: '分析完成', icon: 'success' })
+    } catch (e) {
+      wx.hideLoading()
+      wx.showToast({ title: '分析失败: ' + (e.message || '重试'), icon: 'none' })
     }
-    
-    // 如果只有链接没有内容，提示先解析
-    if (!inputContent.trim() && inputUrl.trim()) {
-      wx.showToast({
-        title: '请先点击解析按钮',
-        icon: 'none',
-        duration: 2000
-      });
-      return;
-    }
-    
-    wx.vibrateShort({ type: 'medium' });
-    
-    // 显示加载动画
-    wx.showLoading({
-      title: '正在分析情报...',
-      mask: true
-    });
-    
-    // 创建临时新闻对象
-    const tempNews = {
-      id: `custom-${Date.now()}`,
-      title: inputContent.split('\n')[0].replace(/^【|】$/g, '').substring(0, 50) || '自定义情报',
-      summary: inputContent.substring(0, 200),
-      content: inputContent,
-      category: 'AI',
-      source: inputUrl ? '链接解析' : '手动录入',
-      published_at: new Date().toISOString(),
-      tags: ['自定义', '情报分析'],
-      isCustom: true
-    };
-    
-    // 保存到临时存储
-    wx.setStorageSync('tempAnalysisNews', tempNews);
-    
-    setTimeout(() => {
-      wx.hideLoading();
-      
-      // 关闭弹窗
-      this.setData({ showInputModal: false, inputContent: '', inputUrl: '' });
-      
-      // 跳转到七要素分析页面
-      wx.navigateTo({
-        url: `/pages/seven-elements/seven-elements?id=${tempNews.id}&custom=true`
-      });
-    }, 500);
   },
 
   // 处理智能标签数据
