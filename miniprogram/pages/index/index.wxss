@@ -1,19 +1,19 @@
 /* 新闻简报首页样式 - 顶级版 */
 
 page {
-  --primary-blue: #1e3a8a;
-  --primary-light: #667eea;
-  --accent-green: #2ed573;
-  --accent-orange: #ffa502;
-  --accent-red: #ff4757;
-  --bg-dark: #0f0c29;
-  --bg-dark-secondary: #302b63;
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.8);
-  --text-tertiary: rgba(255, 255, 255, 0.6);
-  --radius-lg: 24rpx;
-  --radius-md: 16rpx;
-  background: linear-gradient(180deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  --primary-blue: #1a2740;
+  --primary-light: #c4a144;
+  --accent-green: #6b8f71;
+  --accent-orange: #c4a144;
+  --accent-red: #e05555;
+  --bg-dark: #060610;
+  --bg-dark-secondary: #0f1a2e;
+  --text-primary: #f0ede8;
+  --text-secondary: rgba(240,237,232, 0.75);
+  --text-tertiary: rgba(240,237,232, 0.5);
+  --radius-lg: 20rpx;
+  --radius-md: 14rpx;
+  background: linear-gradient(170deg, #060610 0%, #0a1220 40%, #0d1525 100%);
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
@@ -1213,7 +1213,7 @@ page:has(.news-container.eye-green) {
 }
 
 .header-date { display: block; font-size: 34rpx; font-weight: 600; color: #fff; margin-bottom: 8rpx; }
-.header-title { display: block; font-size: 52rpx; font-weight: 800; color: #fff; letter-spacing: 4rpx; text-shadow: 0 4rpx 20rpx rgba(120, 100, 255, 0.5); margin-bottom: 12rpx; }
+.header-title { display: block; font-size: 48rpx; font-weight: 700; color: #f0ede8; letter-spacing: -1rpx; margin-bottom: 8rpx; }
 .header-subtitle { display: block; font-size: 24rpx; color: rgba(255,255,255,0.7); margin-top: 8rpx; }
 
 /* 统计仪表盘 - 高级毛玻璃效果 */
@@ -1253,16 +1253,18 @@ page:has(.news-container.eye-green) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20rpx 16rpx;
-  background: rgba(255, 255, 255, 0.05);
+  padding: 24rpx 16rpx;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1rpx solid rgba(255,255,255,0.04);
   border-radius: var(--radius-md);
   position: relative;
-  transition: all 0.3s ease;
-  min-height: 180rpx;
+  transition: all 0.25s ease;
+  min-height: 160rpx;
 }
 
 .stat-card-hover {
-  background: rgba(102, 126, 234, 0.2);
+  background: rgba(196, 161, 68, 0.1);
+  border-color: rgba(196, 161, 68, 0.2);
   transform: scale(1.02);
 }
 
@@ -1577,7 +1579,9 @@ page:has(.news-container.eye-green) {
   align-items: center;
   gap: 8rpx;
   padding: 14rpx 24rpx;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  border: 1rpx solid rgba(255,255,255,0.05);
+  border-radius: var(--radius-md);
   backdrop-filter: blur(10rpx);
   -webkit-backdrop-filter: blur(10rpx);
   border-radius: 32rpx;
