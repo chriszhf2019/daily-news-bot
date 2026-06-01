@@ -25,9 +25,9 @@
   --line-height-relaxed: 1.7;
   
   /* 颜色系统 */
-  --color-primary: #8B5CF6;
-  --color-primary-light: #A78BFA;
-  --color-primary-dark: #6D28D9;
+  --color-primary: #c4a144;
+  --color-primary-light: #d4b35a;
+  --color-primary-dark: #a08030;
   
   --color-secondary: #3B82F6;
   --color-secondary-light: #60A5FA;
@@ -116,7 +116,7 @@ page {
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
   color: var(--color-gray-100);
-  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  background: linear-gradient(160deg, #080816 0%, #0f1a2e 50%, #0d1525 100%);
   min-height: 100vh;
 }
 
