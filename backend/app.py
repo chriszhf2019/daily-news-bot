@@ -381,6 +381,31 @@ def update_profile():
         return jsonify({"success": True, "message": "更新成功"})
 
 
+# ---- Admin: Refresh News ----
+
+@app.route("/api/v1/admin/refresh-news", methods=["POST"])
+def refresh_news():
+    """Admin endpoint: trigger RSS pipeline to fetch fresh news"""
+    import subprocess, sys, os
+    try:
+        pipeline_path = os.path.join(os.path.dirname(__file__), "pipeline.py")
+        result = subprocess.run(
+            [sys.executable, pipeline_path],
+            capture_output=True, text=True, timeout=120,
+            env={**os.environ, "PYTHONPATH": os.path.dirname(__file__)}
+        )
+        return jsonify({
+            "success": result.returncode == 0,
+            "message": "Pipeline completed" if result.returncode == 0 else "Pipeline failed",
+            "stdout": result.stdout[-500:],
+            "stderr": result.stderr[-500:],
+        })
+    except subprocess.TimeoutExpired:
+        return jsonify({"success": False, "message": "Pipeline timed out (120s)"}), 504
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
 # ---- News ----
 
 @app.route("/api/v1/news", methods=["GET"])
